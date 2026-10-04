@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- плоская пластинка: диск акцентного цвета, две дорожки, тёмная этикетка -->
+  <circle cx="64" cy="64" r="60" fill="#e8823c"/>
+  <g fill="none" stroke="#15131a" stroke-opacity=".3" stroke-width="3">
+    <circle cx="64" cy="64" r="47"/>
+    <circle cx="64" cy="64" r="36"/>
+  </g>
+  <circle cx="64" cy="64" r="22" fill="#15131a"/>
+  <circle cx="64" cy="64" r="5" fill="#ebe8f0"/>
+</svg>

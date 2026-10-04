@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#15131a">
+<meta name="robots" content="noindex">
+<title>Screwed Music</title>
+<meta name="description" content="Record-style slowdown with pitch drop for music on any site.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Screwed Music — a slowed track for you">
+<meta property="og:description" content="Open it in Chrome with Screwed Music to hear it slowed down, like a record.">
+<meta property="og:url" content="https://morizmatik.github.io/screwed/">
+<meta property="og:image" content="https://morizmatik.github.io/screwed/og.png">
+<meta property="og:image:width" content="1400">
+<meta property="og:image:height" content="560">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<style>
+/* Страница-прослойка для ссылок «Поделиться». Тот же язык, что у панели:
+   нейтральная тёмная основа, один акцент, без градиентов и теней. */
+:root {
+  --bg: #15131a;
+  --fg: #ebe8f0;
+  --muted: #8f899c;
+  --line: #2c2834;
+  --panel: #1e1b25;
+  --accent: #e8823c;
+  --on-accent: #15131a;
+  --font: "Helvetica Neue", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html { background: var(--bg); }
+body {
+  margin: 0;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  color: var(--fg);
+  font: 16px/1.45 var(--font);
+  -webkit-font-smoothing: antialiased;
+}
+
+header, main, footer { width: 100%; max-width: 480px; margin: 0 auto; padding: 0 20px; }
+header { padding-top: 20px; }
+main { flex: 1; display: flex; flex-direction: column; justify-content: center; padding-top: 28px; padding-bottom: 28px; }
+footer { padding-bottom: 24px; }
+
+/* название — как в панели: тяжёлое, плотное, завалено назад */
+.wordmark {
+  display: inline-block;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -.035em;
+  transform: skewX(10deg);
+  transform-origin: left bottom;
+  color: var(--fg);
+  text-decoration: none;
+}
+
+/* пластинка: диск, две дорожки, этикетка с обложкой или риской */
+.platter { width: 184px; height: 184px; }
+.record {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  --disc: color-mix(in srgb, var(--bg) 86%, var(--fg));
+  --groove: color-mix(in srgb, var(--bg) 70%, var(--fg));
+  background:
+    radial-gradient(circle closest-side,
+      transparent 71%, var(--groove) 71.5% 72.5%, transparent 73%,
+      transparent 85%, var(--groove) 85.5% 86.5%, transparent 87%),
+    var(--disc);
+  animation: spin var(--turn, 2.6s) linear infinite;
+}
+.label {
+  position: absolute;
+  inset: 30%;
+  border-radius: 50%;
+  background: conic-gradient(var(--on-accent) 0 3%, var(--accent) 3% 100%);
+}
+.label.cover {
+  inset: 18%;
+  background: var(--cover) center / cover no-repeat, var(--line);
+}
+.label::after {
+  content: "";
+  position: absolute;
+  inset: 44%;
+  border-radius: 50%;
+  background: var(--bg);
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .record { animation: none; } }
+
+.eyebrow { margin: 28px 0 0; font-size: 14px; color: var(--muted); }
+h1 {
+  margin: 6px 0 0;
+  font-size: 30px;
+  line-height: 1.12;
+  font-weight: 700;
+  letter-spacing: -.025em;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+.host { margin: 8px 0 0; font-size: 14px; color: var(--muted); overflow-wrap: anywhere; }
+
+/* табло — как в панели: крупное число и подпись рядом */
+.readout { display: flex; align-items: flex-end; gap: 10px; margin-top: 24px; }
+.digits { font-size: 64px; line-height: .9; font-weight: 700; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+.readout-text { display: flex; flex-direction: column; padding-bottom: 3px; font-size: 14px; line-height: 1.3; }
+.readout-text span + span { color: var(--muted); }
+
+.lead { margin: 16px 0 0; color: var(--muted); text-wrap: pretty; }
+
+.actions { display: flex; flex-direction: column; gap: 10px; margin-top: 28px; }
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 12px 20px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: none;
+  color: var(--fg);
+  font: 600 16px/1.2 var(--font);
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color .15s;
+}
+.btn:hover { background: var(--panel); }
+.btn.primary { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
+.btn.primary:hover { background: color-mix(in srgb, var(--accent) 88%, var(--fg)); }
+.btn:focus-visible, a:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+.hint { margin: 12px 0 0; font-size: 14px; color: var(--muted); text-wrap: pretty; }
+
+.about { margin: 0; padding: 0; list-style: none; font-size: 14px; color: var(--muted); }
+.about li { padding: 12px 0; border-top: 1px solid var(--line); }
+.about b { color: var(--fg); font-weight: 600; }
+
+@media (max-width: 380px) {
+  .platter { width: 148px; height: 148px; }
+  h1 { font-size: 26px; }
+  .digits { font-size: 54px; }
+}
+</style>
+</head>
+<body>
+<header><a class="wordmark" id="brand" href="./">Screwed Music</a></header>
+
+<main>
+  <div class="platter"><div class="record" id="record"><div class="label" id="label"></div></div></div>
+
+  <p class="eyebrow" id="eyebrow"></p>
+  <h1 id="title"></h1>
+  <p class="host" id="host" hidden></p>
+
+  <div class="readout" id="readout" hidden>
+    <span class="digits" id="digits"></span>
+    <span class="readout-text"><span id="semitones"></span><span id="extras"></span></span>
+  </div>
+
+  <p class="lead" id="lead"></p>
+
+  <div class="actions">
+    <a class="btn primary" id="install" target="_blank" rel="noopener" hidden></a>
+    <button class="btn primary" id="copy" type="button" hidden></button>
+    <a class="btn" id="open" rel="noopener noreferrer" hidden></a>
+  </div>
+  <p class="hint" id="hint" hidden></p>
+</main>
+
+<footer>
+  <ul class="about">
+    <li id="about-1"></li>
+    <li id="about-2"></li>
+    <li id="about-3"></li>
+  </ul>
+</footer>
+
+<script>
+'use strict';
+
+// Адрес расширения в Chrome Web Store. Пока расширение не опубликовано —
+// поиск по названию; после публикации замените на адрес страницы расширения.
+const STORE_URL = 'https://chromewebstore.google.com/search/Screwed%20Music';
+
+// Сайты, на которые владельца расширения перебрасываем сразу. На остальные —
+// только по кнопке и с показом адреса: иначе страница стала бы открытым редиректом.
+const KNOWN_HOSTS = [
+  'youtube.com', 'youtu.be', 'music.yandex.ru', 'music.yandex.com', 'music.yandex.by', 'music.yandex.kz',
+  'vk.com', 'vk.ru', 'spotify.com', 'soundcloud.com', 'bandcamp.com', 'music.apple.com', 'rutube.ru',
+];
+
+const TEXT = {
+  en: {
+    sent: 'Someone sent you a slowed track',
+    untitled: 'A track, slowed down',
+    semitones: '{n} semitones',
+    chew: 'tape chew {n}%',
+    tone: 'dark tone {n}%',
+    leadShared: 'It plays like a record spun slower: the tempo drops and the pitch drops with it. You need the Screwed Music extension to hear it this way.',
+    leadHas: 'Screwed Music is installed — the track will open with these settings.',
+    leadHome: 'Slow down any track in the browser the way DJ Screw slowed records: lower, heavier, with more room in it. Works on YouTube, Spotify, Yandex Music, VK and any other site.',
+    homeEyebrow: 'Chrome extension',
+    homeTitle: 'Your music, slower and lower',
+    install: 'Add Screwed Music to Chrome',
+    open: 'Open the track',
+    openAsIs: 'Open the track as is',
+    hintAfter: 'Installed it? Press “Open the track” — it will start already slowed down.',
+    hintOther: 'The extension works in Chrome and Chrome-based browsers: Edge, Yandex Browser, Opera, Brave.',
+    leadMobile: 'It plays like a record spun slower: the tempo drops and the pitch drops with it. The Screwed Music extension works in Chrome on a computer — save the link and open it there.',
+    copy: 'Copy the link',
+    copied: 'Link copied',
+    about1: '<b>Slowdown with pitch drop.</b> From 30% to 120%, like changing the speed of a turntable.',
+    about2: '<b>Tape chew, DJ stop and scratch.</b> Grab the record and spin it by hand.',
+    about3: '<b>No data collected.</b> Everything happens in your browser.',
+  },
+  ru: {
+    sent: 'Вам прислали замедленный трек',
+    untitled: 'Трек в замедлении',
+    semitones: '{n} полутона',
+    chew: 'жевание плёнки {n}%',
+    tone: 'тёмный тон {n}%',
+    leadShared: 'Он звучит как пластинка на пониженных оборотах: вместе с темпом падает тон. Чтобы услышать его так, нужно расширение Screwed Music.',
+    leadHas: 'Screwed Music установлено — трек откроется с этими настройками.',
+    leadHome: 'Замедляйте любой трек в браузере так, как DJ Screw замедлял пластинки: ниже, тяжелее, с воздухом между нотами. Работает на YouTube, Spotify, Яндекс Музыке, ВКонтакте и любом другом сайте.',
+    homeEyebrow: 'Расширение для Chrome',
+    homeTitle: 'Любимая музыка — медленнее и ниже',
+    install: 'Установить Screwed Music',
+    open: 'Открыть трек',
+    openAsIs: 'Открыть трек как есть',
+    hintAfter: 'Уже установили? Нажмите «Открыть трек» — он запустится сразу замедленным.',
+    hintOther: 'Расширение работает в Chrome и браузерах на его основе: Edge, Яндекс Браузер, Opera, Brave.',
+    leadMobile: 'Он звучит как пластинка на пониженных оборотах: вместе с темпом падает тон. Расширение Screwed Music работает в Chrome на компьютере — сохраните ссылку и откройте её там.',
+    copy: 'Скопировать ссылку',
+    copied: 'Ссылка скопирована',
+    about1: '<b>Замедление с падением тона.</b> От 30% до 120%, как смена оборотов на проигрывателе.',
+    about2: '<b>Жевание плёнки, диджейский стоп и скретч.</b> Пластинку можно схватить и крутить рукой.',
+    about3: '<b>Никаких данных не собирает.</b> Всё происходит в вашем браузере.',
+  },
+};
+
+const lang = /^ru\b/i.test(navigator.language || '') ? 'ru' : 'en';
+const t = (key, vars = {}) => TEXT[lang][key].replace(/\{(\w+)\}/g, (m, k) => vars[k]);
+const $ = id => document.getElementById(id);
+document.documentElement.lang = lang;
+
+// ---------- что в ссылке ----------
+// #to=<адрес трека с кодом настроек>&track=<исполнитель — название>
+// Всё после # браузер на сервер не отправляет.
+function readLink() {
+  const params = new URLSearchParams(location.hash.slice(1));
+  let to;
+  try { to = new URL(params.get('to')); } catch (e) { return null; }
+  if (!/^https?:$/.test(to.protocol)) return null;
+  const code = (to.href.match(/[#?&]screwed=([^&#]*)/) || [])[1] || '';
+  const fx = {};
+  for (const part of decodeURIComponent(code).split('-')) {
+    const m = part.match(/^([sct])(\d{1,3})$/);
+    if (m) fx[m[1]] = Number(m[2]);
+  }
+  if (!('s' in fx)) return null;
+  return {
+    to,
+    track: (params.get('track') || '').trim().slice(0, 140),
+    speed: Math.min(120, Math.max(30, fx.s)),
+    chew: Math.min(100, fx.c || 0),
+    tone: Math.min(100, fx.t || 0),
+  };
+}
+
+const knownHost = host => KNOWN_HOSTS.some(h => host === h || host.endsWith('.' + h));
+
+function youtubeId(u) {
+  const host = u.hostname.replace(/^(www|m|music)\./, '');
+  const id = host === 'youtu.be' ? u.pathname.slice(1)
+    : host === 'youtube.com' ? u.searchParams.get('v') || (u.pathname.match(/^\/(?:shorts|embed|live)\/([^/]+)/) || [])[1]
+    : null;
+  return id && /^[\w-]{6,20}$/.test(id) ? id : null;
+}
+
+function show(el, text) {
+  el.textContent = text;
+  el.hidden = false;
+}
+
+const link = readLink();
+const ua = navigator.userAgent;
+const mobile = /Android|iPhone|iPad|iPod|Mobile/i.test(ua) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(ua));
+const chromium = /Chrome\//.test(ua);
+// расширение помечает эту страницу до запуска её кода (content.js)
+const hasExtension = 'screwed' in document.documentElement.dataset;
+
+$('brand').textContent = 'Screwed Music';
+for (const n of [1, 2, 3]) $('about-' + n).innerHTML = t('about' + n);
+$('install').href = STORE_URL;
+
+if (link && hasExtension && knownHost(link.to.hostname)) {
+  location.replace(link.to.href);
+} else if (link) {
+  renderShared(link);
+} else {
+  renderHome();
+}
+
+function renderShared({ to, track, speed, chew, tone }) {
+  document.title = `${track || t('untitled')} · ${speed}% — Screwed Music`;
+  $('eyebrow').textContent = t('sent');
+  $('title').textContent = track || t('untitled');
+  show($('host'), to.hostname.replace(/^www\./, ''));
+
+  // пластинка крутится с той же скоростью, что и трек: 33⅓ оборота в минуту на 100%
+  $('record').style.setProperty('--turn', `${(1.8 / (speed / 100)).toFixed(2)}s`);
+  const yt = youtubeId(to);
+  if (yt) {
+    const img = new Image();
+    img.referrerPolicy = 'no-referrer';
+    img.onload = () => {
+      $('label').style.setProperty('--cover', `url("${img.src}")`);
+      $('label').classList.add('cover');
+    };
+    img.src = `https://i.ytimg.com/vi/${yt}/hqdefault.jpg`;
+  }
+
+  const semis = 12 * Math.log2(speed / 100);
+  const n = (semis > 0 ? '+' : semis < 0 ? '−' : '') + Math.abs(semis).toLocaleString(lang, { maximumFractionDigits: 1 });
+  $('readout').hidden = false;
+  $('digits').textContent = `${speed}%`;
+  $('semitones').textContent = t('semitones', { n });
+  $('extras').textContent = [chew && t('chew', { n: chew }), tone && t('tone', { n: tone })].filter(Boolean).join(' · ');
+
+  $('open').href = to.href;
+  if (hasExtension) {
+    $('lead').textContent = t('leadHas');
+    show($('open'), t('open'));
+    $('open').classList.add('primary');
+  } else if (mobile) {
+    $('lead').textContent = t('leadMobile');
+    show($('copy'), t('copy'));
+    show($('open'), t('openAsIs'));
+    $('copy').addEventListener('click', copyLink);
+  } else {
+    $('lead').textContent = t('leadShared');
+    show($('install'), t('install'));
+    show($('open'), t('open'));
+    show($('hint'), chromium ? t('hintAfter') : t('hintOther'));
+  }
+}
+
+function renderHome() {
+  $('eyebrow').textContent = t('homeEyebrow');
+  $('title').textContent = t('homeTitle');
+  $('lead').textContent = t('leadHome');
+  if (hasExtension) return;
+  show($('install'), t('install'));
+  if (mobile || !chromium) show($('hint'), t('hintOther'));
+}
+
+async function copyLink() {
+  const btn = $('copy');
+  try {
+    await navigator.clipboard.writeText(location.href);
+  } catch (e) {
+    const area = document.createElement('textarea');
+    area.value = location.href;
+    area.style.cssText = 'position:fixed;opacity:0';
+    document.body.append(area);
+    area.select();
+    try { document.execCommand('copy'); } catch (err) {}
+    area.remove();
+  }
+  btn.textContent = t('copied');
+  setTimeout(() => { btn.textContent = t('copy'); }, 2500);
+}
+
+// ссылку поменяли в адресной строке, не перезагружая страницу
+addEventListener('hashchange', () => location.reload());
+</script>
+</body>
+</html>
