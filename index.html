@@ -206,6 +206,7 @@ const TEXT = {
     semitones: '{n} semitones',
     chew: 'tape chew {n}%',
     tone: 'dark tone {n}%',
+    chop: 'chops',
     leadShared: 'It plays like a record spun slower: the tempo drops and the pitch drops with it. You need the Screwed Music extension to hear it this way.',
     leadHas: 'Screwed Music is installed — the track will open with these settings.',
     leadHome: 'Slow down any track in the browser the way DJ Screw slowed records: lower, heavier, with more room in it. Works on YouTube, Spotify, Yandex Music, VK and any other site.',
@@ -229,6 +230,7 @@ const TEXT = {
     semitones: '{n} полутона',
     chew: 'жевание плёнки {n}%',
     tone: 'тёмный тон {n}%',
+    chop: 'чопы',
     leadShared: 'Он звучит как пластинка на пониженных оборотах: вместе с темпом падает тон. Чтобы услышать его так, нужно расширение Screwed Music.',
     leadHas: 'Screwed Music установлено — трек откроется с этими настройками.',
     leadHome: 'Замедляйте любой трек в браузере так, как DJ Screw замедлял пластинки: ниже, тяжелее, с воздухом между нотами. Работает на YouTube, Spotify, Яндекс Музыке, ВКонтакте и любом другом сайте.',
@@ -264,7 +266,7 @@ function readLink() {
   const code = (to.href.match(/[#?&]screwed=([^&#]*)/) || [])[1] || '';
   const fx = {};
   for (const part of decodeURIComponent(code).split('-')) {
-    const m = part.match(/^([sct])(\d{1,3})$/);
+    const m = part.match(/^([sctd])(\d{1,3})$/);
     if (m) fx[m[1]] = Number(m[2]);
   }
   if (!('s' in fx)) return null;
@@ -274,6 +276,7 @@ function readLink() {
     speed: Math.min(120, Math.max(30, fx.s)),
     chew: Math.min(100, fx.c || 0),
     tone: Math.min(100, fx.t || 0),
+    chop: fx.d > 0,
   };
 }
 
@@ -311,7 +314,7 @@ if (link && hasExtension && knownHost(link.to.hostname)) {
   renderHome();
 }
 
-function renderShared({ to, track, speed, chew, tone }) {
+function renderShared({ to, track, speed, chew, tone, chop }) {
   document.title = `${track || t('untitled')} · ${speed}% — Screwed Music`;
   $('eyebrow').textContent = t('sent');
   $('title').textContent = track || t('untitled');
@@ -335,7 +338,7 @@ function renderShared({ to, track, speed, chew, tone }) {
   $('readout').hidden = false;
   $('digits').textContent = `${speed}%`;
   $('semitones').textContent = t('semitones', { n });
-  $('extras').textContent = [chew && t('chew', { n: chew }), tone && t('tone', { n: tone })].filter(Boolean).join(' · ');
+  $('extras').textContent = [chew && t('chew', { n: chew }), tone && t('tone', { n: tone }), chop && t('chop')].filter(Boolean).join(' · ');
 
   $('open').href = to.href;
   if (hasExtension) {
