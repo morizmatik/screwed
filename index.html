@@ -212,6 +212,7 @@ const TEXT = {
     homeEyebrow: 'Chrome extension',
     homeTitle: 'Slow down music and video right in the browser',
     install: 'Add Screwed Music to Chrome',
+    store: 'Screwed Music in the Chrome Web Store',
     open: 'Open the track',
     openAsIs: 'Open the track as is',
     hintAfter: 'Installed it? Press “Open the track” — it will start already slowed down.',
@@ -236,6 +237,7 @@ const TEXT = {
     homeEyebrow: 'Расширение для Chrome',
     homeTitle: 'Замедляйте музыку и видео прямо в браузере',
     install: 'Установить Screwed Music',
+    store: 'Screwed Music в Chrome Web Store',
     open: 'Открыть трек',
     openAsIs: 'Открыть трек как есть',
     hintAfter: 'Уже установили? Нажмите «Открыть трек» — он запустится сразу замедленным.',
@@ -361,8 +363,8 @@ function renderHome() {
   $('eyebrow').textContent = t('homeEyebrow');
   $('title').textContent = t('homeTitle');
   $('lead').textContent = t('leadHome');
-  if (hasExtension) return;
-  show($('install'), t('install'));
+  // расширение уже стоит — кнопка остаётся ссылкой на его страницу в магазине
+  show($('install'), hasExtension ? t('store') : t('install'));
   if (mobile || !chromium) show($('hint'), t('hintOther'));
 }
 
