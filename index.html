@@ -116,7 +116,7 @@ h1 {
 .readout-text { display: flex; flex-direction: column; padding-bottom: 3px; font-size: 14px; line-height: 1.3; }
 .readout-text span + span { color: var(--muted); }
 
-.lead { margin: 16px 0 0; color: var(--muted); text-wrap: pretty; }
+.lead { margin: 16px 0 0; color: var(--muted); text-wrap: pretty; white-space: pre-line; }
 
 .actions { display: flex; flex-direction: column; gap: 10px; margin-top: 28px; }
 .btn {
@@ -209,9 +209,9 @@ const TEXT = {
     chop: 'chops',
     leadShared: 'It plays like a record spun slower: the tempo drops and the pitch drops with it. You need the Screwed Music extension to hear it this way.',
     leadHas: 'Screwed Music is installed — the track will open with these settings.',
-    leadHome: 'Slow down any track in the browser the way DJ Screw slowed records: lower, heavier, with more room in it. Works on YouTube, Spotify, Yandex Music, VK and any other site.',
+    leadHome: 'Turn the speed knob and make any track or video slower and moodier. The pitch moves with the speed — the sound gets lower, like a slowed-down record.\nWorks with YouTube, Spotify, Yandex Music, VK and other sites.',
     homeEyebrow: 'Chrome extension',
-    homeTitle: 'Your music, slower and lower',
+    homeTitle: 'Slow down music and video right in the browser',
     install: 'Add Screwed Music to Chrome',
     open: 'Open the track',
     openAsIs: 'Open the track as is',
@@ -220,9 +220,9 @@ const TEXT = {
     leadMobile: 'It plays like a record spun slower: the tempo drops and the pitch drops with it. The Screwed Music extension works in Chrome on a computer — save the link and open it there.',
     copy: 'Copy the link',
     copied: 'Link copied',
-    about1: '<b>Slowdown with pitch drop.</b> From 30% to 120%, like changing the speed of a turntable.',
-    about2: '<b>Tape chew, DJ stop and scratch.</b> Grab the record and spin it by hand.',
-    about3: '<b>No data collected.</b> Everything happens in your browser.',
+    about1: '<b>Speed knob.</b> From 30% to 120% — just turn it and listen.',
+    about2: '<b>Tape stop and scratch.</b> Stop the sound, rewind it or spin it by hand.',
+    about3: '<b>All in the browser.</b> Nothing to download.',
   },
   ru: {
     sent: 'Вам прислали замедленный трек',
@@ -233,9 +233,9 @@ const TEXT = {
     chop: 'чопы',
     leadShared: 'Он звучит как пластинка на пониженных оборотах: вместе с темпом падает тон. Чтобы услышать его так, нужно расширение Screwed Music.',
     leadHas: 'Screwed Music установлено — трек откроется с этими настройками.',
-    leadHome: 'Замедляйте любой трек в браузере так, как DJ Screw замедлял пластинки: ниже, тяжелее, с воздухом между нотами. Работает на YouTube, Spotify, Яндекс Музыке, ВКонтакте и любом другом сайте.',
+    leadHome: 'Крутите ручку скорости и делайте любой трек или видео медленнее и атмосфернее. Скорость меняется вместе с высотой тона — звук становится ниже, как у замедленной пластинки.\nРаботает с YouTube, Spotify, Яндекс Музыкой, ВКонтакте и другими сайтами.',
     homeEyebrow: 'Расширение для Chrome',
-    homeTitle: 'Любимая музыка — медленнее и ниже',
+    homeTitle: 'Замедляйте музыку и видео прямо в браузере',
     install: 'Установить Screwed Music',
     open: 'Открыть трек',
     openAsIs: 'Открыть трек как есть',
@@ -244,9 +244,9 @@ const TEXT = {
     leadMobile: 'Он звучит как пластинка на пониженных оборотах: вместе с темпом падает тон. Расширение Screwed Music работает в Chrome на компьютере — сохраните ссылку и откройте её там.',
     copy: 'Скопировать ссылку',
     copied: 'Ссылка скопирована',
-    about1: '<b>Замедление с падением тона.</b> От 30% до 120%, как смена оборотов на проигрывателе.',
-    about2: '<b>Жевание плёнки, диджейский стоп и скретч.</b> Пластинку можно схватить и крутить рукой.',
-    about3: '<b>Никаких данных не собирает.</b> Всё происходит в вашем браузере.',
+    about1: '<b>Ручка скорости.</b> От 30% до 120% — просто крутите и слушайте.',
+    about2: '<b>Tape stop и scratch.</b> Можно остановить, замотать или прокрутить звук вручную.',
+    about3: '<b>Всё в браузере.</b> Ничего не нужно скачивать.',
   },
 };
 
