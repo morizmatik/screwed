@@ -108,6 +108,8 @@ h1 {
   text-wrap: balance;
   overflow-wrap: anywhere;
 }
+/* разрядка рвёт арабскую вязь и не нужна иероглифам */
+:lang(ar) h1, :lang(zh) h1 { letter-spacing: 0; }
 .host { margin: 8px 0 0; font-size: 14px; color: var(--muted); overflow-wrap: anywhere; }
 
 /* табло — как в панели: крупное число и подпись рядом */
@@ -153,7 +155,7 @@ h1 {
 </style>
 </head>
 <body>
-<header><a class="wordmark" id="brand" href="./">Screwed Music</a></header>
+<header><a class="wordmark" id="brand" href="./" dir="ltr">Screwed Music</a></header>
 
 <main>
   <div class="platter"><div class="record" id="record"><div class="label" id="label"></div></div></div>
@@ -163,7 +165,7 @@ h1 {
   <p class="host" id="host" hidden></p>
 
   <div class="readout" id="readout" hidden>
-    <span class="digits" id="digits"></span>
+    <span class="digits" id="digits" dir="ltr"></span>
     <span class="readout-text"><span id="semitones"></span><span id="extras"></span></span>
   </div>
 
@@ -249,6 +251,106 @@ const TEXT = {
     about2: '<b>Tape stop и scratch.</b> Можно остановить, замотать или прокрутить звук вручную.',
     about3: '<b>Всё в браузере.</b> Ничего не нужно скачивать.',
   },
+  zh: {
+    sent: '有人给你发来一首慢放的歌',
+    untitled: '一首慢放的歌',
+    semitones: '{n} 个半音',
+    chew: '卡带 {n}%',
+    tone: '暗音色 {n}%',
+    chop: '切片',
+    leadShared: '它听起来像一张转速调慢的唱片：速度降下来，音调也随之降低。要这样听，需要安装 Screwed Music 扩展。',
+    leadHas: '已安装 Screwed Music——歌曲将按这些设置打开。',
+    leadHome: '转动速度旋钮，让任何歌曲或视频变得更慢、更有氛围。音调随速度变化——声音变得更低沉，就像慢放的唱片。\n支持 YouTube、Spotify、Yandex Music、VK 等网站。',
+    homeEyebrow: 'Chrome 扩展',
+    homeTitle: '直接在浏览器里慢放音乐和视频',
+    install: '将 Screwed Music 添加到 Chrome',
+    store: 'Chrome 应用商店中的 Screwed Music',
+    open: '打开歌曲',
+    openAsIs: '按原样打开歌曲',
+    hintAfter: '已经安装了？点击“打开歌曲”——它会直接以慢放方式播放。',
+    hintOther: '该扩展可在 Chrome 及基于 Chrome 的浏览器中使用：Edge、Yandex 浏览器、Opera、Brave。',
+    leadMobile: '它听起来像一张转速调慢的唱片：速度降下来，音调也随之降低。Screwed Music 扩展在电脑版 Chrome 中使用——请保存链接，到电脑上打开。',
+    copy: '复制链接',
+    copied: '链接已复制',
+    about1: '<b>速度旋钮。</b>从 30% 到 120%——转动它，听就行。',
+    about2: '<b>Tape stop 和搓碟。</b>可以停住声音、倒带或用手转动。',
+    about3: '<b>全在浏览器里。</b>无需下载任何东西。',
+  },
+  es: {
+    sent: 'Te han enviado una canción ralentizada',
+    untitled: 'Una canción ralentizada',
+    semitones: '{n} semitonos',
+    chew: 'cinta mascada {n}%',
+    tone: 'tono oscuro {n}%',
+    chop: 'cortes',
+    leadShared: 'Suena como un disco que gira más lento: baja el tempo y con él baja el tono. Para oírla así necesitas la extensión Screwed Music.',
+    leadHas: 'Screwed Music está instalada: la canción se abrirá con estos ajustes.',
+    leadHome: 'Gira el control de velocidad y haz que cualquier canción o vídeo suene más lento y con más atmósfera. El tono cambia con la velocidad: el sonido se vuelve más grave, como un disco ralentizado.\nFunciona con YouTube, Spotify, Yandex Music, VK y otros sitios.',
+    homeEyebrow: 'Extensión para Chrome',
+    homeTitle: 'Ralentiza música y vídeo directamente en el navegador',
+    install: 'Añadir Screwed Music a Chrome',
+    store: 'Screwed Music en Chrome Web Store',
+    open: 'Abrir la canción',
+    openAsIs: 'Abrir la canción tal cual',
+    hintAfter: '¿Ya la instalaste? Pulsa «Abrir la canción»: empezará ya ralentizada.',
+    hintOther: 'La extensión funciona en Chrome y en navegadores basados en él: Edge, Yandex Browser, Opera, Brave.',
+    leadMobile: 'Suena como un disco que gira más lento: baja el tempo y con él baja el tono. La extensión Screwed Music funciona en Chrome en un ordenador: guarda el enlace y ábrelo allí.',
+    copy: 'Copiar el enlace',
+    copied: 'Enlace copiado',
+    about1: '<b>Control de velocidad.</b> Del 30% al 120%: solo gíralo y escucha.',
+    about2: '<b>Tape stop y scratch.</b> Detén el sonido, rebobínalo o gíralo a mano.',
+    about3: '<b>Todo en el navegador.</b> No hay que descargar nada.',
+  },
+  ar: {
+    sent: 'أرسل لك أحدهم مقطعًا مُبطّأً',
+    untitled: 'مقطع مُبطّأ',
+    semitones: '{n} نصف نغمة',
+    chew: 'مضغ الشريط {n}%',
+    tone: 'نغمة داكنة {n}%',
+    chop: 'تقطيع',
+    leadShared: 'يبدو كأسطوانة تدور بسرعة أقل: ينخفض الإيقاع وتنخفض معه طبقة الصوت. لسماعه هكذا تحتاج إلى إضافة Screwed Music.',
+    leadHas: 'إضافة Screwed Music مثبّتة — سيُفتح المقطع بهذه الإعدادات.',
+    leadHome: 'أدِر مفتاح السرعة واجعل أي مقطع موسيقي أو فيديو أبطأ وأكثر عمقًا. تتغيّر طبقة الصوت مع السرعة — يصبح الصوت أغلظ، كأسطوانة مُبطّأة.\nتعمل مع YouTube و Spotify و Yandex Music و VK ومواقع أخرى.',
+    homeEyebrow: 'إضافة لمتصفح Chrome',
+    homeTitle: 'أبطِئ الموسيقى والفيديو مباشرة في المتصفح',
+    install: 'إضافة Screwed Music إلى Chrome',
+    store: 'Screwed Music في سوق Chrome الإلكتروني',
+    open: 'فتح المقطع',
+    openAsIs: 'فتح المقطع كما هو',
+    hintAfter: 'ثبّتّها بالفعل؟ اضغط «فتح المقطع» — سيبدأ مُبطّأً مباشرة.',
+    hintOther: 'تعمل الإضافة في Chrome والمتصفحات المبنية عليه: Edge و Yandex Browser و Opera و Brave.',
+    leadMobile: 'يبدو كأسطوانة تدور بسرعة أقل: ينخفض الإيقاع وتنخفض معه طبقة الصوت. تعمل إضافة Screwed Music في Chrome على الحاسوب — احفظ الرابط وافتحه هناك.',
+    copy: 'نسخ الرابط',
+    copied: 'تم نسخ الرابط',
+    about1: '<b>مفتاح السرعة.</b> من 30% إلى 120% — أدِره واستمع.',
+    about2: '<b>Tape stop وسكراتش.</b> أوقف الصوت أو أرجعه أو أدِره بيدك.',
+    about3: '<b>كل شيء في المتصفح.</b> لا حاجة لتنزيل أي شيء.',
+  },
+  fr: {
+    sent: 'On vous a envoyé un morceau ralenti',
+    untitled: 'Un morceau au ralenti',
+    semitones: '{n} demi-tons',
+    chew: 'bande mâchée {n} %',
+    tone: 'son sombre {n} %',
+    chop: 'chops',
+    leadShared: 'Il sonne comme un disque qui tourne moins vite : le tempo baisse et la hauteur baisse avec lui. Pour l’entendre ainsi, il vous faut l’extension Screwed Music.',
+    leadHas: 'Screwed Music est installée — le morceau s’ouvrira avec ces réglages.',
+    leadHome: 'Tournez le bouton de vitesse et rendez n’importe quel morceau ou vidéo plus lent et plus planant. La hauteur suit la vitesse : le son devient plus grave, comme un disque ralenti.\nFonctionne avec YouTube, Spotify, Yandex Music, VK et d’autres sites.',
+    homeEyebrow: 'Extension Chrome',
+    homeTitle: 'Ralentissez la musique et les vidéos directement dans le navigateur',
+    install: 'Ajouter Screwed Music à Chrome',
+    store: 'Screwed Music sur le Chrome Web Store',
+    open: 'Ouvrir le morceau',
+    openAsIs: 'Ouvrir le morceau tel quel',
+    hintAfter: 'Déjà installée ? Cliquez sur « Ouvrir le morceau » — il démarrera déjà ralenti.',
+    hintOther: 'L’extension fonctionne dans Chrome et les navigateurs basés sur Chrome : Edge, Yandex Browser, Opera, Brave.',
+    leadMobile: 'Il sonne comme un disque qui tourne moins vite : le tempo baisse et la hauteur baisse avec lui. L’extension Screwed Music fonctionne dans Chrome sur ordinateur — enregistrez le lien et ouvrez-le là-bas.',
+    copy: 'Copier le lien',
+    copied: 'Lien copié',
+    about1: '<b>Bouton de vitesse.</b> De 30 % à 120 % — tournez et écoutez.',
+    about2: '<b>Tape stop et scratch.</b> Arrêtez le son, rembobinez-le ou faites-le tourner à la main.',
+    about3: '<b>Tout dans le navigateur.</b> Rien à télécharger.',
+  },
 };
 
 // Язык — первый из предпочитаемых в браузере (а у него по умолчанию — язык системы),
@@ -257,7 +359,8 @@ const preferred = navigator.languages && navigator.languages.length ? navigator.
 const lang = preferred.map(l => l.toLowerCase().split('-')[0]).find(l => l in TEXT) || 'en';
 const t = (key, vars = {}) => TEXT[lang][key].replace(/\{(\w+)\}/g, (m, k) => vars[k]);
 const $ = id => document.getElementById(id);
-document.documentElement.lang = lang;
+document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang;
+document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
 
 // ---------- что в ссылке ----------
 // #to=<адрес трека с кодом настроек>&track=<исполнитель — название>
@@ -338,7 +441,8 @@ function renderShared({ to, track, speed, chew, tone, chop }) {
   }
 
   const semis = 12 * Math.log2(speed / 100);
-  const n = (semis > 0 ? '+' : semis < 0 ? '−' : '') + Math.abs(semis).toLocaleString(lang, { maximumFractionDigits: 1 });
+  // число со знаком — островком слева направо, чтобы в арабском минус не уезжал за цифры
+  const n = '\u2066' + (semis > 0 ? '+' : semis < 0 ? '−' : '') + Math.abs(semis).toLocaleString(lang, { maximumFractionDigits: 1 }) + '\u2069';
   $('readout').hidden = false;
   $('digits').textContent = `${speed}%`;
   $('semitones').textContent = t('semitones', { n });
