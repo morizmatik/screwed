@@ -208,6 +208,8 @@ const TEXT = {
     chew: 'tape chew {n}%',
     tone: 'dark tone {n}%',
     chop: 'chops',
+    drift: 'drifting tone',
+    noise: 'static {n}%',
     leadShared: 'It plays like a record spun slower: the tempo drops and the pitch drops with it. You need the Screwed Music extension to hear it this way.',
     leadHas: 'Screwed Music is installed – the track will open with these settings.',
     leadHome: 'Turn the speed knob and make any track or video slower and moodier. The pitch moves with the speed – the sound gets lower, like a slowed-down record.\nWorks with YouTube, Spotify, Yandex Music, VK and other sites.',
@@ -233,6 +235,8 @@ const TEXT = {
     chew: 'жевание плёнки {n}%',
     tone: 'тёмный тон {n}%',
     chop: 'чопы',
+    drift: 'плавающий тон',
+    noise: 'шум {n}%',
     leadShared: 'Он звучит как пластинка на пониженных оборотах: вместе с темпом падает тон. Чтобы услышать его так, нужно расширение Screwed Music.',
     leadHas: 'Screwed Music установлено – трек откроется с этими настройками.',
     leadHome: 'Крутите ручку скорости и делайте любой трек или видео медленнее и атмосфернее. Скорость меняется вместе с высотой тона – звук становится ниже, как у замедленной пластинки.\nРаботает с YouTube, Spotify, Яндекс Музыкой, ВКонтакте и другими сайтами.',
@@ -258,6 +262,8 @@ const TEXT = {
     chew: '绞带 {n}%',
     tone: '暗音色 {n}%',
     chop: '切片',
+    drift: '浮动音色',
+    noise: '杂音 {n}%',
     leadShared: '它听起来像一张转速调慢的唱片：速度降下来，音调也随之降低。要这样听，需要安装 Screwed Music 扩展。',
     leadHas: '已安装 Screwed Music，歌曲将按这些设置打开。',
     leadHome: '转动速度旋钮，让任何歌曲或视频变得更慢、更有氛围。音调随速度变化，声音变得更低沉，就像慢放的唱片。\n支持 YouTube、Spotify、Yandex Music、VK 等网站。',
@@ -283,6 +289,8 @@ const TEXT = {
     chew: 'cinta mascada {n}%',
     tone: 'tono oscuro {n}%',
     chop: 'cortes',
+    drift: 'tono flotante',
+    noise: 'ruido {n}%',
     leadShared: 'Suena como un disco que gira más lento: baja el tempo y con él baja el tono. Para oírla así necesitas la extensión Screwed Music.',
     leadHas: 'Screwed Music está instalada: la canción se abrirá con estos ajustes.',
     leadHome: 'Gira el control de velocidad y haz que cualquier canción o video suene más lento y con más atmósfera. El tono cambia con la velocidad: el sonido se vuelve más grave, como un disco ralentizado.\nFunciona con YouTube, Spotify, Yandex Music, VK y otros sitios.',
@@ -308,6 +316,8 @@ const TEXT = {
     chew: 'مضغ الشريط {n}%',
     tone: 'نغمة داكنة {n}%',
     chop: 'تقطيع',
+    drift: 'نغمة متموّجة',
+    noise: 'تشويش {n}%',
     leadShared: 'يبدو كأسطوانة تدور بسرعة أقل: ينخفض الإيقاع وتنخفض معه طبقة الصوت. لسماعه هكذا تحتاج إلى إضافة Screwed Music.',
     leadHas: 'إضافة Screwed Music مثبّتة – سيُفتح المقطع بهذه الإعدادات.',
     leadHome: 'أدِر مفتاح السرعة واجعل أي مقطع موسيقي أو فيديو أبطأ وأكثر عمقًا. تتغيّر طبقة الصوت مع السرعة – يصبح الصوت أغلظ، كأسطوانة مُبطّأة.\nتعمل مع YouTube و Spotify و Yandex Music و VK ومواقع أخرى.',
@@ -333,6 +343,8 @@ const TEXT = {
     chew: 'bande mâchée {n} %',
     tone: 'son sombre {n} %',
     chop: 'chops',
+    drift: 'son flottant',
+    noise: 'souffle {n} %',
     leadShared: 'Il sonne comme un disque qui tourne moins vite : le tempo baisse et la hauteur baisse avec lui. Pour l’entendre ainsi, il vous faut l’extension Screwed Music.',
     leadHas: 'Screwed Music est installée – le morceau s’ouvrira avec ces réglages.',
     leadHome: 'Tournez le bouton de vitesse et rendez n’importe quel morceau ou vidéo plus lent et plus planant. La hauteur suit la vitesse : le son devient plus grave, comme un disque ralenti.\nFonctionne avec YouTube, Spotify, Yandex Music, VK et d’autres sites.',
@@ -373,7 +385,7 @@ function readLink() {
   const code = (to.href.match(/[#?&]screwed=([^&#]*)/) || [])[1] || '';
   const fx = {};
   for (const part of decodeURIComponent(code).split('-')) {
-    const m = part.match(/^([sctd])(\d{1,3})$/);
+    const m = part.match(/^([sctdwn])(\d{1,3})$/);
     if (m) fx[m[1]] = Number(m[2]);
   }
   if (!('s' in fx)) return null;
@@ -384,6 +396,8 @@ function readLink() {
     chew: Math.min(100, fx.c || 0),
     tone: Math.min(100, fx.t || 0),
     chop: fx.d > 0,
+    drift: fx.w > 0,
+    noise: Math.min(100, fx.n || 0),
   };
 }
 
@@ -421,7 +435,7 @@ if (link && hasExtension && knownHost(link.to.hostname)) {
   renderHome();
 }
 
-function renderShared({ to, track, speed, chew, tone, chop }) {
+function renderShared({ to, track, speed, chew, tone, chop, drift, noise }) {
   document.title = `${track || t('untitled')} · ${speed}% – Screwed Music`;
   $('eyebrow').textContent = t('sent');
   $('title').textContent = track || t('untitled');
@@ -446,7 +460,7 @@ function renderShared({ to, track, speed, chew, tone, chop }) {
   $('readout').hidden = false;
   $('digits').textContent = `${speed}%`;
   $('semitones').textContent = t('semitones', { n });
-  $('extras').textContent = [chew && t('chew', { n: chew }), tone && t('tone', { n: tone }), chop && t('chop')].filter(Boolean).join(' · ');
+  $('extras').textContent = [chew && t('chew', { n: chew }), tone && t('tone', { n: tone }), drift && t('drift'), noise && t('noise', { n: noise }), chop && t('chop')].filter(Boolean).join(' · ');
 
   $('open').href = to.href;
   if (hasExtension) {
