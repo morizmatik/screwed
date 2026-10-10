@@ -4,10 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#15131a">
-<meta name="robots" content="noindex">
+<meta name="theme-color" content="#121113">
 <title>Screwed Music</title>
-<meta name="description" content="Record-style slowdown with pitch drop for music on any site.">
+<meta name="description" content="A Chrome extension that turns bright tracks and videos into thick, chewed tape – right in your browser.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Screwed Music – a slowed track for you">
 <meta property="og:description" content="Open it in Chrome with Screwed Music to hear it slowed down, like a record.">
@@ -18,42 +17,82 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <style>
-/* Страница-прослойка для ссылок «Поделиться». Тот же язык, что у панели:
-   нейтральная тёмная основа, один акцент, без градиентов и теней. */
+/* Стартовая страница и страница-прослойка для ссылок «Поделиться».
+   Вид – лицевая панель винтажной hi-fi техники: тёмная основа с мелким зерном,
+   один гротеск, тонкие линии в 1px вместо плашек, один оранжевый акцент. */
 :root {
-  --bg: #15131a;
-  --fg: #ebe8f0;
-  --muted: #8f899c;
-  --line: #2c2834;
-  --panel: #1e1b25;
-  --accent: #e8823c;
-  --on-accent: #15131a;
-  --font: "Helvetica Neue", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --bg: #121113;
+  --accent: #ff6b35;
+  --fg: #eae6e8;
+  --soft: #a5a1a5;
+  --tech: #8a8188;
+  --line: rgba(255, 255, 255, .08);
+  --ink: #0b0a0c;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --soot: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.3 0 0 0 -.3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1.1 0 0 0 -.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 
-html { background: var(--bg); }
+html { background: #0a090a; }
 body {
   margin: 0;
   min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
   color: var(--fg);
-  font: 16px/1.45 var(--font);
+  font: 16px/1.55 var(--font);
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
-header, main, footer { width: 100%; max-width: 480px; margin: 0 auto; padding: 0 20px; }
-header { padding-top: 20px; }
-main { flex: 1; display: flex; flex-direction: column; justify-content: center; padding-top: 28px; padding-bottom: 28px; }
-footer { padding-bottom: 24px; }
+/* мелкое зерно поверх всей страницы, дважды в секунду перескакивает на новое место */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -120px;
+  z-index: 10;
+  background: var(--grain);
+  opacity: .075;
+  pointer-events: none;
+  animation: grain 2s steps(1) infinite;
+}
+/* свет падает в центр панели и быстро гаснет к краям; слой стоит на месте при прокрутке */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(ellipse 75% 70% at 50% 42%, #161417 0, #121113 45%, #0a090a 100%);
+  pointer-events: none;
+}
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-60px, 40px); }
+  50% { transform: translate(40px, -70px); }
+  75% { transform: translate(-30px, -40px); }
+}
 
-/* название — как в панели: тяжёлое, плотное, завалено назад */
+header, main { width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+header > div { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 22px 0 18px; border-bottom: 1px solid var(--line); }
+
+/* технический текст: проценты, теги, подписи */
+.tech {
+  font: 11px/1.5 var(--font);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--tech);
+}
+/* разрядка рвёт арабскую вязь и не нужна иероглифам */
+:lang(ar) .tech, :lang(zh) .tech, :lang(ar) h1, :lang(zh) h1, :lang(ar) .feat h2, :lang(zh) .feat h2 { letter-spacing: 0; }
+/* арабской вязи мелкий кегль тесен */
+:lang(ar) .tech { font-size: 13px; }
+:lang(ar) .feat h2 { font-size: 14px; }
+
+/* название – как в панели: тяжёлое, плотное, завалено назад */
 .wordmark {
   display: inline-block;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 800;
   letter-spacing: -.035em;
   transform: skewX(10deg);
@@ -62,130 +101,381 @@ footer { padding-bottom: 24px; }
   text-decoration: none;
 }
 
-/* пластинка: диск, две дорожки, этикетка с обложкой или риской */
-.platter { width: 184px; height: 184px; }
-.record {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  --disc: color-mix(in srgb, var(--bg) 86%, var(--fg));
-  --groove: color-mix(in srgb, var(--bg) 70%, var(--fg));
-  background:
-    radial-gradient(circle closest-side,
-      transparent 71%, var(--groove) 71.5% 72.5%, transparent 73%,
-      transparent 85%, var(--groove) 85.5% 86.5%, transparent 87%),
-    var(--disc);
-  animation: spin var(--turn, 2.6s) linear infinite;
-}
-.label {
-  position: absolute;
-  inset: 30%;
-  border-radius: 50%;
-  background: conic-gradient(var(--on-accent) 0 3%, var(--accent) 3% 100%);
-}
-.label.cover {
-  inset: 18%;
-  background: var(--cover) center / cover no-repeat, var(--line);
-}
-.label::after {
-  content: "";
-  position: absolute;
-  inset: 44%;
-  border-radius: 50%;
-  background: var(--bg);
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) { .record { animation: none; } }
+.hero { display: grid; }
+.copy { min-width: 0; display: flex; flex-direction: column; justify-content: center; padding: 44px 0 40px; }
 
-.eyebrow { margin: 28px 0 0; font-size: 14px; color: var(--muted); }
+.eyebrow { margin: 0 0 14px; }
 h1 {
-  margin: 6px 0 0;
-  font-size: 30px;
+  margin: 0;
+  font-size: clamp(30px, 7.4vw, 50px);
   line-height: 1.12;
-  font-weight: 700;
-  letter-spacing: -.025em;
+  font-weight: 600;
+  letter-spacing: -.02em;
+  text-transform: lowercase;
   text-wrap: balance;
-  overflow-wrap: anywhere;
 }
-/* разрядка рвёт арабскую вязь и не нужна иероглифам */
-:lang(ar) h1, :lang(zh) h1 { letter-spacing: 0; }
-.host { margin: 8px 0 0; font-size: 14px; color: var(--muted); overflow-wrap: anywhere; }
+:lang(ar) h1 { line-height: 1.35; }
+.shared h1 { font-size: clamp(26px, 5.6vw, 38px); text-transform: none; overflow-wrap: anywhere; }
+.host { margin: 10px 0 0; overflow-wrap: anywhere; text-transform: none; }
 
-/* табло — как в панели: крупное число и подпись рядом */
-.readout { display: flex; align-items: flex-end; gap: 10px; margin-top: 24px; }
-.digits { font-size: 64px; line-height: .9; font-weight: 700; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
-.readout-text { display: flex; flex-direction: column; padding-bottom: 3px; font-size: 14px; line-height: 1.3; }
-.readout-text span + span { color: var(--muted); }
+/* табло присланного трека: крупное число и подпись рядом */
+.readout { display: flex; align-items: flex-end; gap: 14px; margin-top: 26px; }
+.digits { font: 300 60px/.9 var(--font); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.readout-text { display: flex; flex-direction: column; padding-bottom: 3px; text-transform: none; letter-spacing: 0; font-size: 12px; }
+.readout-text span:first-child { color: var(--fg); }
 
-.lead { margin: 16px 0 0; color: var(--muted); text-wrap: pretty; white-space: pre-line; }
+.lead { margin: 20px 0 0; max-width: 31em; font-size: 17px; color: var(--soft); text-wrap: pretty; }
 
-.actions { display: flex; flex-direction: column; gap: 10px; margin-top: 28px; }
+/* сервисы: одноцветные значки, по наведению меняют цвет */
+.services { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; margin: 28px 0 0; padding: 0; list-style: none; }
+.services svg { display: block; width: 24px; height: 24px; fill: var(--tech); }
+.services li:hover svg { fill: var(--accent); }
+
+.actions { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; margin-top: 34px; }
 .btn {
-  display: flex;
+  display: inline-flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 52px;
-  padding: 12px 20px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
+  gap: 3px;
+  min-height: 56px;
+  max-width: 100%;
+  padding: 12px 26px;
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 0;
   background: none;
   color: var(--fg);
   font: 600 16px/1.2 var(--font);
   text-align: center;
   text-decoration: none;
   cursor: pointer;
-  transition: background-color .15s;
 }
-.btn:hover { background: var(--panel); }
-.btn.primary { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
-.btn.primary:hover { background: color-mix(in srgb, var(--accent) 88%, var(--fg)); }
-.btn:focus-visible, a:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
-.hint { margin: 12px 0 0; font-size: 14px; color: var(--muted); text-wrap: pretty; }
+.btn:hover { border-color: var(--fg); }
+/* главная кнопка – блок цвета без рамки, тени и скруглений, с живым зерном:
+   тёмная крошка и светлая пыль медленно плывут навстречу друг другу, и шум переливается */
+.btn.primary { position: relative; overflow: hidden; border: 0; background: var(--accent); color: var(--ink); }
+.btn.primary::before, .btn.primary::after { content: ""; position: absolute; inset: -240px; pointer-events: none; }
+.btn.primary::before { background: var(--soot); opacity: .5; animation: drift-a 14s linear infinite, breathe 5s ease-in-out infinite alternate; }
+.btn.primary::after { background: var(--grain); opacity: .35; animation: drift-b 19s linear infinite, breathe 7s ease-in-out -3s infinite alternate; }
+.btn.primary > * { position: relative; z-index: 1; }
+/* сдвиг ровно на плитку шума – петля без шва */
+@keyframes drift-a { to { transform: translate(200px, -200px); } }
+@keyframes drift-b { to { transform: translate(-240px, 240px); } }
+@keyframes breathe { from { opacity: .22; } }
+.btn.primary:hover { background: #ff8254; }
+.bracketed::before { content: "[ "; }
+.bracketed::after { content: " ]"; }
+.btn small { font: 10px/1.2 var(--font); letter-spacing: .12em; text-transform: uppercase; opacity: .7; }
+.btn:focus-visible, a:focus-visible, .platter:focus-visible, .fader:focus-visible { outline: 1px solid var(--fg); outline-offset: 4px; }
+.hint { margin: 18px 0 0; max-width: 44em; text-transform: none; letter-spacing: .02em; text-wrap: pretty; }
+.hint + .hint { margin-top: 6px; }
 
-.about { margin: 0; padding: 0; list-style: none; font-size: 14px; color: var(--muted); }
-.about li { padding: 12px 0; border-top: 1px solid var(--line); }
-.about b { color: var(--fg); font-weight: 600; }
+/* ---------- вертушка: без плашки и рамки, прямо на фоне страницы ---------- */
+.deck {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 56px;
+  gap: 10px 18px;
+  width: 100%;
+  max-width: 460px;
+  justify-self: center;
+  align-self: center;
+  padding: 36px 0 44px;
+  border-top: 1px solid var(--line);
+}
 
+.platter {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.platter > * { position: absolute; display: block; }
+/* диск проигрывателя под пластинкой */
+.mat { left: 0; top: 7%; width: 90%; aspect-ratio: 1; border-radius: 50%; background: #18161a; box-shadow: 0 0 0 1px rgba(255, 255, 255, .06); }
+.record {
+  left: 2%;
+  top: 9%;
+  width: 86%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  /* матовый винил: дорожки и промежутки между треками, без бликов */
+  background:
+    repeating-radial-gradient(circle closest-side, transparent 0 1.1%, rgba(234, 230, 232, .05) 1.1% 1.5%),
+    radial-gradient(circle closest-side, transparent 0 58%, #000 58.4% 59.4%, transparent 59.8% 77%, #000 77.4% 78.2%, transparent 78.6% 94%, #1b181b 94.4%),
+    var(--ink);
+  will-change: transform;
+}
+/* стробоскопические точки по краю диска */
+.record::before {
+  content: "";
+  position: absolute;
+  inset: -2.4%;
+  border-radius: 50%;
+  background: repeating-conic-gradient(var(--accent) 0 .9deg, transparent .9deg 3.6deg);
+  -webkit-mask: radial-gradient(circle closest-side, transparent 97.6%, #000 98%);
+  mask: radial-gradient(circle closest-side, transparent 97.6%, #000 98%);
+  opacity: .55;
+}
+/* неидеальный круг: этикетка сидит чуть не по центру и слегка сплюснута */
+.label {
+  position: absolute;
+  inset: 34%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle closest-side, transparent 0 68%, rgba(11, 10, 12, .4) 69% 71%, transparent 72%),
+    conic-gradient(var(--ink) 0 2%, var(--accent) 2% 100%);
+  transform: translate(1.5%, -1%) scale(1, .985);
+}
+.label.cover { inset: 30%; background: var(--cover) center / cover no-repeat, #322d32; filter: saturate(.8) contrast(1.05); }
+.label::after { content: ""; position: absolute; inset: 45%; border-radius: 50%; background: #2a262a; box-shadow: 0 0 0 1px #000; }
+/* лёгкие царапины и пыль крутятся вместе с пластинкой – по ним и видно вращение */
+.wear { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke: var(--fg); stroke-linecap: round; opacity: .6; }
+.dust { position: absolute; inset: 0; border-radius: 50%; background: var(--grain); opacity: .14; }
+.arm {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  /* игла поднята – тень дальше; опущена – прижата к пластинке */
+  filter: drop-shadow(calc(1px + var(--lift, 1) * 5px) calc(2px + var(--lift, 1) * 7px) 3px rgba(0, 0, 0, .5));
+}
+
+/* высоту строки задаёт пластинка, фейдер под неё подстраивается */
+.pitch { display: flex; flex-direction: column; align-items: center; gap: 12px; height: 0; min-height: 100%; padding: 6px 0 2px; }
+.pitch output { color: var(--fg); font-size: 13px; letter-spacing: .02em; }
+.slot { position: relative; flex: 1; width: 56px; min-height: 0; }
+/* направляющая */
+.slot::before { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; background: rgba(255, 255, 255, .22); }
+/* риски в 1px через 10%: от 120 сверху до 30 снизу; отступ – половина высоты ручки */
+.ticks { position: absolute; inset: 7px 0; pointer-events: none; }
+.ticks::before, .ticks::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: -1px;
+  width: 7px;
+  background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, .3) 0 1px, transparent 1px calc((100% - 1px) / 9));
+}
+.ticks::before { left: 2px; }
+.ticks::after { right: 2px; }
+.ticks i { position: absolute; left: 0; right: 0; height: 1px; }
+/* 100% – настоящая скорость */
+.ticks .m100 { top: calc((100% - 1px) * 2 / 9); background: linear-gradient(to right, var(--accent) 0 13px, transparent 13px calc(100% - 13px), var(--accent) calc(100% - 13px)); }
+/* 80% – скорость по умолчанию, в панели она тоже отмечена сердечком */
+.ticks .m80 { top: calc((100% - 1px) * 4 / 9); }
+.ticks .m80::before { content: "♥"; position: absolute; left: -10px; top: -7px; font: 8px/14px var(--font); color: var(--accent); }
+.fader {
+  -webkit-appearance: none;
+  appearance: none;
+  writing-mode: vertical-lr;
+  direction: rtl;
+  position: absolute;
+  top: 0;
+  left: 14px;
+  width: 28px;
+  height: 100%;
+  margin: 0;
+  background: none;
+  cursor: grab;
+  touch-action: none;
+}
+.fader:active { cursor: grabbing; }
+.fader:disabled { cursor: default; }
+.fader::-webkit-slider-runnable-track { background: none; }
+.fader::-moz-range-track { background: none; }
+.fader::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 28px;
+  height: 14px;
+  border: 1px solid rgba(255, 255, 255, .28);
+  border-radius: 0;
+  background: linear-gradient(to bottom, #201d21 0 5px, var(--accent) 5px 7px, #201d21 7px);
+}
+.fader::-moz-range-thumb {
+  width: 28px;
+  height: 14px;
+  border: 1px solid rgba(255, 255, 255, .28);
+  border-radius: 0;
+  background: linear-gradient(to bottom, #201d21 0 5px, var(--accent) 5px 7px, #201d21 7px);
+}
+.deck-read { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 0; }
+.deck-read span:first-child { color: var(--fg); }
+
+/* ---------- три колонки возможностей, разделённые линиями ---------- */
+.feats { display: grid; margin-bottom: 64px; border-top: 1px solid var(--line); }
+.feat { padding: 28px 0 30px; border-bottom: 1px solid var(--line); }
+.feat svg { display: block; width: 36px; height: 36px; fill: none; stroke: var(--tech); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.feat:hover svg { stroke: var(--accent); }
+.feat h2 { margin: 22px 0 10px; font-size: 12px; line-height: 1.4; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--fg); }
+.feat p { margin: 0; max-width: 34em; font-size: 15px; color: var(--soft); text-wrap: pretty; }
+
+@media (min-width: 760px) {
+  .feats { grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid var(--line); }
+  .feat { padding: 30px 28px 34px; border-bottom: 0; }
+  .feat + .feat { border-inline-start: 1px solid var(--line); }
+  .feat:first-child { padding-inline-start: 0; }
+  .feat:last-child { padding-inline-end: 0; }
+}
+@media (min-width: 900px) {
+  /* текст слева, вертушка справа, между ними тонкая линия на всю высоту */
+  .hero { grid-template-columns: minmax(0, 1fr) auto; }
+  .copy { padding: 84px 56px 84px 0; border-inline-end: 1px solid var(--line); }
+  [dir="rtl"] .copy { padding: 84px 0 84px 56px; }
+  .deck { width: 460px; margin: 0 0 0 56px; padding: 56px 0; border-top: 0; }
+  [dir="rtl"] .deck { margin: 0 56px 0 0; }
+
+  /* на десктопе страница занимает ровно один экран, без вертикальной прокрутки:
+     блок с вертушкой забирает свободную высоту, а отступы, заголовок и сама вертушка
+     считаются от высоты окна. Если текст всё же не влез (узкое низкое окно) –
+     блок вырастет и появится обычная прокрутка, ничего не наедет. */
+  body { display: flex; flex-direction: column; height: 100dvh; }
+  main { flex: 1; display: flex; flex-direction: column; }
+  header > div { padding: clamp(12px, 2.4vh, 22px) 0 clamp(10px, 2vh, 18px); }
+  .hero { flex: 1; }
+  .copy, [dir="rtl"] .copy { padding-block: clamp(16px, 4vh, 84px); }
+  h1 { font-size: clamp(30px, min(4vw, 6.4vh), 50px); }
+  .shared h1 { font-size: clamp(24px, min(3vw, 4.6vh), 38px); }
+  .lead { margin-top: clamp(10px, 2.4vh, 20px); }
+  .readout { margin-top: clamp(12px, 2.6vh, 26px); }
+  .digits { font-size: clamp(40px, 7vh, 60px); }
+  .services { margin-top: clamp(14px, 3vh, 28px); }
+  .actions { margin-top: clamp(16px, 3.4vh, 34px); }
+  .hint { margin-top: clamp(10px, 2vh, 18px); }
+  /* 330px – шапка и нижние колонки; остальная высота – вертушке */
+  .deck { width: clamp(280px, calc(100dvh - 330px), 460px); padding: clamp(12px, 2.6vh, 24px) 0; }
+  .feats { flex: none; margin-bottom: 0; border-bottom: 0; }
+  .feat { padding-block: clamp(14px, 2.6vh, 30px) clamp(16px, 2.8vh, 34px); }
+  .feat svg { width: 30px; height: 30px; }
+  .feat h2 { margin: clamp(10px, 1.8vh, 22px) 0 6px; }
+  /* у присланного трека текста больше – кнопки встают в ряд */
+  .shared .actions { flex-direction: row; flex-wrap: wrap; }
+  .shared .eyebrow { margin-bottom: clamp(6px, 1.4vh, 14px); }
+}
+@media (min-width: 900px) and (max-height: 820px) {
+  .feat p { font-size: 14px; line-height: 1.5; }
+  .lead { font-size: 16px; }
+  .btn { min-height: 50px; padding-block: 9px; }
+  .shared .lead { font-size: 15px; }
+  .shared .host { margin-top: 6px; }
+}
 @media (max-width: 380px) {
-  .platter { width: 148px; height: 148px; }
-  h1 { font-size: 26px; }
-  .digits { font-size: 54px; }
+  .deck { grid-template-columns: minmax(0, 1fr) 50px; gap: 10px 8px; }
+  .slot { width: 50px; }
+  .fader { left: 11px; }
+  .digits { font-size: 50px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body::before, .btn.primary::before, .btn.primary::after { animation: none; }
 }
 </style>
 </head>
 <body>
-<header><a class="wordmark" id="brand" href="./" dir="ltr">Screwed Music</a></header>
+<header><div>
+  <a class="wordmark" id="brand" href="./" dir="ltr">Screwed Music</a>
+  <span class="tech" dir="ltr">33⅓ RPM · 30–120%</span>
+</div></header>
 
 <main>
-  <div class="platter"><div class="record" id="record"><div class="label" id="label"></div></div></div>
+  <section class="hero">
+    <div class="copy">
+      <p class="eyebrow tech" id="eyebrow" hidden></p>
+      <h1 id="title"></h1>
+      <p class="host tech" id="host" hidden></p>
 
-  <p class="eyebrow" id="eyebrow"></p>
-  <h1 id="title"></h1>
-  <p class="host" id="host" hidden></p>
+      <div class="readout" id="readout" hidden>
+        <span class="digits" id="digits" dir="ltr"></span>
+        <span class="readout-text tech"><span id="semitones"></span><span id="extras"></span></span>
+      </div>
 
-  <div class="readout" id="readout" hidden>
-    <span class="digits" id="digits" dir="ltr"></span>
-    <span class="readout-text"><span id="semitones"></span><span id="extras"></span></span>
-  </div>
+      <p class="lead" id="lead"></p>
 
-  <p class="lead" id="lead"></p>
+      <ul class="services" id="services" hidden>
+        <li role="img" aria-label="YouTube" title="YouTube"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></li>
+        <li role="img" aria-label="Spotify" title="Spotify"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg></li>
+        <li role="img" aria-label="Yandex Music" title="Yandex Music"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.00 0.50L13.93 8.05L19.25 6.34L16.11 11.13L22.67 14.66L15.34 15.01L14.80 19.71L11.43 16.06L5.89 20.41L8.05 13.93L3.41 11.70L8.36 9.90L6.28 2.84L11.53 7.52Z"/></svg></li>
+        <li role="img" aria-label="VK" title="VK"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M0 11.5C0 6.08 0 3.37 1.68 1.68 3.37 0 6.08 0 11.5 0h1c5.42 0 8.13 0 9.82 1.68C24 3.37 24 6.08 24 11.5v1c0 5.42 0 8.13-1.68 9.82C20.63 24 17.92 24 12.5 24h-1c-5.42 0-8.13 0-9.82-1.68C0 20.63 0 17.92 0 12.5v-1ZM6.79 7.3H4.05c.13 6.24 3.25 9.99 8.72 9.99h.31v-3.57c2.01.2 3.53 1.67 4.14 3.57h2.84c-.78-2.84-2.83-4.41-4.11-5.01 1.28-.74 3.08-2.54 3.51-4.98h-2.58c-.56 1.98-2.22 3.78-3.8 3.95V7.3H10.5v6.92c-1.6-.4-3.62-2.34-3.71-6.92Z"/></svg></li>
+        <li class="tech" id="more"></li>
+      </ul>
 
-  <div class="actions">
-    <a class="btn primary" id="install" target="_blank" rel="noopener" hidden></a>
-    <button class="btn primary" id="copy" type="button" hidden></button>
-    <a class="btn" id="open" rel="noopener noreferrer" hidden></a>
-  </div>
-  <p class="hint" id="hint" hidden></p>
+      <div class="actions">
+        <a class="btn primary" id="install" target="_blank" rel="noopener" hidden><span class="bracketed" id="install-text"></span><small id="install-sub" dir="ltr">Chrome Web Store</small></a>
+        <button class="btn primary" id="copy" type="button" hidden></button>
+        <a class="btn" id="open" rel="noopener noreferrer" hidden></a>
+      </div>
+      <p class="hint tech" id="trust" hidden></p>
+      <p class="hint tech" id="hint" hidden></p>
+    </div>
+
+    <div class="deck" id="deck" dir="ltr">
+      <button class="platter" id="platter" type="button" aria-pressed="false">
+        <span class="mat"></span>
+        <span class="record" id="record">
+          <span class="dust"></span>
+          <svg class="wear" viewBox="0 0 200 200" aria-hidden="true">
+            <path d="M38 52l31 22M150 44l-9 31M168 118l-27 6M61 158l14-25M112 176l-3-21" stroke-width=".5" stroke-opacity=".3"/>
+            <path d="M30 96a71 71 0 0 1 9-30M158 152a76 76 0 0 0 14-26M92 22a79 79 0 0 1 34 3" stroke-width=".7" stroke-opacity=".2"/>
+            <path d="M47 118h.1M133 62h.1M152 97h.1M84 37h.1M121 158h.1M66 77h.1M97 169h.1M171 81h.1M29 127h.1M140 139h.1" stroke-width="1.4" stroke-opacity=".5"/>
+          </svg>
+          <span class="label" id="label"></span>
+        </span>
+        <svg class="arm" id="arm" viewBox="0 0 400 400" aria-hidden="true">
+          <!-- основание тонарма -->
+          <circle cx="356" cy="44" r="27" fill="#141214" stroke="#000"/>
+          <circle cx="356" cy="44" r="19" fill="#262226" stroke="#000"/>
+          <g id="arm-g" transform="rotate(-5 356 44)">
+            <!-- противовес, трубка, головка с иглой -->
+            <rect x="343" y="-6" width="26" height="30" rx="3" fill="#3a353a" stroke="#000"/>
+            <path d="M356 24V236" stroke="#000" stroke-width="6" stroke-linecap="round"/>
+            <path d="M356 24V236" stroke="#a5a1a5" stroke-width="4" stroke-linecap="round"/>
+            <path d="M354.5 30V230" stroke="#eae6e8" stroke-opacity=".35" stroke-width="1"/>
+            <circle cx="356" cy="44" r="9" fill="#141214" stroke="#000"/>
+            <circle cx="356" cy="44" r="2.5" fill="#8a8188"/>
+            <g transform="rotate(18 356 236)">
+              <rect x="346" y="230" width="20" height="40" rx="2" fill="#262226" stroke="#000"/>
+              <rect x="346" y="258" width="20" height="12" fill="#ff6b35"/>
+              <path d="M366 242h9" stroke="#8a8188" stroke-width="3" stroke-linecap="round"/>
+            </g>
+          </g>
+        </svg>
+      </button>
+      <div class="pitch">
+        <span class="tech">Pitch</span>
+        <div class="slot">
+          <div class="ticks"><i class="m100"></i><i class="m80"></i></div>
+          <input class="fader" id="fader" type="range" min="30" max="120" step="1" value="80">
+        </div>
+        <output class="tech" id="pct" for="fader"></output>
+      </div>
+      <p class="deck-read tech"><span id="deck-semis" dir="auto"></span><span id="tap" dir="auto"></span></p>
+    </div>
+  </section>
+
+  <section class="feats">
+    <article class="feat">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M4 14C6 3 9 3 11 14s5 12 8 3 6-5 8 6 8 14 17 13"/><path d="M36 40l8-4-6-6" stroke-opacity=".55"/></svg>
+      <h2 id="feat1-title"></h2>
+      <p id="feat1-text"></p>
+    </article>
+    <article class="feat">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="5" y="6" width="38" height="25" rx="2"/><circle cx="17" cy="17" r="4"/><circle cx="31" cy="17" r="4"/><path d="M21 17h6M14 31l2-5h16l2 5"/><path d="M20 31c-5 4 3 6 0 10s5 5 8 1-3-6 2-11" stroke-opacity=".55"/></svg>
+      <h2 id="feat2-title"></h2>
+      <p id="feat2-text"></p>
+    </article>
+    <article class="feat">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="26" r="2.5"/><path d="M16 19a11 11 0 0 1 16 0" stroke-dasharray="7 4"/><path d="M9 13a21 21 0 0 1 30 0" stroke-dasharray="3 4 12 4"/><path d="M4 40h7l2-5 3 9 3-9 2 5h5l2-3 2 3h4l2-6 2 6h6" stroke-opacity=".55"/></svg>
+      <h2 id="feat3-title"></h2>
+      <p id="feat3-text"></p>
+    </article>
+  </section>
 </main>
-
-<footer>
-  <ul class="about">
-    <li id="about-1"></li>
-    <li id="about-2"></li>
-    <li id="about-3"></li>
-  </ul>
-</footer>
 
 <script>
 'use strict';
@@ -200,6 +490,9 @@ const KNOWN_HOSTS = [
   'vk.com', 'vk.ru', 'spotify.com', 'soundcloud.com', 'bandcamp.com', 'music.apple.com', 'rutube.ru',
 ];
 
+// Скорость по умолчанию в расширении (defaults.js) – с неё стартует фейдер
+const DEFAULT_SPEED = 80;
+
 const TEXT = {
   en: {
     sent: 'Someone sent you a slowed track',
@@ -212,11 +505,14 @@ const TEXT = {
     noise: 'static {n}%',
     leadShared: 'It plays like a record spun slower: the tempo drops and the pitch drops with it. You need the Screwed Music extension to hear it this way.',
     leadHas: 'Screwed Music is installed – the track will open with these settings.',
-    leadHome: 'Turn the speed knob and make any track or video slower and moodier. The pitch moves with the speed – the sound gets lower, like a slowed-down record.\nWorks with YouTube, Spotify, Yandex Music, VK and other sites.',
-    homeEyebrow: 'Chrome extension',
-    homeTitle: 'Slow down music and video right in the browser',
-    install: 'Add Screwed Music to Chrome',
+    leadHome: 'An extension that turns bright tracks and videos into thick tape, chewed by an old deck. Right in your browser.',
+    homeTitle: 'Make it sound beautifully dirty.',
+    install: 'Install Screwed Music',
     store: 'Screwed Music in the Chrome Web Store',
+    trust: 'All in the browser. Nothing to download. No ads, no trackers.',
+    more: '+ other sites',
+    tap: 'hover or tap – the needle drops',
+    speed: 'Speed',
     open: 'Open the track',
     openAsIs: 'Open the track as is',
     hintAfter: 'Installed it? Press “Open the track” – it will start already slowed down.',
@@ -224,9 +520,12 @@ const TEXT = {
     leadMobile: 'It plays like a record spun slower: the tempo drops and the pitch drops with it. The Screwed Music extension works in Chrome on a computer – save the link and open it there.',
     copy: 'Copy the link',
     copied: 'Link copied',
-    about1: '<b>Speed knob.</b> From 30% to 120% – just turn it and listen.',
-    about2: '<b>Made for the background.</b> Tape chew and a dark tone make the sound soft and warm – put it on and let it play.',
-    about3: '<b>All in the browser.</b> Nothing to download.',
+    feat1Title: 'Heavy, dragging pitch.',
+    feat1Text: 'Slow a track down and the pitch falls with the speed. Feel the music turn heavy, dark and deep, like an old vinyl record.',
+    feat2Title: 'The perfect background.',
+    feat2Text: 'Turn music that is too bright and distracting into a soft, swaying backdrop for work or chill. Tape chew, rolled-off highs and analog hiss take the digital edge off.',
+    feat3Title: 'Any track is your lo-fi.',
+    feat3Text: 'Switch the effect on over your favourite sites. The extension chews and dirties the sound right in the page’s own player – no downloads, no converting.',
   },
   ru: {
     sent: 'Вам прислали замедленный трек',
@@ -239,11 +538,14 @@ const TEXT = {
     noise: 'шум {n}%',
     leadShared: 'Он звучит как пластинка на пониженных оборотах: вместе с темпом падает тон. Чтобы услышать его так, нужно расширение Screwed Music.',
     leadHas: 'Screwed Music установлено – трек откроется с этими настройками.',
-    leadHome: 'Крутите ручку скорости и делайте любой трек или видео медленнее и атмосфернее. Скорость меняется вместе с высотой тона – звук становится ниже, как у замедленной пластинки.\nРаботает с YouTube, Spotify, Яндекс Музыкой, ВКонтакте и другими сайтами.',
-    homeEyebrow: 'Расширение для Chrome',
-    homeTitle: 'Замедляйте музыку и видео прямо в браузере',
+    leadHome: 'Расширение, которое превращает яркие треки и видео в густую, жующуюся на старом магнитофоне плёнку. Прямо в вашем браузере.',
+    homeTitle: 'Сделайте звук эстетически грязным.',
     install: 'Установить Screwed Music',
     store: 'Screwed Music в Chrome Web Store',
+    trust: 'Всё в браузере. Ничего не нужно скачивать. Без рекламы и трекеров.',
+    more: '+ другие сайты',
+    tap: 'наведите или нажмите – игла опустится',
+    speed: 'Скорость',
     open: 'Открыть трек',
     openAsIs: 'Открыть трек как есть',
     hintAfter: 'Уже установили? Нажмите «Открыть трек» – он запустится сразу замедленным.',
@@ -251,9 +553,12 @@ const TEXT = {
     leadMobile: 'Он звучит как пластинка на пониженных оборотах: вместе с темпом падает тон. Расширение Screwed Music работает в Chrome на компьютере – сохраните ссылку и откройте её там.',
     copy: 'Скопировать ссылку',
     copied: 'Ссылка скопирована',
-    about1: '<b>Ручка скорости.</b> От 30% до 120% – просто крутите и слушайте.',
-    about2: '<b>Музыка фоном.</b> Жевание плёнки и тёмный тон делают звук мягким и тёплым – включите и слушайте.',
-    about3: '<b>Всё в браузере.</b> Ничего не нужно скачивать.',
+    feat1Title: 'Тягучий тон.',
+    feat1Text: 'Замедлите трек, и высота звука упадёт вслед за скоростью. Почувствуйте, как музыка становится тяжёлой, мрачной и глубокой, словно старая виниловая пластинка.',
+    feat2Title: 'Идеальный бэкграунд.',
+    feat2Text: 'Превращайте слишком яркую, отвлекающую музыку в мягкий, качающий фон для работы или чилла. Жевание кассетной плёнки, срез высоких частот и аналоговый шум уберут цифровую резкость.',
+    feat3Title: 'Любой трек – ваш лоу-фай.',
+    feat3Text: 'Включайте эффект поверх любимых сайтов. Расширение жуёт и пачкает звук прямо в родном плеере страницы, без скачиваний и конвертаций.',
   },
   zh: {
     sent: '有人给你发来一首慢放的歌',
@@ -266,11 +571,14 @@ const TEXT = {
     noise: '杂音 {n}%',
     leadShared: '它听起来像一张转速调慢的唱片：速度降下来，音调也随之降低。要这样听，需要安装 Screwed Music 扩展。',
     leadHas: '已安装 Screwed Music，歌曲将按这些设置打开。',
-    leadHome: '转动速度旋钮，让任何歌曲或视频变得更慢、更有氛围。音调随速度变化，声音变得更低沉，就像慢放的唱片。\n支持 YouTube、Spotify、Yandex Music、VK 等网站。',
-    homeEyebrow: 'Chrome 扩展',
-    homeTitle: '直接在浏览器里慢放音乐和视频',
-    install: '将 Screwed Music 添加到 Chrome',
+    leadHome: '这款扩展把明亮的歌曲和视频，变成老式录音机里绞着走的厚重磁带。就在你的浏览器里。',
+    homeTitle: '把声音弄脏一点，才好听。',
+    install: '安装 Screwed Music',
     store: 'Chrome 应用商店中的 Screwed Music',
+    trust: '全在浏览器里。无需下载任何东西。没有广告，没有跟踪器。',
+    more: '+ 其他网站',
+    tap: '悬停或点击，唱针落下',
+    speed: '速度',
     open: '打开歌曲',
     openAsIs: '按原样打开歌曲',
     hintAfter: '已经安装了？点击“打开歌曲”，它会直接以慢放方式播放。',
@@ -278,9 +586,12 @@ const TEXT = {
     leadMobile: '它听起来像一张转速调慢的唱片：速度降下来，音调也随之降低。Screwed Music 扩展在电脑版 Chrome 中使用，请保存链接，到电脑上打开。',
     copy: '复制链接',
     copied: '链接已复制',
-    about1: '<b>速度旋钮。</b>从 30% 到 120%，转动它，听就行。',
-    about2: '<b>适合当背景。</b>绞带效果和暗音色让声音柔和温暖，打开就让它播着。',
-    about3: '<b>全在浏览器里。</b>无需下载任何东西。',
+    feat1Title: '黏稠的音调。',
+    feat1Text: '把歌放慢，音调随速度一起下沉。感受音乐变得沉重、阴暗、深邃，像一张老黑胶唱片。',
+    feat2Title: '完美的背景音。',
+    feat2Text: '把过于明亮、让人分心的音乐，变成适合工作或放松的柔和律动背景。绞带、削掉的高频和模拟底噪，磨掉数字的锐利感。',
+    feat3Title: '任何歌曲，都是你的 lo-fi。',
+    feat3Text: '在你喜欢的网站上直接开启效果。扩展就在网页自带的播放器里把声音嚼碎、弄脏，无需下载和转换。',
   },
   es: {
     sent: 'Te han enviado una canción ralentizada',
@@ -293,11 +604,14 @@ const TEXT = {
     noise: 'ruido {n}%',
     leadShared: 'Suena como un disco que gira más lento: baja el tempo y con él baja el tono. Para oírla así necesitas la extensión Screwed Music.',
     leadHas: 'Screwed Music está instalada: la canción se abrirá con estos ajustes.',
-    leadHome: 'Gira el control de velocidad y haz que cualquier canción o video suene más lento y con más atmósfera. El tono cambia con la velocidad: el sonido se vuelve más grave, como un disco ralentizado.\nFunciona con YouTube, Spotify, Yandex Music, VK y otros sitios.',
-    homeEyebrow: 'Extensión para Chrome',
-    homeTitle: 'Ralentiza música y video directamente en el navegador',
-    install: 'Añadir Screwed Music a Chrome',
+    leadHome: 'Una extensión que convierte canciones y videos brillantes en una cinta espesa, mascada por un casete viejo. Directamente en tu navegador.',
+    homeTitle: 'Haz que suene estéticamente sucio.',
+    install: 'Instalar Screwed Music',
     store: 'Screwed Music en Chrome Web Store',
+    trust: 'Todo en el navegador. No hay que descargar nada. Sin anuncios ni rastreadores.',
+    more: '+ otros sitios',
+    tap: 'pasa el cursor o pulsa: la aguja baja',
+    speed: 'Velocidad',
     open: 'Abrir la canción',
     openAsIs: 'Abrir la canción tal cual',
     hintAfter: '¿Ya la instalaste? Pulsa «Abrir la canción»: empezará ya ralentizada.',
@@ -305,9 +619,12 @@ const TEXT = {
     leadMobile: 'Suena como un disco que gira más lento: baja el tempo y con él baja el tono. La extensión Screwed Music funciona en Chrome en una computadora: guarda el enlace y ábrelo allí.',
     copy: 'Copiar el enlace',
     copied: 'Enlace copiado',
-    about1: '<b>Control de velocidad.</b> Del 30% al 120%: solo gíralo y escucha.',
-    about2: '<b>Música de fondo.</b> La cinta mascada y el tono oscuro dan un sonido suave y cálido: ponla y déjala sonar.',
-    about3: '<b>Todo en el navegador.</b> No hay que descargar nada.',
+    feat1Title: 'Tono espeso.',
+    feat1Text: 'Ralentiza la canción y el tono caerá con la velocidad. Siente cómo la música se vuelve pesada, oscura y profunda, como un viejo disco de vinilo.',
+    feat2Title: 'El fondo perfecto.',
+    feat2Text: 'Convierte una música demasiado brillante, que distrae, en un fondo suave y con vaivén para trabajar o relajarte. La cinta mascada, el recorte de agudos y el ruido analógico quitan la dureza digital.',
+    feat3Title: 'Cualquier canción es tu lo-fi.',
+    feat3Text: 'Activa el efecto sobre tus sitios favoritos. La extensión masca y ensucia el sonido en el propio reproductor de la página, sin descargas ni conversiones.',
   },
   ar: {
     sent: 'أرسل لك أحدهم مقطعًا مُبطّأً',
@@ -320,11 +637,14 @@ const TEXT = {
     noise: 'تشويش {n}%',
     leadShared: 'يبدو كأسطوانة تدور بسرعة أقل: ينخفض الإيقاع وتنخفض معه طبقة الصوت. لسماعه هكذا تحتاج إلى إضافة Screwed Music.',
     leadHas: 'إضافة Screwed Music مثبّتة – سيُفتح المقطع بهذه الإعدادات.',
-    leadHome: 'أدِر مفتاح السرعة واجعل أي مقطع موسيقي أو فيديو أبطأ وأكثر عمقًا. تتغيّر طبقة الصوت مع السرعة – يصبح الصوت أغلظ، كأسطوانة مُبطّأة.\nتعمل مع YouTube و Spotify و Yandex Music و VK ومواقع أخرى.',
-    homeEyebrow: 'إضافة لمتصفح Chrome',
-    homeTitle: 'أبطِئ الموسيقى والفيديو مباشرة في المتصفح',
-    install: 'إضافة Screwed Music إلى Chrome',
+    leadHome: 'إضافة تحوّل المقاطع والفيديوهات اللامعة إلى شريط سميك يمضغه مسجّل قديم. مباشرة في متصفحك.',
+    homeTitle: 'اجعل الصوت متّسخًا على نحوٍ جميل.',
+    install: 'تثبيت Screwed Music',
     store: 'Screwed Music في سوق Chrome الإلكتروني',
+    trust: 'كل شيء في المتصفح. لا حاجة لتنزيل أي شيء. بلا إعلانات ولا أدوات تتبّع.',
+    more: '+ مواقع أخرى',
+    tap: 'مرّر المؤشر أو اضغط – تنزل الإبرة',
+    speed: 'السرعة',
     open: 'فتح المقطع',
     openAsIs: 'فتح المقطع كما هو',
     hintAfter: 'ثبّتّها بالفعل؟ اضغط «فتح المقطع» – سيبدأ مُبطّأً مباشرة.',
@@ -332,9 +652,12 @@ const TEXT = {
     leadMobile: 'يبدو كأسطوانة تدور بسرعة أقل: ينخفض الإيقاع وتنخفض معه طبقة الصوت. تعمل إضافة Screwed Music في Chrome على الحاسوب – احفظ الرابط وافتحه هناك.',
     copy: 'نسخ الرابط',
     copied: 'تم نسخ الرابط',
-    about1: '<b>مفتاح السرعة.</b> من 30% إلى 120% – أدِره واستمع.',
-    about2: '<b>موسيقى في الخلفية.</b> مضغ الشريط والنغمة الداكنة يجعلان الصوت ناعمًا ودافئًا – شغّلها ودعها تعمل.',
-    about3: '<b>كل شيء في المتصفح.</b> لا حاجة لتنزيل أي شيء.',
+    feat1Title: 'نغمة ثقيلة ممطوطة.',
+    feat1Text: 'أبطِئ المقطع فتنخفض طبقة الصوت مع السرعة. اشعر بالموسيقى وهي تصبح ثقيلة وداكنة وعميقة، كأسطوانة فينيل قديمة.',
+    feat2Title: 'الخلفية المثالية.',
+    feat2Text: 'حوّل الموسيقى اللامعة المشتِّتة إلى خلفية ناعمة متمايلة للعمل أو الاسترخاء. مضغ الشريط وقصّ الترددات العالية والتشويش التماثلي تزيل الحدّة الرقمية.',
+    feat3Title: 'أي مقطع هو «لو-فاي» خاصتك.',
+    feat3Text: 'شغّل التأثير فوق مواقعك المفضلة. الإضافة تمضغ الصوت وتوسّخه في مشغّل الصفحة نفسه – بلا تنزيل ولا تحويل.',
   },
   fr: {
     sent: 'On vous a envoyé un morceau ralenti',
@@ -347,11 +670,14 @@ const TEXT = {
     noise: 'souffle {n} %',
     leadShared: 'Il sonne comme un disque qui tourne moins vite : le tempo baisse et la hauteur baisse avec lui. Pour l’entendre ainsi, il vous faut l’extension Screwed Music.',
     leadHas: 'Screwed Music est installée – le morceau s’ouvrira avec ces réglages.',
-    leadHome: 'Tournez le bouton de vitesse et rendez n’importe quel morceau ou vidéo plus lent et plus planant. La hauteur suit la vitesse : le son devient plus grave, comme un disque ralenti.\nFonctionne avec YouTube, Spotify, Yandex Music, VK et d’autres sites.',
-    homeEyebrow: 'Extension Chrome',
-    homeTitle: 'Ralentissez la musique et les vidéos directement dans le navigateur',
-    install: 'Ajouter Screwed Music à Chrome',
+    leadHome: 'Une extension qui transforme les morceaux et vidéos trop brillants en une bande épaisse, mâchée par un vieux magnéto. Directement dans votre navigateur.',
+    homeTitle: 'Rendez le son esthétiquement sale.',
+    install: 'Installer Screwed Music',
     store: 'Screwed Music sur le Chrome Web Store',
+    trust: 'Tout dans le navigateur. Rien à télécharger. Sans pub ni traceurs.',
+    more: '+ d’autres sites',
+    tap: 'survolez ou cliquez – l’aiguille se pose',
+    speed: 'Vitesse',
     open: 'Ouvrir le morceau',
     openAsIs: 'Ouvrir le morceau tel quel',
     hintAfter: 'Déjà installée ? Cliquez sur « Ouvrir le morceau » – il démarrera déjà ralenti.',
@@ -359,9 +685,12 @@ const TEXT = {
     leadMobile: 'Il sonne comme un disque qui tourne moins vite : le tempo baisse et la hauteur baisse avec lui. L’extension Screwed Music fonctionne dans Chrome sur ordinateur – enregistrez le lien et ouvrez-le là-bas.',
     copy: 'Copier le lien',
     copied: 'Lien copié',
-    about1: '<b>Bouton de vitesse.</b> De 30 % à 120 % – tournez et écoutez.',
-    about2: '<b>Musique de fond.</b> La bande mâchée et le son sombre rendent le son doux et chaud – lancez et laissez tourner.',
-    about3: '<b>Tout dans le navigateur.</b> Rien à télécharger.',
+    feat1Title: 'Un son lourd et traînant.',
+    feat1Text: 'Ralentissez le morceau et la hauteur chute avec la vitesse. Sentez la musique devenir lourde, sombre et profonde, comme un vieux vinyle.',
+    feat2Title: 'Le fond sonore idéal.',
+    feat2Text: 'Transformez une musique trop brillante, qui distrait, en un fond doux et chaloupé pour travailler ou se détendre. Bande mâchée, aigus coupés et souffle analogique gomment la dureté numérique.',
+    feat3Title: 'N’importe quel morceau devient votre lo-fi.',
+    feat3Text: 'Activez l’effet par-dessus vos sites préférés. L’extension mâche et salit le son directement dans le lecteur de la page, sans téléchargement ni conversion.',
   },
 };
 
@@ -416,6 +745,85 @@ function show(el, text) {
   el.hidden = false;
 }
 
+// у главной кнопки две строки: текст в скобках и мелкая подпись магазина
+function showInstall(text, sub) {
+  $('install-text').textContent = text;
+  $('install-sub').hidden = !sub;
+  $('install').hidden = false;
+}
+
+// высота тона падает вместе со скоростью, как у пластинки
+function semitonesText(speed) {
+  const semis = 12 * Math.log2(speed / 100);
+  // число со знаком — островком слева направо, чтобы в арабском минус не уезжал за цифры
+  const n = '⁦' + (semis > 0 ? '+' : semis < 0 ? '−' : '') + Math.abs(semis).toLocaleString(lang, { maximumFractionDigits: 1 }) + '⁩';
+  return t('semitones', { n });
+}
+
+// ---------- вертушка ----------
+// Только картинка, звука нет. Один цикл кадров ведёт мотор, тонарм и дрожание иглы
+// и останавливается, когда всё замерло.
+const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const ARM_REST = -5, ARM_PLAY = 13;  // угол тонарма в градусах: в стороне и над дорожками
+const FULL = 360 / 1.8;              // градусов в секунду на 100%: 33⅓ оборота в минуту
+const deck = { on: false, latched: false, hover: false, speed: DEFAULT_SPEED, angle: 0, omega: 0, arm: ARM_REST, lift: 1, frame: 0, last: 0 };
+
+function setSpeed(value) {
+  deck.speed = value;
+  $('fader').value = value;
+  $('pct').textContent = `${value}%`;
+  $('deck-semis').textContent = semitonesText(value);
+  wake();
+}
+
+function setOn() {
+  deck.on = deck.latched || deck.hover;
+  $('platter').setAttribute('aria-pressed', String(deck.latched));
+  wake();
+}
+
+function wake() {
+  if (deck.frame) return;
+  deck.last = performance.now();
+  deck.frame = requestAnimationFrame(tick);
+}
+
+function tick(now) {
+  const dt = Math.min(.05, (now - deck.last) / 1000);
+  deck.last = now;
+
+  // мотор с инерцией: раскручивается быстрее, чем останавливается
+  const target = deck.on && !still ? FULL * deck.speed / 100 : 0;
+  deck.omega += (target - deck.omega) * Math.min(1, dt * (deck.on ? 2.4 : 1.1));
+  deck.angle = (deck.angle + deck.omega * dt) % 360;
+
+  // тонарм едет к пластинке, и только над дорожкой игла опускается
+  const goal = deck.on ? ARM_PLAY : ARM_REST;
+  const down = deck.on && Math.abs(deck.arm - ARM_PLAY) < .8 ? 0 : 1;
+  if (still) {
+    deck.arm = goal;
+    deck.lift = deck.on ? 0 : 1;
+  } else {
+    deck.arm += (goal - deck.arm) * Math.min(1, dt * 3.2);
+    deck.lift += (down - deck.lift) * Math.min(1, dt * 6);
+  }
+
+  // игла на пластинке живая: вбок её водит эксцентриситет (раз за оборот),
+  // вверх-вниз – коробление (дважды за оборот), сверху мелкая дрожь
+  const live = (1 - deck.lift) * Math.min(1, deck.omega / FULL * 1.4);
+  const turn = deck.angle * Math.PI / 180;
+  const sway = live * (.38 * Math.sin(turn) + .05 * Math.sin(now / 37));
+  const bob = live * (.5 + .5 * Math.sin(2 * turn + 1.1));
+
+  // ось смещена от центра – пластинка бьёт, как настоящая
+  $('record').style.transform = `rotate(${deck.angle.toFixed(2)}deg) translateX(.6%)`;
+  $('arm-g').setAttribute('transform', `rotate(${(deck.arm + sway).toFixed(3)} 356 44)`);
+  $('arm').style.setProperty('--lift', (deck.lift + bob * .14).toFixed(3));
+
+  const settled = target === 0 && deck.omega < .05 && Math.abs(goal - deck.arm) < .01 && Math.abs(down - deck.lift) < .005;
+  deck.frame = settled ? 0 : requestAnimationFrame(tick);
+}
+
 const link = readLink();
 const ua = navigator.userAgent;
 const mobile = /Android|iPhone|iPad|iPod|Mobile/i.test(ua) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(ua));
@@ -424,8 +832,31 @@ const chromium = /Chrome\//.test(ua);
 const hasExtension = 'screwed' in document.documentElement.dataset;
 
 $('brand').textContent = 'Screwed Music';
-for (const n of [1, 2, 3]) $('about-' + n).innerHTML = t('about' + n);
+for (const n of [1, 2, 3]) {
+  $(`feat${n}-title`).textContent = t(`feat${n}Title`);
+  $(`feat${n}-text`).textContent = t(`feat${n}Text`);
+}
 $('install').href = STORE_URL;
+$('platter').setAttribute('aria-label', t('tap'));
+$('fader').setAttribute('aria-label', t('speed'));
+
+// мышь над декой опускает иглу, клик или тап по пластинке оставляет её играть
+$('deck').addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') { deck.hover = true; setOn(); } });
+$('deck').addEventListener('pointerleave', () => { deck.hover = false; setOn(); });
+$('platter').addEventListener('click', () => {
+  deck.latched = !deck.latched;
+  // сняли иглу кликом – не опускаем её снова, пока мышь не уйдёт и не вернётся
+  if (!deck.latched) deck.hover = false;
+  setOn();
+});
+// у 100% фейдер «щёлкает», но только под рукой: стрелками с клавиатуры доступен каждый процент
+let dragging = false;
+$('fader').addEventListener('pointerdown', () => { dragging = true; });
+addEventListener('pointerup', () => { dragging = false; });
+$('fader').addEventListener('input', e => {
+  const v = Number(e.target.value);
+  setSpeed(dragging && Math.abs(v - 100) <= 2 ? 100 : v);
+});
 
 if (link && hasExtension && knownHost(link.to.hostname)) {
   location.replace(link.to.href);
@@ -436,13 +867,23 @@ if (link && hasExtension && knownHost(link.to.hostname)) {
 }
 
 function renderShared({ to, track, speed, chew, tone, chop, drift, noise }) {
+  // чужие ссылки поисковикам не нужны, стартовая – нужна
+  const robots = document.createElement('meta');
+  robots.name = 'robots';
+  robots.content = 'noindex';
+  document.head.append(robots);
+  document.body.classList.add('shared');
+
   document.title = `${track || t('untitled')} · ${speed}% – Screwed Music`;
-  $('eyebrow').textContent = t('sent');
+  show($('eyebrow'), t('sent'));
   $('title').textContent = track || t('untitled');
   show($('host'), to.hostname.replace(/^www\./, ''));
 
-  // пластинка крутится с той же скоростью, что и трек: 33⅓ оборота в минуту на 100%
-  $('record').style.setProperty('--turn', `${(1.8 / (speed / 100)).toFixed(2)}s`);
+  // вертушка стоит на присланной скорости и уже играет
+  $('fader').disabled = true;
+  deck.latched = true;
+  setSpeed(speed);
+  setOn();
   const yt = youtubeId(to);
   if (yt) {
     const img = new Image();
@@ -454,12 +895,9 @@ function renderShared({ to, track, speed, chew, tone, chop, drift, noise }) {
     img.src = `https://i.ytimg.com/vi/${yt}/hqdefault.jpg`;
   }
 
-  const semis = 12 * Math.log2(speed / 100);
-  // число со знаком — островком слева направо, чтобы в арабском минус не уезжал за цифры
-  const n = '\u2066' + (semis > 0 ? '+' : semis < 0 ? '−' : '') + Math.abs(semis).toLocaleString(lang, { maximumFractionDigits: 1 }) + '\u2069';
   $('readout').hidden = false;
   $('digits').textContent = `${speed}%`;
-  $('semitones').textContent = t('semitones', { n });
+  $('semitones').textContent = semitonesText(speed);
   $('extras').textContent = [chew && t('chew', { n: chew }), tone && t('tone', { n: tone }), drift && t('drift'), noise && t('noise', { n: noise }), chop && t('chop')].filter(Boolean).join(' · ');
 
   $('open').href = to.href;
@@ -474,19 +912,23 @@ function renderShared({ to, track, speed, chew, tone, chop, drift, noise }) {
     $('copy').addEventListener('click', copyLink);
   } else {
     $('lead').textContent = t('leadShared');
-    show($('install'), t('install'));
+    showInstall(t('install'), true);
     show($('open'), t('open'));
     show($('hint'), chromium ? t('hintAfter') : t('hintOther'));
   }
 }
 
 function renderHome() {
-  $('eyebrow').textContent = t('homeEyebrow');
   $('title').textContent = t('homeTitle');
   $('lead').textContent = t('leadHome');
+  $('more').textContent = t('more');
+  $('services').hidden = false;
   // расширение уже стоит — кнопка остаётся ссылкой на его страницу в магазине
-  show($('install'), hasExtension ? t('store') : t('install'));
+  showInstall(hasExtension ? t('store') : t('install'), !hasExtension);
+  show($('trust'), t('trust'));
   if (mobile || !chromium) show($('hint'), t('hintOther'));
+  $('tap').textContent = t('tap');
+  setSpeed(DEFAULT_SPEED);
 }
 
 async function copyLink() {
