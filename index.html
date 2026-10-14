@@ -18,15 +18,16 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <style>
 /* Стартовая страница и страница-прослойка для ссылок «Поделиться».
-   Ровный почти чёрный фон без фактур, один гротеск, оранжевый только на главной кнопке.
-   Справа на стартовой – настоящий снимок панели (store/src/render.sh panel). Отступы кратны 8px. */
+   Тёмный тёплый фон с зерном и мягкими градиентами, один гротеск, акцент только на главной кнопке.
+   Справа на стартовой – живая панель расширения (site/panel/, собирается store/src/build-site-panel.js). Отступы кратны 8px. */
 :root {
-  --bg: #171615;
+  --bg: #151515;
   --surface: #22211f;
   --ink: #e7e3dc;
   --soft: #a7a29b;
   --line: #393632;
-  --accent: #ff873e;
+  --accent: #d65a7a;
+  --grain: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27200%27%20height%3D%27200%27%3E%3Cfilter%20id%3D%27n%27%3E%3CfeTurbulence%20type%3D%27fractalNoise%27%20baseFrequency%3D%270.8%27%20numOctaves%3D%273%27%20stitchTiles%3D%27stitch%27%2F%3E%3CfeColorMatrix%20type%3D%27matrix%27%20values%3D%270%200%200%200%200.91%20%200%200%200%200%200.90%20%200%200%200%200%200.88%20%200%200.11%200%200%200%27%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%27200%27%20height%3D%27200%27%20filter%3D%27url%28%23n%29%27%2F%3E%3C%2Fsvg%3E");
   --font: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
@@ -42,6 +43,13 @@ body {
   color: var(--ink);
   font: 16px/1.5 var(--font);
   -webkit-font-smoothing: antialiased;
+  /* тёплый тёмный фон: зерно + мягкие градиенты по палитре #151515 · #292929 · #777570 · #BDBBB5 · #E8E6E0 */
+  background-color: var(--bg);
+  background-image:
+    var(--grain),
+    radial-gradient(120% 90% at 72% 12%, #2c2b26 0%, rgba(44, 43, 38, 0) 58%),
+    radial-gradient(100% 80% at 8% 100%, #1e1d1a 0%, rgba(30, 29, 26, 0) 52%);
+  background-size: 200px 200px, auto, auto;
 }
 
 header, main, footer { width: 100%; max-width: 1120px; margin: 0 auto; padding-inline: 24px; }
@@ -108,24 +116,40 @@ h1 {
   cursor: pointer;
 }
 .btn:hover { border-color: var(--soft); }
-/* главное действие страницы – единственное место, где есть оранжевый */
+/* главное действие страницы – единственное место с акцентным цветом */
 .btn.primary { border-color: var(--accent); background: var(--accent); color: var(--bg); }
-.btn.primary:hover { border-color: #ff9a5c; background: #ff9a5c; }
+.btn.primary:hover { border-color: #de7b95; background: #de7b95; }
 .btn:focus-visible, a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 .hint { margin: 16px 0 0; max-width: 34em; font-size: 14px; color: var(--soft); text-wrap: pretty; }
 .hint + .hint { margin-top: 8px; }
 
-/* снимок панели со стенда – продукт как он есть */
-.shot { flex: none; margin: 0; }
-.shot img {
-  display: block;
-  width: auto;
-  height: auto;
-  max-width: min(360px, 100%);
-  max-height: calc(100dvh - 208px);
-  border: 1px solid var(--line);
+/* живая панель расширения – настоящий экземпляр в iframe (site/panel/) */
+.shot { position: relative; flex: none; margin: 0; }
+/* зернистая градиентная тень вокруг панели */
+.shot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
   border-radius: 13px;
-  background: var(--surface);
+  background:
+    var(--grain),
+    radial-gradient(90% 90% at 50% 38%, rgba(0, 0, 0, .55) 0%, rgba(0, 0, 0, 0) 72%);
+  background-size: 160px 160px, auto;
+  filter: blur(34px);
+  transform: translateY(16px) scale(1.05);
+  opacity: .8;
+  pointer-events: none;
+}
+.shot iframe {
+  position: relative;
+  display: block;
+  width: 360px;
+  height: 451px;
+  max-width: min(360px, 100%);
+  border: none;
+  border-radius: 13px;
+  background: var(--bg);
+  box-shadow: 0 22px 48px -20px rgba(0, 0, 0, .55);
 }
 
 footer { padding-bottom: 32px; }
@@ -138,7 +162,6 @@ footer { padding-bottom: 32px; }
   header { padding-top: 24px; }
   main { flex-direction: column; align-items: stretch; gap: 48px; padding-block: 40px; }
   .shot { align-self: center; }
-  .shot img { max-height: none; }
   .home .actions .btn { flex: 1 1 100%; }
 }
 @media (min-width: 821px) and (max-height: 800px) {
@@ -177,7 +200,7 @@ footer { padding-bottom: 32px; }
 
   </div>
 
-  <figure class="shot" id="shot" hidden><img id="panel" width="360" height="440" alt=""></figure>
+  <figure class="shot" id="shot" hidden><iframe id="panel" title=""></iframe></figure>
 </main>
 
 <footer>
@@ -468,15 +491,26 @@ function renderHome() {
   document.body.classList.add('home');
   $('title').textContent = t('line');
   $('lead').textContent = t('leadHome');
-  // настоящая панель расширения, снятая со стенда на языке страницы
-  $('panel').src = `panel-${lang}.png`;
-  $('panel').alt = t('panelAlt');
+  // настоящая панель расширения: живой экземпляр в iframe, язык из адреса
+  $('panel').src = `panel/panel.html?lang=${lang}`;
+  $('panel').title = t('panelAlt');
+  $('panel').addEventListener('load', fitPanel);
   $('shot').hidden = false;
   // расширение уже стоит — кнопка остаётся ссылкой на его страницу в магазине
   showInstall(hasExtension ? t('store') : t('install'));
   show($('trust'), t('trust'));
   if (mobile || !chromium) show($('hint'), t('hintOther'));
 }
+
+// живая панель: подгоняем высоту iframe под содержимое, чтобы не было прокрутки
+function fitPanel() {
+  const f = $('panel');
+  try {
+    const h = f.contentDocument && f.contentDocument.body && f.contentDocument.body.scrollHeight;
+    if (h > 0) f.style.height = `${h}px`;
+  } catch (e) { /* оставляем высоту из CSS */ }
+}
+addEventListener('resize', fitPanel);
 
 async function copyLink() {
   const btn = $('copy');

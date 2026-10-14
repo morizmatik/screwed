@@ -1,0 +1,565 @@
+/* Панель Screwed.
+   Нейтральная основа берётся у сайта: фон, текст, линии. Акцент сайта — только там,
+   где звук или действие: «играть», прогресс, заливка ползунков, главный выключатель.
+   Иерархия сверху вниз: что играет → главный инструмент (скорость) → эффекты → справка. */
+:root {
+  --bg: #15131a;
+  --fg: #ebe8f0;
+  --muted: #8f899c;
+  --line: #2c2834;
+  --panel: #1e1b25;   /* подложка при наведении */
+  --pink: #e8823c;    /* акцент; имя историческое, panel.js подставляет сюда цвет сайта */
+  --on-accent: #15131a;
+  --accent: var(--pink);
+  --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font);
+}
+
+* { box-sizing: border-box; }
+
+html {
+  min-height: 100%;
+  background: var(--bg);
+  transition: background-color .3s;
+}
+
+body {
+  max-width: 420px;
+  min-width: 280px;
+  margin: 0 auto;
+  padding: 10px 16px 14px;
+  color: var(--fg);
+  font: 13px/1.35 var(--font);
+  font-variant-numeric: tabular-nums;
+}
+
+button, select, input { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+
+/* выключено: всё, кроме выключателя, приглушено и не реагирует (inert ставит panel.js) */
+#app [inert] { opacity: .4; }
+/* на странице нет медиа — инструменту нечем управлять */
+#app.no-media .deck { opacity: .4; }
+
+/* ---------- шапка ---------- */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 28px;
+}
+
+/* название: плотное, тяжёлое, завалено назад — «тормозит». Единственное место с таким начертанием */
+.logo {
+  position: relative;
+  margin: 0;
+  font: 800 17px/1 var(--font-display);
+  letter-spacing: -.035em;
+  transform: skewX(10deg);
+  transform-origin: left bottom;
+}
+/* на удар бочки название на мгновение окрашивается акцентом; меняется только opacity слоя */
+.logo-flash {
+  position: absolute;
+  inset: 0;
+  color: var(--accent);
+  opacity: 0;
+  will-change: opacity;
+  pointer-events: none;
+}
+
+.header-right { display: flex; align-items: center; gap: 2px; }
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color .1s, background .1s;
+}
+.icon-btn:hover { color: var(--fg); background: var(--panel); }
+.icon-btn[aria-pressed="true"] { color: var(--fg); }
+.icon-btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.400; }
+
+/* ---------- выключатели ---------- */
+.switch {
+  position: relative;
+  flex: none;
+  display: block;
+  width: 28px;
+  height: 16px;
+  cursor: pointer;
+}
+.switch input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+.track-sw {
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  background: var(--line);
+  pointer-events: none;
+  transition: background .12s;
+}
+.track-sw::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: transform .12s, background .12s;
+}
+.switch input:checked + .track-sw { background: var(--fg); }
+.switch input:checked + .track-sw::after { transform: translateX(12px); background: var(--bg); }
+.switch input:focus-visible + .track-sw { outline: 2px solid var(--fg); outline-offset: 2px; }
+
+/* главный выключатель крупнее остальных и единственный горит акцентом */
+.power { width: 34px; height: 20px; margin-inline-start: 8px; }
+.power .track-sw { border-radius: 10px; }
+.power .track-sw::after { width: 16px; height: 16px; }
+.power input:checked + .track-sw { background: var(--accent); }
+.power input:checked + .track-sw::after { transform: translateX(14px); background: var(--on-accent); }
+
+.toast { margin-top: 6px; font-size: 12px; color: var(--muted); }
+.toast[hidden] { display: none; }
+.rescue { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; margin-top: 6px; font-size: 12px; color: var(--muted); }
+.rescue[hidden] { display: none; }
+.rescue .text-btn { color: var(--fg); text-decoration: underline; }
+/* Расширение не подключилось к вкладке: единственное, что можно сделать, — перезагрузить её.
+   Просьба становится карточкой с кнопкой, всё остальное уходит в тень. */
+#app.lost [inert], #app.lost .power { opacity: .15; }
+#app.lost .rescue {
+  flex-direction: column; align-items: stretch; gap: 10px;
+  margin-top: 10px; padding: 12px;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--panel);
+  font-size: 13px; color: var(--fg);
+}
+#app.lost .rescue .text-btn {
+  padding: 8px 12px; border-radius: 8px;
+  background: var(--accent); color: var(--on-accent);
+  font-weight: 600; text-align: center; text-decoration: none;
+}
+#app.lost .rescue .text-btn:hover { filter: brightness(1.1); }
+
+/* ---------- что играет ---------- */
+.now { margin-top: 10px; }
+
+.track { display: flex; align-items: center; gap: 10px; }
+.track-text { min-width: 0; }
+
+/* «играть» — главное действие, поэтому акцентом сайта */
+.pp {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  cursor: pointer;
+  transition: transform .08s;
+}
+.pp:active { transform: scale(.94); }
+.pp svg { width: 12px; height: 12px; fill: currentColor; }
+.pp .icon-play, .pp.paused .icon-pause { display: none; }
+.pp.paused .icon-play { display: block; margin-inline-start: 1px; }
+/* управлять нечем — кнопки нет */
+.now:has(#progress[hidden]) .pp { display: none; }
+
+.title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 600;
+}
+.title.empty { font-weight: 400; color: var(--muted); }
+
+.now-row { display: flex; min-width: 0; font-size: 12px; color: var(--muted); }
+.host { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.state { flex: none; text-transform: lowercase; }
+.host:not(:empty) + .state::before { content: "·"; margin: 0 5px; }
+.state.playing { color: var(--fg); }
+
+.note { margin-top: 4px; font-size: 12px; color: var(--muted); }
+.note[hidden] { display: none; }
+
+/* живая волна: новые пики появляются справа, у иглы. Перемотка — вплотную под ней */
+.wave { position: relative; height: 36px; margin-top: 10px; }
+.wave canvas { display: block; width: 100%; height: 100%; }
+.wave-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  font-size: 11px;
+  line-height: 1.3;
+  color: var(--muted);
+  background: var(--bg);
+}
+.wave-hint[hidden] { display: none; }
+
+.progress { display: flex; align-items: center; gap: 10px; }
+.progress[hidden] { display: none; }
+.time { flex: none; font-size: 11px; color: var(--muted); }
+
+/* ---------- ползунки ----------
+   Один язык на все: дорожка с акцентной заливкой до ручки и круглая ручка цвета текста
+   с «вырезом» в цвет фона. Размер ручки — по важности: скорость > эффекты > перемотка. */
+input[type=range] {
+  --fill: 0%;
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 20px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+input[type=range]::-webkit-slider-runnable-track {
+  height: 3px;
+  border-radius: 1.500px;
+  background: linear-gradient(90deg, var(--accent) var(--fill), var(--line) var(--fill));
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  width: 14px;
+  height: 14px;
+  margin-top: -5.500px;
+  border: 2px solid var(--bg);
+  border-radius: 50%;
+  background: var(--fg);
+}
+input[type=range]:focus-visible { outline-offset: 0; border-radius: 4px; }
+
+#seek { flex: 1; min-width: 0; height: 16px; }
+#seek::-webkit-slider-thumb { width: 12px; height: 12px; margin-top: -4.500px; }
+#seek:disabled { cursor: default; }
+#seek:disabled::-webkit-slider-thumb { display: none; }
+
+/* ---------- главный инструмент: пластинка и скорость ---------- */
+.deck {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 14px;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.platter {
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.platter.grabbed { cursor: grabbing; }
+
+.record {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  /* диск — из цветов сайта: его фон, чуть сдвинутый к цвету текста */
+  --disc: color-mix(in srgb, var(--bg) 86%, var(--fg));
+  --groove: color-mix(in srgb, var(--bg) 70%, var(--fg));
+  background:
+    radial-gradient(circle closest-side,
+      transparent 71%, var(--groove) 71.500% 72.500%, transparent 73%,
+      transparent 85%, var(--groove) 85.500% 86.500%, transparent 87%),
+    var(--disc);
+  will-change: transform;
+}
+.label {
+  position: absolute;
+  inset: 30%;
+  border-radius: 50%;
+  /* этикетка — акцентом сайта; риска нужна, чтобы было видно вращение */
+  background: conic-gradient(var(--on-accent) 0 3%, var(--accent) 3% 100%);
+}
+.label.cover {
+  inset: 18%;
+  background: var(--cover) center / cover no-repeat, var(--line);
+}
+.label::after {
+  content: "";
+  position: absolute;
+  inset: 44%;
+  border-radius: 50%;
+  background: var(--bg);
+}
+
+/* число, подпись и ползунок читаются как один контрол: общий левый край, плотные отступы */
+.readout { display: flex; align-items: flex-end; gap: 8px; }
+.digits {
+  font: 700 40px/.9 var(--font-display);
+  letter-spacing: -.04em;
+}
+.readout-text { display: flex; flex-direction: column; padding-bottom: 1px; font-size: 12px; line-height: 1.3; }
+.sub { color: var(--muted); }
+/* темп ещё не расслышан: три точки по очереди становятся ярче */
+.dots { display: inline-flex; gap: 2px; vertical-align: middle; }
+.dots[hidden] { display: none; }
+/* в узкой панели темп уходит на вторую строку целиком, а «−6,2 полутона» не рвётся посередине */
+#pitch-out, #bpm-num { white-space: nowrap; }
+.dots i { width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: .3; animation: dot 1.2s ease-in-out infinite; }
+.dots i:nth-child(2) { animation-delay: .2s; }
+.dots i:nth-child(3) { animation-delay: .4s; }
+@keyframes dot { 0%, 60%, 100% { opacity: .3; } 30% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .dots i { animation: none; opacity: .6; } }
+
+#speed { margin-top: 8px; height: 22px; }
+#speed::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; }
+#speed::-webkit-slider-thumb { width: 18px; height: 18px; margin-top: -7px; }
+.scale {
+  position: relative;
+  height: 13px;
+  margin: 0 9px; /* половина ширины ручки */
+  font-size: 10px;
+  line-height: 13px;
+  color: var(--muted);
+}
+.scale > * { position: absolute; left: calc(var(--p) * 100%); transform: translateX(-50%); }
+/* 100% — обычная скорость, точка отсчёта */
+.scale .ref { color: var(--fg); }
+/* Сердечко — рекомендуемое значение, оно же по умолчанию: 80% скорости, 15% жевания, 40% тёмного тона, 60% шума.
+   Нажатие ставит его. Пока стоит другое значение, сердечко приглушено и не лезет в глаза;
+   акцентным становится, когда значение выбрано (и при наведении — как приглашение нажать). */
+.fav {
+  margin: 0;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--muted);
+  opacity: .45;
+  cursor: pointer;
+  transition: color .15s, opacity .15s;
+}
+.fav svg { display: block; fill: currentColor; }
+.fav:hover, .fav:focus-visible { color: var(--accent); opacity: 1; }
+.fav.on { color: var(--accent); opacity: 1; cursor: default; }
+.scale .fav svg { width: 9px; height: 13px; }
+/* у ползунка эффекта шкалы нет — маленькое сердечко под дорожкой */
+.slider { --thumb: 14px; position: relative; display: block; direction: ltr; }
+.slider .fav {
+  position: absolute;
+  top: 14px;
+  left: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--p));
+  transform: translateX(-50%);
+  padding: 2px 4px;
+}
+.slider .fav svg { width: 7px; height: 7px; }
+/* значение уже стоит: нажимать нечего, а ручку ползунка сердечко заслонять не должно */
+.slider .fav.on { pointer-events: none; }
+
+/* ---------- эффекты ---------- */
+.effects { margin-top: 16px; }
+.group {
+  margin: 0 0 2px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+}
+.row {
+  display: grid;
+  grid-template-columns: 96px 1fr 32px; /* «Cinta mascada», «Bande mâchée» шире 88px */
+  align-items: center;
+  gap: 10px;
+  min-height: 30px;
+}
+.row .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* эффект без силы — только включён или нет: название и выключатель у правого края */
+.row.toggle { grid-template-columns: 1fr auto; position: relative; }
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-inline-start: 4px;
+  padding: 1px 3px 1px 6px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: none;
+  font: inherit;
+  font-size: 10px;
+  color: var(--muted);
+  cursor: help;
+}
+.badge:hover, .badge:focus-visible { color: var(--fg); }
+.badge:focus-visible { outline: 2px solid var(--fg); outline-offset: 1px; }
+/* «i» в кружке — знак, что у метки есть подсказка */
+.info {
+  display: grid;
+  place-items: center;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--line);
+  font: italic 700 9px/1 Georgia, serif;
+  color: var(--fg);
+}
+/* подсказка — над строкой, во всю её ширину */
+.tip {
+  position: absolute;
+  z-index: 2;
+  inset-inline: 0;
+  bottom: calc(100% + 2px);
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--fg);
+  text-wrap: pretty;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity .12s, visibility .12s;
+}
+.row:has(.badge:hover) .tip, .row:has(.badge:focus-visible) .tip { visibility: visible; opacity: 1; }
+.row output { font-size: 12px; color: var(--muted); text-align: end; }
+
+/* ---------- второстепенное: стиль, язык, сброс, клавиши ---------- */
+footer {
+  margin-top: 14px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--muted);
+}
+.footer-line { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 24px; }
+.lang {
+  field-sizing: content; /* ширина по выбранному языку, стрелка рядом со словом */
+  max-width: 60%;
+  padding: 2px 0;
+  margin-inline-start: -3px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--muted);
+  cursor: pointer;
+}
+.lang:hover { color: var(--fg); }
+
+.text-btn {
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+}
+.text-btn:hover { color: var(--fg); text-decoration: underline; }
+
+/* справка по клавишам: пара «сочетание — действие» */
+.keys-box {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  font-size: 11px;
+}
+.keys {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 10px;
+  margin: 0;
+}
+.keys dt { color: color-mix(in srgb, var(--fg) 75%, var(--bg)); }
+.keys dt.unset { color: var(--muted); }
+.keys dd { margin: 0; }
+.keys-box .text-btn { font-size: 11px; padding: 0; }
+
+/* ---------- обложка внизу окна ---------- */
+/* обложка целиком, чуть шире окна и с наклоном: едва заметна, кверху растворяется в фоне до нуля.
+   Два слоя с разной прозрачностью: ::before – сама обложка, ::after – плёночное зерно;
+   маска общая, так что кверху гаснут оба */
+#backdrop {
+  position: fixed;
+  left: -40px; bottom: -45px;
+  width: 120vw;
+  height: 120vw;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  transform: rotate(-15deg);
+  transition: opacity .35s;
+  -webkit-mask-image: linear-gradient(transparent, #000);
+  mask-image: linear-gradient(transparent, #000);
+}
+#backdrop.on { opacity: 1; }
+#backdrop::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--cover) top / cover no-repeat;
+  opacity: .1;
+}
+/* зерно: чёрные и белые крупинки с собственной прозрачностью */
+#backdrop::after {
+  content: "";
+  position: absolute;
+  inset: -64px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='6 0 0 0 -2.5 6 0 0 0 -2.5 6 0 0 0 -2.5 0 2.2 0 0 -.75'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: .22;
+  animation: grain .5s steps(1) infinite;
+}
+@keyframes grain {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(-31px, 17px); }
+  50%  { transform: translate(23px, -29px); }
+  75%  { transform: translate(-13px, -41px); }
+}
+@media (prefers-reduced-motion: reduce) { #backdrop::after { animation: none; } }
+
+/* ---------- языки ---------- */
+/* ползунки, шкала, волна и прогресс всегда слева направо, как на любом плеере */
+input[type=range], .scale, .progress, .wave { direction: ltr; }
+
+/* ---------- мини-плеер поверх всех окон ---------- */
+body.mini { max-width: none; padding: 10px 14px 12px; }
+body.mini footer { display: none; }
+
+.popped { padding: 32px 16px; text-align: center; color: var(--muted); font-size: 12px; }
+.popped[hidden] { display: none; }
+
+/* ---------- вкладка-запускатель мини-плеера ---------- */
+body.launcher #app { display: none; }
+.launch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 340px;
+  margin: 18vh auto 0;
+  text-align: center;
+}
+.launch[hidden] { display: none; }
+.launch p { margin: 0; color: var(--muted); }
+.launch button {
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+  cursor: pointer;
+}
+.launch-error { font-size: 12px; }
+.launch-error[hidden] { display: none; }

@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script src="shim.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Screwed Music</title>
+  <link rel="stylesheet" href="panel.css">
+  <link rel="stylesheet" href="demo.css">
+</head>
+<body>
+  <!-- Весь интерфейс внутри #app: его целиком переносим в окно поверх всех окон и обратно.
+       Тексты подставляет panel.js из i18n.js по атрибутам data-i18n*. -->
+  <div id="app">
+  <!-- обложка текущего трека: полоса внизу окна, градиент и зерно (panel.js: setCover);
+       лежит внутри #app, чтобы переезжать в мини-плеер вместе с ним -->
+  <div id="backdrop" aria-hidden="true"></div>
+  <header>
+    <!-- вторая надпись — акцентная копия: проступает на удар бочки (меняется только прозрачность) -->
+    <h1 class="logo" dir="ltr"><span class="logo-text">Screwed</span><span class="logo-flash" id="logo-flash" aria-hidden="true">Screwed</span></h1>
+    <div class="header-right">
+      <button id="share" class="icon-btn" type="button" data-i18n-title="share" data-i18n-aria="share">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="12" cy="3.500" r="2"/><circle cx="4" cy="8" r="2"/><circle cx="12" cy="12.500" r="2"/><path d="M5.800 7l4.400-2.500M5.800 9l4.400 2.500"/></svg>
+      </button>
+      <button id="popout" class="icon-btn" type="button">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.500" y="3.500" width="10" height="9" rx="1.500"/><path d="M8.500 1.500h6v6M14.500 1.500l-6.500 6.500"/></svg>
+      </button>
+      <label class="switch power" data-i18n-title="on">
+        <input type="checkbox" id="on" data-i18n-aria="on">
+        <span class="track-sw"></span>
+      </label>
+    </div>
+  </header>
+  <div class="toast" id="toast" hidden></div>
+  <!-- расширение не видит звук вкладки: перезагрузка подключает его заново -->
+  <div class="rescue" id="rescue" hidden>
+    <span id="rescue-text"></span>
+    <button id="restart" class="text-btn" type="button" data-i18n="restart"></button>
+  </div>
+
+  <!-- что играет: кнопка «играть» и трек — одной строкой, под ними волна и перемотка -->
+  <section class="now" aria-live="polite">
+    <div class="track">
+      <button id="playpause" class="pp" type="button" data-i18n-aria="pause">
+        <svg class="icon-pause" viewBox="0 0 12 12" aria-hidden="true"><rect x="2" y="1.500" width="3" height="9" rx=".800"/><rect x="7" y="1.500" width="3" height="9" rx=".800"/></svg>
+        <svg class="icon-play" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.600v8.800c0 .400.400.600.700.400l6.600-4.400a.500.500 0 0 0 0-.800L3.700 1.200c-.300-.200-.700 0-.700.400z"/></svg>
+      </button>
+      <div class="track-text">
+        <div class="title" id="now-title"></div>
+        <div class="now-row">
+          <span class="host" id="now-host" dir="ltr"></span>
+          <span class="state" id="now-state"></span>
+        </div>
+      </div>
+    </div>
+    <div class="note" id="now-note" hidden data-i18n="noMediaNote"></div>
+
+    <div class="wave">
+      <canvas id="wave" aria-hidden="true"></canvas>
+      <span class="wave-hint" id="wave-hint" hidden></span>
+    </div>
+    <div class="progress" id="progress" hidden>
+      <input type="range" id="seek" min="0" max="1" step="0.1" value="0" data-i18n-aria="position">
+      <span class="time" id="time">0:00</span>
+    </div>
+  </section>
+
+  <!-- главный инструмент: пластинка (скретч), скорость и её ползунок — один контрол -->
+  <section class="deck">
+    <div class="platter" aria-hidden="true">
+      <div class="record" id="record"><div class="label" id="label"></div></div>
+    </div>
+    <div class="speed">
+      <div class="readout">
+        <output id="speed-out" class="digits" for="speed" dir="ltr"></output>
+        <div class="readout-text">
+          <label for="speed" data-i18n="speed"></label>
+          <!-- сдвиг тона и темп того, что сейчас слышно: «−6,2 полутона · 84 BPM»; пока темп не расслышан — бегущие точки -->
+          <span class="sub"><span id="pitch-out"></span><span id="bpm-out" hidden> · <span id="bpm-num" dir="ltr"></span><span class="dots" id="bpm-dots" aria-hidden="true"><i></i><i></i><i></i></span></span></span>
+        </div>
+      </div>
+      <input type="range" id="speed" min="0.3" max="1.2" step="0.01">
+      <div class="scale">
+        <span style="--p:0" aria-hidden="true">30</span>
+        <!-- 80% — скорость по умолчанию: на ней музыка звучит удачнее всего. Нажатие ставит её -->
+        <button class="fav" type="button" style="--p:.556" data-fav="speed" data-value="0.8" data-i18n-aria="favSet"><svg viewBox="0 0 12 11" aria-hidden="true"><path d="M6 10.300 1.300 5.700a2.900 2.900 0 0 1 4.100-4.100l.600.600.600-.600a2.900 2.900 0 0 1 4.100 4.100z"/></svg></button>
+        <span class="ref" style="--p:.778" aria-hidden="true">100</span>
+        <span style="--p:1" aria-hidden="true">120</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- эффекты: ползунки (в нуле эффект выключен) и выключатели плавающего тона и чопов -->
+  <main id="controls" class="effects">
+    <h2 class="group" data-i18n="effects"></h2>
+    <div class="row" data-i18n-title="chewTip">
+      <label class="name" for="chewAmt" data-i18n="chew"></label>
+      <!-- сердечко под дорожкой на 15% — рекомендуемая сила, она же по умолчанию; нажатие ставит её -->
+      <span class="slider">
+        <input type="range" id="chewAmt" min="0" max="1" step="0.01">
+        <button class="fav" type="button" style="--p:.15" data-fav="chewAmt" data-value="0.15" data-i18n-aria="favSet"><svg viewBox="0 0 12 11" aria-hidden="true"><path d="M6 10.300 1.300 5.700a2.900 2.900 0 0 1 4.100-4.100l.600.600.600-.600a2.900 2.900 0 0 1 4.100 4.100z"/></svg></button>
+      </span>
+      <output id="chewAmt-out" for="chewAmt" dir="ltr"></output>
+    </div>
+    <div class="row">
+      <label class="name" for="tone" data-i18n="tone"></label>
+      <!-- и у тёмного тона: сердечко на 40%, оно же значение по умолчанию -->
+      <span class="slider">
+        <input type="range" id="tone" min="0" max="1" step="0.01">
+        <button class="fav" type="button" style="--p:.4" data-fav="tone" data-value="0.4" data-i18n-aria="favSet"><svg viewBox="0 0 12 11" aria-hidden="true"><path d="M6 10.300 1.300 5.700a2.900 2.900 0 0 1 4.100-4.100l.600.600.600-.600a2.900 2.900 0 0 1 4.100 4.100z"/></svg></button>
+      </span>
+      <output id="tone-out" for="tone" dir="ltr"></output>
+    </div>
+    <!-- плавающий тон идёт сразу за тёмным: это та же ручка, только она гуляет сама -->
+    <div class="row toggle" data-i18n-title="driftHint">
+      <label class="name" for="drift" data-i18n="drift"></label>
+      <label class="switch">
+        <input type="checkbox" id="drift">
+        <span class="track-sw"></span>
+      </label>
+    </div>
+    <div class="row" data-i18n-title="noiseTip">
+      <label class="name" for="noise" data-i18n="noise"></label>
+      <span class="slider">
+        <input type="range" id="noise" min="0" max="1" step="0.01">
+        <button class="fav" type="button" style="--p:.6" data-fav="noise" data-value="0.6" data-i18n-aria="favSet"><svg viewBox="0 0 12 11" aria-hidden="true"><path d="M6 10.300 1.300 5.700a2.900 2.900 0 0 1 4.100-4.100l.600.600.600-.600a2.900 2.900 0 0 1 4.100 4.100z"/></svg></button>
+      </span>
+      <output id="noise-out" for="noise" dir="ltr"></output>
+    </div>
+    <div class="row toggle">
+      <!-- подсказка всплывает при наведении на метку «эксперимент» (и при фокусе с клавиатуры) -->
+      <span class="name"><label for="chop" data-i18n="chop"></label> <button class="badge" type="button" aria-describedby="chop-hint"><span data-i18n="experimental"></span><span class="info" aria-hidden="true">i</span></button></span>
+      <label class="switch">
+        <input type="checkbox" id="chop" aria-describedby="chop-hint">
+        <span class="track-sw"></span>
+      </label>
+      <p class="tip" id="chop-hint" role="tooltip" data-i18n="chopHint"></p>
+    </div>
+  </main>
+
+  <!-- второстепенное: язык, сброс, справка по клавишам -->
+  <footer>
+    <div class="footer-line">
+      <select id="lang" class="lang" data-i18n-aria="language"></select>
+      <button id="reset" class="text-btn" type="button" data-i18n="reset"></button>
+    </div>
+    <div class="keys-box">
+      <dl class="keys" id="keys"></dl>
+      <button id="shortcuts" class="text-btn" type="button" data-i18n="change"></button>
+    </div>
+  </footer>
+  </div>
+
+  <!-- вкладка-запускатель: из неё Chrome открывает окно поверх всех окон -->
+  <div class="launch" id="launch" hidden>
+    <div class="logo" dir="ltr">Screwed</div>
+    <p id="launch-text"></p>
+    <button id="launch-btn" type="button"></button>
+    <p class="launch-error" id="launch-error" hidden></p>
+  </div>
+
+  <!-- пока плеер в отдельном окне, в боковой панели — только это -->
+  <div class="popped" id="popped" hidden>
+    <p id="popped-text"></p>
+    <button id="popin" class="text-btn" type="button"></button>
+  </div>
+
+  <script src="defaults.js"></script>
+  <script src="i18n.js"></script>
+  <script src="panel.js"></script>
+  <script src="demo.js"></script>
+</body>
+</html>
