@@ -16,17 +16,18 @@
 <meta property="og:image:height" content="560">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="panel/palette.css">
 <style>
 /* Стартовая страница и страница-прослойка для ссылок «Поделиться».
    Тёмный тёплый фон с зерном и мягкими градиентами, один гротеск, акцент только на главной кнопке.
    Справа на стартовой – живая панель расширения (site/panel/, собирается store/src/build-site-panel.js). Отступы кратны 8px. */
 :root {
-  --bg: #151515;
-  --surface: #22211f;
-  --ink: #e7e3dc;
-  --soft: #a7a29b;
-  --line: #393632;
-  --accent: #d65a7a;
+  --bg: var(--c-bg);
+  --surface: var(--c-surface);
+  --ink: var(--c-ink);
+  --soft: var(--c-fg);
+  --line: var(--c-surface);
+  --accent: var(--c-accent);
   --grain: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27200%27%20height%3D%27200%27%3E%3Cfilter%20id%3D%27n%27%3E%3CfeTurbulence%20type%3D%27fractalNoise%27%20baseFrequency%3D%270.8%27%20numOctaves%3D%273%27%20stitchTiles%3D%27stitch%27%2F%3E%3CfeColorMatrix%20type%3D%27matrix%27%20values%3D%270%200%200%200%200.91%20%200%200%200%200%200.90%20%200%200%200%200%200.88%20%200%200.11%200%200%200%27%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%27200%27%20height%3D%27200%27%20filter%3D%27url%28%23n%29%27%2F%3E%3C%2Fsvg%3E");
   --font: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
@@ -118,7 +119,7 @@ h1 {
 .btn:hover { border-color: var(--soft); }
 /* главное действие страницы – единственное место с акцентным цветом */
 .btn.primary { border-color: var(--accent); background: var(--accent); color: var(--bg); }
-.btn.primary:hover { border-color: #de7b95; background: #de7b95; }
+.btn.primary:hover { border-color: var(--c-accent-hover); background: var(--c-accent-hover); }
 .btn:focus-visible, a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 .hint { margin: 16px 0 0; max-width: 34em; font-size: 14px; color: var(--soft); text-wrap: pretty; }
 .hint + .hint { margin-top: 8px; }

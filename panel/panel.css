@@ -2,14 +2,16 @@
    Нейтральная основа берётся у сайта: фон, текст, линии. Акцент сайта — только там,
    где звук или действие: «играть», прогресс, заливка ползунков, главный выключатель.
    Иерархия сверху вниз: что играет → главный инструмент (скорость) → эффекты → справка. */
+@import url("palette.css");
+
 :root {
-  --bg: #15131a;
-  --fg: #ebe8f0;
-  --muted: #8f899c;
-  --line: #2c2834;
-  --panel: #1e1b25;   /* подложка при наведении */
-  --pink: #e8823c;    /* акцент; имя историческое, panel.js подставляет сюда цвет сайта */
-  --on-accent: #15131a;
+  --bg: var(--c-bg);
+  --fg: var(--c-fg);
+  --muted: var(--c-muted);
+  --line: var(--c-surface);
+  --panel: var(--c-surface);   /* подложка при наведении */
+  --pink: var(--c-accent);     /* акцент; имя историческое, panel.js подставляет сюда цвет сайта */
+  --on-accent: var(--c-on-accent);
   --accent: var(--pink);
   --font: system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display: var(--font);

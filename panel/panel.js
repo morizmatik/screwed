@@ -495,7 +495,7 @@ function drawWave(now) {
 // Фон и текст берём со страницы, акцент — из иконки сайта
 // (красный у YouTube, жёлтый у Яндекс Музыки, оранжевый у SoundCloud...).
 const THEME_VARS = ['--bg', '--panel', '--well', '--line', '--fg', '--muted', '--violet', '--pink', '--amber', '--acid', '--vinyl', '--on-accent'];
-const DEFAULT_ACCENT = [232, 130, 60];
+const DEFAULT_ACCENT = [236, 144, 167]; // #EC90A7 — брэнд-акцент (см. palette.css)
 const probe = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
 
 // любой цвет CSS → [r, g, b, a]
@@ -772,7 +772,7 @@ function applyFonts(fonts) {
 // Страница, к которой расширение не подключилось, свои цвета не пришлёт. Для сайтов, где эффект
 // включён, помним их с прошлого раза (без адреса страницы); для остальных — тёмная панель
 // с акцентом из иконки сайта.
-const DEFAULT_THEME = { bg: '#15131a', fg: '#ebe8f0', themeColor: null, fonts: null };
+const DEFAULT_THEME = { bg: '#151515', fg: '#BDBBB5', themeColor: null, fonts: null };
 let themes = {}; // сайт (origin) -> { bg, fg, themeColor, fonts }
 chrome.storage.local.get({ themes: {} }, saved => { themes = saved.themes; });
 
