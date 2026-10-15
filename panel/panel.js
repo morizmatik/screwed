@@ -123,16 +123,6 @@ function renderUserPresets() {
     wrap.dataset.id = preset.id;
     row.append(wrap);
   }
-  const add = document.createElement('button');
-  add.type = 'button';
-  add.className = 'preset add';
-  add.textContent = `+ ${t('presetSave')}`;
-  add.addEventListener('click', () => {
-    if (userPresets.length >= SCREWED_USER_PRESETS_MAX) { toast(t('presetLimit', { n: SCREWED_USER_PRESETS_MAX })); return; }
-    $('preset-form').hidden = false;
-    $('preset-name').focus();
-  });
-  row.append(add);
 }
 $('preset-form').addEventListener('submit', e => {
   e.preventDefault();
@@ -1133,7 +1123,7 @@ async function popOut() {
   }
   pipWin = win;
   const doc = win.document;
-  doc.title = 'Screwed Music';
+  doc.title = 'Screwify';
   const link = doc.createElement('link');
   link.rel = 'stylesheet';
   link.href = chrome.runtime.getURL('panel.css');

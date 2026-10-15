@@ -78,7 +78,7 @@ const SCREWED_I18N = {
     share: 'Share',
     shareCopied: 'Link copied – it opens this page with your settings',
     shareNoPage: 'Nothing to share: this tab has no website page',
-    sharedApplied: 'Screwed Music: settings from the link are on – speed {speed}. Click the extension icon to open the panel',
+    sharedApplied: 'Screwify: settings from the link are on – speed {speed}. Click the extension icon to open the panel',
   },
   ru: {
     on: 'Вкл',
@@ -148,7 +148,7 @@ const SCREWED_I18N = {
     share: 'Поделиться',
     shareCopied: 'Ссылка скопирована – по ней откроется эта страница с вашими настройками',
     shareNoPage: 'Нечем поделиться: на вкладке нет страницы сайта',
-    sharedApplied: 'Screwed Music: включены настройки из ссылки – скорость {speed}. Нажмите на значок расширения, чтобы открыть панель',
+    sharedApplied: 'Screwify: включены настройки из ссылки – скорость {speed}. Нажмите на значок расширения, чтобы открыть панель',
   },
   zh: {
     on: '开启',
@@ -218,7 +218,7 @@ const SCREWED_I18N = {
     share: '分享',
     shareCopied: '链接已复制，它会以你的设置打开此页面',
     shareNoPage: '无法分享：此标签页不是网站页面',
-    sharedApplied: 'Screwed Music：已应用链接中的设置，速度 {speed}。点击扩展图标打开面板',
+    sharedApplied: 'Screwify：已应用链接中的设置，速度 {speed}。点击扩展图标打开面板',
   },
   es: {
     on: 'Activado',
@@ -288,7 +288,7 @@ const SCREWED_I18N = {
     share: 'Compartir',
     shareCopied: 'Enlace copiado: abre esta página con tus ajustes',
     shareNoPage: 'No hay nada que compartir: esta pestaña no es una página web',
-    sharedApplied: 'Screwed Music: ajustes del enlace activados, velocidad {speed}. Haz clic en el icono de la extensión para abrir el panel',
+    sharedApplied: 'Screwify: ajustes del enlace activados, velocidad {speed}. Haz clic en el icono de la extensión para abrir el panel',
   },
   ar: {
     on: 'تشغيل',
@@ -358,7 +358,7 @@ const SCREWED_I18N = {
     share: 'مشاركة',
     shareCopied: 'تم نسخ الرابط – سيفتح هذه الصفحة بإعداداتك',
     shareNoPage: 'لا شيء للمشاركة: هذا التبويب ليس صفحة موقع',
-    sharedApplied: 'Screwed Music: تم تفعيل إعدادات الرابط – السرعة {speed}. انقر على أيقونة الإضافة لفتح اللوحة',
+    sharedApplied: 'Screwify: تم تفعيل إعدادات الرابط – السرعة {speed}. انقر على أيقونة الإضافة لفتح اللوحة',
   },
   fr: {
     on: 'Activé',
@@ -428,7 +428,7 @@ const SCREWED_I18N = {
     share: 'Partager',
     shareCopied: 'Lien copié : il ouvre cette page avec vos réglages',
     shareNoPage: 'Rien à partager : cet onglet n’affiche pas de page web',
-    sharedApplied: 'Screwed Music : réglages du lien activés, vitesse {speed}. Cliquez sur l’icône de l’extension pour ouvrir le panneau',
+    sharedApplied: 'Screwify : réglages du lien activés, vitesse {speed}. Cliquez sur l’icône de l’extension pour ouvrir le panneau',
   },
 };
 
