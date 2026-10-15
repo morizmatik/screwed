@@ -337,6 +337,18 @@ input[type=range]:focus-visible { outline-offset: 0; border-radius: 4px; }
 .scale > * { position: absolute; left: calc(var(--p) * 100%); transform: translateX(-50%); }
 /* 100% — обычная скорость, точка отсчёта */
 .scale .ref { color: var(--fg); }
+/* быстрее 100% – зона «Nightcore»: подпись посередине и тонкая черта от 100% до 200% над ней */
+.scale .zone { font-style: italic; letter-spacing: .02em; }
+.scale::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 41.2%;
+  right: 0;
+  height: 1px;
+  background: var(--muted);
+  opacity: .35;
+}
 /* Сердечко — рекомендуемое значение, оно же по умолчанию: 80% скорости, 15% жевания, 40% тёмного тона, 60% шума.
    Нажатие ставит его. Пока стоит другое значение, сердечко приглушено и не лезет в глаза;
    акцентным становится, когда значение выбрано (и при наведении — как приглашение нажать). */
@@ -367,6 +379,31 @@ input[type=range]:focus-visible { outline-offset: 0; border-radius: 4px; }
 .slider .fav svg { width: 7px; height: 7px; }
 /* значение уже стоит: нажимать нечего, а ручку ползунка сердечко заслонять не должно */
 .slider .fav.on { pointer-events: none; }
+
+/* ---------- пресеты ---------- */
+.presets { margin-top: 16px; }
+.preset-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.preset {
+  padding: 4px 12px;
+  border: 1px solid var(--muted);
+  border-radius: 999px;
+  background: none;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+}
+.preset.user { display: inline-flex; padding: 0; overflow: hidden; }
+.preset.user button, .preset.add { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+.preset.user button:first-child { padding: 4px 4px 4px 12px; }
+.preset.user .del { padding: 4px 8px 4px 2px; opacity: .6; }
+.preset.user .del:hover { opacity: 1; }
+.preset.add { border: 1px dashed var(--muted); padding: 4px 12px; }
+.preset-save { display: flex; gap: 6px; margin-top: 6px; }
+.preset-save[hidden] { display: none; }
+.preset-save input { flex: 1; min-width: 0; padding: 4px 10px; font: inherit; font-size: 12px; color: var(--fg); background: none; border: 1px solid var(--muted); border-radius: 999px; }
+.preset-save input:focus { outline: none; border-color: var(--accent); }
+.preset:hover { color: var(--fg); border-color: var(--fg); }
+.preset.on { color: var(--accent); border-color: var(--accent); }
 
 /* ---------- эффекты ---------- */
 .effects { margin-top: 16px; }

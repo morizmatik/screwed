@@ -15,13 +15,13 @@ for (const el of app.querySelectorAll('[id]')) els[el.id] = el;
 const $ = id => els[id];
 const offTargets = [
   app.querySelector('.logo'), app.querySelector('.now'), app.querySelector('.deck'),
-  els.controls, app.querySelector('footer'), els.share, els.popout,
+  app.querySelector('.presets'), els.controls, app.querySelector('footer'), els.share, els.popout,
 ];
 const pct = v => `${Math.round(v * 100)}%`;
 const RPM = 100 / 3; // 33⅓
 
 const CHECKS = ['chop', 'drift'];
-const RANGES = ['speed', 'chewAmt', 'tone', 'noise'];
+const RANGES = ['speed', 'chewAmt', 'tone', 'noise', 'reverb'];
 const BPM_WAIT_MS = 25000;
 let bpmWaitFrom = null; // с какого момента ждём темп
 
@@ -41,6 +41,16 @@ function renderControls() {
     $(`${id}-out`).textContent = pct(s[id]);
     // акцентная заливка дорожки до ручки
     el.style.setProperty('--fill', `${((s[id] - el.min) / (el.max - el.min)) * 100}%`);
+  }
+  for (const b of presetBtns) {
+    const on = screwedPresetActive(b.preset, s);
+    b.el.classList.toggle('on', on);
+    b.el.setAttribute('aria-pressed', on);
+  }
+  for (const wrap of $('user-presets').querySelectorAll('.user')) {
+    const on = screwedPresetActive(userPresets.find(p => p.id === wrap.dataset.id), s);
+    wrap.classList.toggle('on', on);
+    wrap.firstChild.setAttribute('aria-pressed', on);
   }
   for (const el of favs) el.classList.toggle('on', Math.abs(s[el.dataset.fav] - Number(el.dataset.value)) < 0.005);
   // выключено — работает только кнопка «Вкл», остальное затемнено и не реагирует
@@ -72,6 +82,71 @@ for (const id of RANGES) {
   $(id).addEventListener('input', e => update({ [id]: Number(e.target.value) }));
 }
 
+// пресеты: кнопки строим по списку из defaults.js; подсветка гаснет, когда ручки разошлись с пресетом
+const presetBtns = SCREWED_PRESETS.map(preset => {
+  const el = document.createElement('button');
+  el.type = 'button';
+  el.className = 'preset';
+  el.dataset.i18n = preset.i18n;
+  el.addEventListener('click', () => update({ ...preset.values }));
+  $('presets').append(el);
+  return { el, preset };
+});
+
+// свои пресеты: хранятся отдельно от настроек, чтобы «Сброс» их не стирал
+let userPresets = [];
+function saveUserPresets(list) {
+  userPresets = list;
+  chrome.storage.local.set({ [SCREWED_USER_PRESETS_KEY]: list });
+  renderUserPresets();
+}
+function renderUserPresets() {
+  const row = $('user-presets');
+  row.textContent = '';
+  for (const preset of userPresets) {
+    const wrap = document.createElement('span');
+    wrap.className = 'preset user';
+    const apply = document.createElement('button');
+    apply.type = 'button';
+    apply.textContent = preset.name;
+    apply.addEventListener('click', () => update({ ...preset.values }));
+    const del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'del';
+    del.textContent = '×';
+    del.title = del.ariaLabel = t('presetDelete');
+    del.addEventListener('click', () => saveUserPresets(screwedUserPresetsWithout(userPresets, preset.id)));
+    wrap.append(apply, del);
+    const on = screwedPresetActive(preset, s);
+    wrap.classList.toggle('on', on);
+    apply.setAttribute('aria-pressed', on);
+    wrap.dataset.id = preset.id;
+    row.append(wrap);
+  }
+  const add = document.createElement('button');
+  add.type = 'button';
+  add.className = 'preset add';
+  add.textContent = `+ ${t('presetSave')}`;
+  add.addEventListener('click', () => {
+    if (userPresets.length >= SCREWED_USER_PRESETS_MAX) { toast(t('presetLimit', { n: SCREWED_USER_PRESETS_MAX })); return; }
+    $('preset-form').hidden = false;
+    $('preset-name').focus();
+  });
+  row.append(add);
+}
+$('preset-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const list = screwedUserPresetsWith(userPresets, $('preset-name').value, s);
+  if (!list) return;
+  $('preset-name').value = '';
+  $('preset-form').hidden = true;
+  saveUserPresets(list);
+});
+chrome.storage.local.get({ [SCREWED_USER_PRESETS_KEY]: [] }, saved => {
+  userPresets = saved[SCREWED_USER_PRESETS_KEY];
+  renderUserPresets();
+});
+
 // сердечки у ползунков ставят рекомендуемое значение
 const favs = app.querySelectorAll('.fav');
 for (const el of favs) {
@@ -91,6 +166,10 @@ $('reset').addEventListener('click', () => {
 // горячие клавиши и стрелки на панели меняют настройки в обход формы
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area !== 'local') return;
+  if (SCREWED_USER_PRESETS_KEY in changes) {
+    userPresets = changes[SCREWED_USER_PRESETS_KEY].newValue || [];
+    renderUserPresets();
+  }
   for (const key in changes) {
     if (key in s) s[key] = changes[key].newValue ?? SCREWED_DEFAULTS[key];
   }
@@ -107,6 +186,8 @@ function applyLang() {
     root.dir = code === 'ar' ? 'rtl' : 'ltr';
   }
   for (const el of app.querySelectorAll('[data-i18n]')) el.textContent = t(el.dataset.i18n);
+  for (const el of app.querySelectorAll('[data-i18n-placeholder]')) el.placeholder = t(el.dataset.i18nPlaceholder);
+  renderUserPresets();
   for (const el of app.querySelectorAll('[data-i18n-title]')) el.title = t(el.dataset.i18nTitle);
   for (const el of app.querySelectorAll('[data-i18n-aria]')) el.setAttribute('aria-label', t(el.dataset.i18nAria));
   renderPopout();

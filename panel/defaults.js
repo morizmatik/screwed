@@ -4,11 +4,52 @@ const SCREWED_DEFAULTS = {
   chewAmt: 0.15, // жевание плёнки, 0..1 (0 — выключено); 15% тоже отмечены сердечком
   tone: 0.4,     // «тёмный» lowpass, 0..1; 40% отмечены сердечком
   noise: 0.6,    // шум эфира: редкие «потери волны» с шипением и треском, 0..1 (0 — выключено); 60% — сердечко
+  reverb: 0,     // реверб, 0..1 (0 — выключен); по умолчанию выключен, пока автор не послушал
   chop: false,   // чопы и эхо в ритм: включены или нет
   drift: true,   // плавающий тон: тембр медленно и случайно гуляет, как скорость у жевания
   sites: {},     // сайты, на которых эффект включён: { 'https://music.yandex.ru': true }
   lang: 'auto',  // язык интерфейса: auto — как у браузера
 };
+
+// ---------- пресеты ----------
+// Пресет – набор значений всех ручек эффекта (не трогает сайты и язык), применяется одним действием.
+// i18n – ключ названия в i18n.js. Активным считается пресет, у которого все значения совпали с текущими.
+const SCREWED_PRESETS = [
+  { id: 'slowed', i18n: 'presetSlowed', values: { speed: 0.8, chewAmt: 0, tone: 0.4, noise: 0, reverb: 0.4, chop: false, drift: false } },
+  { id: 'tape', i18n: 'presetTape', values: { speed: 0.9, chewAmt: 0.5, tone: 0.5, noise: 0.3, reverb: 0.15, chop: false, drift: true } },
+  { id: 'radio', i18n: 'presetRadio', values: { speed: 1, chewAmt: 0.1, tone: 0.7, noise: 0.8, reverb: 0, chop: false, drift: false } },
+  { id: 'nightcore', i18n: 'presetNightcore', values: { speed: 1.3, chewAmt: 0, tone: 0, noise: 0, reverb: 0, chop: false, drift: false } },
+];
+
+function screwedPresetActive(preset, s) {
+  return Object.entries(preset.values).every(([k, v]) =>
+    typeof v === 'boolean' ? !!s[k] === v : Math.abs(s[k] - v) < 0.005);
+}
+
+// Свои пресеты: список { id, name, values } в chrome.storage.local под ключом userPresets.
+// Не входят в SCREWED_DEFAULTS, чтобы «Сброс» их не стирал. Делиться ими можно обычной ссылкой «Поделиться»:
+// код в ней несёт те же ручки, что и пресет.
+const SCREWED_USER_PRESETS_KEY = 'userPresets';
+const SCREWED_USER_PRESETS_MAX = 6;
+const SCREWED_USER_PRESET_NAME_MAX = 16;
+
+// значения ручек из текущих настроек (без сайтов и языка)
+function screwedPresetValues(s) {
+  const out = {};
+  for (const k of Object.keys(SCREWED_PRESETS[0].values)) out[k] = s[k];
+  return out;
+}
+
+// список с добавленным пресетом или null, если имя пустое или список полон (исходный не меняется)
+function screwedUserPresetsWith(list, name, s) {
+  const clean = String(name).trim().slice(0, SCREWED_USER_PRESET_NAME_MAX);
+  if (!clean || list.length >= SCREWED_USER_PRESETS_MAX) return null;
+  return [...list, { id: `u${Date.now().toString(36)}${list.length}`, name: clean, values: screwedPresetValues(s) }];
+}
+
+function screwedUserPresetsWithout(list, id) {
+  return list.filter(p => p.id !== id);
+}
 
 // ---------- сайты ----------
 // Эффект работает там, где сошлись два условия: на вкладке открыта панель (ключ tab:<номер вкладки>,
@@ -33,7 +74,7 @@ function screwedSitesWith(sites, site, on) {
 
 // ---------- настройки в ссылке «Поделиться» ----------
 // Короткий код: s70-c50-t20-w1-n60 — скорость 70%, жевание 50%, тёмный тон 20%,
-// плавающий тон включён (w0 — выключен), шум 60%.
+// плавающий тон включён (w0 — выключен), шум 60%. Реверб (r40) дописывается, только если он включён.
 // Чопы (d1) дописываются, только если включены: версии до 0.12 незнакомую часть кода не понимают.
 // Версии до 0.14 не понимают и w с n — у них ссылка откроет трек без настроек, пока Chrome их не обновит.
 // Кладём его после # (браузер сохраняет эту часть даже при перенаправлениях сервера),
@@ -42,25 +83,26 @@ const SCREWED_PARAM = 'screwed';
 
 function screwedShareCode(s) {
   const p = v => Math.round(v * 100);
-  return `s${p(s.speed)}-c${p(s.chewAmt)}-t${p(s.tone)}-w${s.drift ? 1 : 0}-n${p(s.noise)}${s.chop ? '-d1' : ''}`;
+  return `s${p(s.speed)}-c${p(s.chewAmt)}-t${p(s.tone)}-w${s.drift ? 1 : 0}-n${p(s.noise)}${s.reverb > 0 ? `-r${p(s.reverb)}` : ''}${s.chop ? '-d1' : ''}`;
 }
 
 function screwedParseCode(code) {
-  // ссылка без чопов выключает их и у получателя; плавающий тон и шум из старых ссылок,
+  // ссылка без чопов и реверба выключает их и у получателя; плавающий тон и шум из старых ссылок,
   // где их нет, остаются такими, как у получателя
-  const out = { chop: false };
+  const out = { chop: false, reverb: 0 };
   for (const part of String(code).split('-')) {
     // незнакомые буквы пропускаем: так ссылки из будущих версий с новыми настройками не ломаются
     const m = part.match(/^([a-z])(\d{1,3})$/);
     if (!m) return null;
     const n = Number(m[2]);
-    if (m[1] === 's') out.speed = Math.min(1.2, Math.max(0.3, n / 100));
+    if (m[1] === 's') out.speed = Math.min(2, Math.max(0.3, n / 100));
     // 'p' (тон вниз) был в старых ссылках; теперь тон падает всегда — просто пропускаем
     if (m[1] === 'c') out.chewAmt = Math.min(1, n / 100);
     if (m[1] === 't') out.tone = Math.min(1, n / 100);
     if (m[1] === 'd') out.chop = n > 0;
     if (m[1] === 'w') out.drift = n > 0;
     if (m[1] === 'n') out.noise = Math.min(1, n / 100);
+    if (m[1] === 'r') out.reverb = Math.min(1, n / 100);
   }
   return 'speed' in out ? out : null;
 }

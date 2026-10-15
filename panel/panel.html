@@ -79,15 +79,29 @@
           <span class="sub"><span id="pitch-out"></span><span id="bpm-out" hidden> · <span id="bpm-num" dir="ltr"></span><span class="dots" id="bpm-dots" aria-hidden="true"><i></i><i></i><i></i></span></span></span>
         </div>
       </div>
-      <input type="range" id="speed" min="0.3" max="1.2" step="0.01">
+      <input type="range" id="speed" min="0.3" max="2" step="0.01">
       <div class="scale">
         <span style="--p:0" aria-hidden="true">30</span>
         <!-- 80% — скорость по умолчанию: на ней музыка звучит удачнее всего. Нажатие ставит её -->
-        <button class="fav" type="button" style="--p:.556" data-fav="speed" data-value="0.8" data-i18n-aria="favSet"><svg viewBox="0 0 12 11" aria-hidden="true"><path d="M6 10.300 1.300 5.700a2.900 2.900 0 0 1 4.100-4.100l.600.600.600-.600a2.900 2.900 0 0 1 4.100 4.100z"/></svg></button>
-        <span class="ref" style="--p:.778" aria-hidden="true">100</span>
-        <span style="--p:1" aria-hidden="true">120</span>
+        <button class="fav" type="button" style="--p:.294" data-fav="speed" data-value="0.8" data-i18n-aria="favSet"><svg viewBox="0 0 12 11" aria-hidden="true"><path d="M6 10.300 1.300 5.700a2.900 2.900 0 0 1 4.100-4.100l.600.600.600-.600a2.900 2.900 0 0 1 4.100 4.100z"/></svg></button>
+        <span class="ref" style="--p:.412" aria-hidden="true">100</span>
+        <!-- быстрее 100% – зона «Nightcore»: тон и темп вверх. Положение на шкале – (v − 0,3) / 1,7 -->
+        <span class="zone" style="--p:.706" aria-hidden="true">nightcore</span>
+        <span style="--p:1" aria-hidden="true">200</span>
       </div>
     </div>
+  </section>
+
+  <!-- пресеты: одна кнопка ставит сразу все ручки (список – SCREWED_PRESETS в defaults.js) -->
+  <section class="presets">
+    <h2 class="group" data-i18n="presets"></h2>
+    <div class="preset-row" id="presets"></div>
+    <!-- свои пресеты: кнопка «Сохранить» открывает поле имени -->
+    <div class="preset-row" id="user-presets"></div>
+    <form class="preset-save" id="preset-form" hidden>
+      <input id="preset-name" type="text" maxlength="16" autocomplete="off" data-i18n-placeholder="presetName">
+      <button type="submit" class="preset on">OK</button>
+    </form>
   </section>
 
   <!-- эффекты: ползунки (в нуле эффект выключен) и выключатели плавающего тона и чопов -->
@@ -126,6 +140,13 @@
         <button class="fav" type="button" style="--p:.6" data-fav="noise" data-value="0.6" data-i18n-aria="favSet"><svg viewBox="0 0 12 11" aria-hidden="true"><path d="M6 10.300 1.300 5.700a2.900 2.900 0 0 1 4.100-4.100l.600.600.600-.600a2.900 2.900 0 0 1 4.100 4.100z"/></svg></button>
       </span>
       <output id="noise-out" for="noise" dir="ltr"></output>
+    </div>
+    <div class="row" data-i18n-title="reverbTip">
+      <label class="name" for="reverb" data-i18n="reverb"></label>
+      <span class="slider">
+        <input type="range" id="reverb" min="0" max="1" step="0.01">
+      </span>
+      <output id="reverb-out" for="reverb" dir="ltr"></output>
     </div>
     <div class="row toggle">
       <!-- подсказка всплывает при наведении на метку «эксперимент» (и при фокусе с клавиатуры) -->
