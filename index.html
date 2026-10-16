@@ -29,10 +29,12 @@
   --line: var(--c-surface);
   --accent: var(--c-accent);
   --grain: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27200%27%20height%3D%27200%27%3E%3Cfilter%20id%3D%27n%27%3E%3CfeTurbulence%20type%3D%27fractalNoise%27%20baseFrequency%3D%270.8%27%20numOctaves%3D%273%27%20stitchTiles%3D%27stitch%27%2F%3E%3CfeColorMatrix%20type%3D%27matrix%27%20values%3D%270%200%200%200%200.91%20%200%200%200%200%200.90%20%200%200%200%200%200.88%20%200%200.11%200%200%200%27%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%27200%27%20height%3D%27200%27%20filter%3D%27url%28%23n%29%27%2F%3E%3C%2Fsvg%3E");
+  --check: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2016%2016%27%3E%3Cpath%20d%3D%27M3%208.5l3%203%207-7%27%20fill%3D%27none%27%20stroke%3D%27%23151515%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%2F%3E%3C%2Fsvg%3E");
   --font: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 * { box-sizing: border-box; }
+::selection { background: var(--accent); color: var(--c-on-accent); }
 [hidden] { display: none !important; }
 
 html { background: var(--bg); }
@@ -74,7 +76,6 @@ main { flex: 1; display: flex; align-items: center; gap: clamp(40px, 7vw, 112px)
   text-decoration: none;
 }
 
-.eyebrow { margin: 0 0 16px; font-size: 15px; color: var(--soft); }
 h1 {
   margin: 0;
   font-size: clamp(30px, 5.4vw, 52px);
@@ -90,11 +91,16 @@ h1 {
 :lang(zh) h1 { letter-spacing: 0; }
 .host { margin: 8px 0 0; font-size: 15px; color: var(--soft); overflow-wrap: anywhere; }
 
-/* настройки присланного трека: крупное число и строка под ним */
-.readout { margin-top: 32px; }
-.digits { display: block; font: 800 clamp(64px, 13vw, 104px)/1 var(--font); letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
-.readout-text { display: block; margin-top: 8px; font-size: 15px; color: var(--soft); }
-.readout-text span + span:not(:empty)::before { content: " · "; }
+/* настройки присланного трека: одна фраза про скорость и тон, эффекты – по раскрытию */
+.readout { margin: 24px 0 0; font-size: 20px; line-height: 1.35; font-weight: 500; text-wrap: balance; }
+.readout b { font-weight: 800; font-variant-numeric: tabular-nums; }
+.fx { margin-top: 8px; font-size: 14px; color: var(--soft); }
+.fx summary { display: inline-flex; align-items: center; gap: 8px; min-height: 24px; cursor: pointer; list-style: none; }
+.fx summary::-webkit-details-marker { display: none; }
+.fx summary:hover { color: var(--ink); }
+.fx summary::after { content: ""; width: 6px; height: 6px; border-right: 1.5px solid; border-bottom: 1.5px solid; transform: translateY(-2px) rotate(45deg); transition: transform .2s cubic-bezier(.16, 1, .3, 1); }
+.fx[open] summary::after { transform: translateY(1px) rotate(-135deg); }
+.fx p { margin: 4px 0 0; }
 
 .lead { margin: 24px 0 0; max-width: 30em; font-size: 17px; color: var(--soft); text-wrap: pretty; }
 .home .lead { max-width: 26em; font-size: 18px; }
@@ -107,7 +113,7 @@ h1 {
   justify-content: center;
   min-height: 48px;
   padding: 12px 20px;
-  border: 1px solid var(--line);
+  border: 1px solid color-mix(in srgb, var(--c-muted) 55%, var(--bg));
   border-radius: 10px;
   background: none;
   color: var(--ink);
@@ -120,9 +126,39 @@ h1 {
 /* главное действие страницы – единственное место с акцентным цветом */
 .btn.primary { border-color: var(--accent); background: var(--accent); color: var(--bg); }
 .btn.primary:hover { border-color: var(--c-accent-hover); background: var(--c-accent-hover); }
-.btn:focus-visible, a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+.btn:focus-visible, a:focus-visible, summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 .hint { margin: 16px 0 0; max-width: 34em; font-size: 14px; color: var(--soft); text-wrap: pretty; }
 .hint + .hint { margin-top: 8px; }
+
+/* как включить: три шага со значками, как они выглядят на панели Chrome */
+.how { margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--line); max-width: 30em; }
+.shared .how { margin-inline: auto; text-align: start; }
+.how h2 { margin: 0 0 16px; font-size: 15px; font-weight: 700; line-height: 1.25; color: var(--ink); }
+.steps { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; counter-reset: step; }
+.steps li { display: grid; grid-template-columns: 24px 1fr; gap: 12px; font-size: 15px; line-height: 24px; color: var(--soft); counter-increment: step; text-wrap: pretty; }
+.steps li::before {
+  content: counter(step);
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--c-muted);
+  border-radius: 50%;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+/* расширение уже стоит – первый шаг сделан */
+.steps li.done::before {
+  content: "";
+  border-color: var(--accent);
+  background: var(--accent) var(--check) center / 14px no-repeat;
+}
+/* значок на панели браузера: круглая кнопка, как в Chrome */
+.key { display: inline-grid; place-items: center; width: 24px; height: 24px; margin-inline: 2px; vertical-align: -7px; border-radius: 50%; background: var(--surface); color: var(--ink); }
+.key svg, .key img { display: block; width: 16px; height: 16px; }
+.key svg { fill: currentColor; }
 
 /* живая панель расширения – настоящий экземпляр в iframe (site/panel/) */
 .shot { position: relative; flex: none; margin: 0; }
@@ -153,10 +189,10 @@ h1 {
   box-shadow: 0 22px 48px -20px rgba(0, 0, 0, .55);
 }
 
-footer { padding-bottom: 32px; }
+footer { padding-bottom: 20px; }
 .social { display: flex; flex-wrap: wrap; gap: 8px 24px; font-size: 14px; }
 .shared .social { justify-content: center; }
-.social a { color: var(--soft); text-decoration: none; }
+.social a { display: inline-block; padding-block: 12px; color: var(--soft); text-decoration: none; }
 .social a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: .25em; }
 
 @media (max-width: 820px) {
@@ -169,9 +205,8 @@ footer { padding-bottom: 32px; }
   header { padding-top: 24px; }
   main { padding-block: 16px; }
   .shared h1 { font-size: clamp(30px, 6vh, 52px); }
-  .readout { margin-top: 24px; }
-  .digits { font-size: clamp(56px, 11vh, 104px); }
-  footer { padding-bottom: 24px; }
+  .readout { margin-top: 16px; }
+  footer { padding-bottom: 12px; }
 }
 </style>
 </head>
@@ -180,14 +215,11 @@ footer { padding-bottom: 32px; }
 
 <main>
   <div class="copy">
-    <p class="eyebrow" id="eyebrow" hidden></p>
     <h1 id="title"></h1>
     <p class="host" id="host" dir="ltr" hidden></p>
 
-    <div class="readout" id="readout" hidden>
-      <span class="digits" id="digits" dir="ltr"></span>
-      <span class="readout-text"><span id="semitones"></span><span id="extras"></span></span>
-    </div>
+    <p class="readout" id="readout" hidden></p>
+    <details class="fx" id="fx" hidden><summary id="fx-title"></summary><p id="fx-list"></p></details>
 
     <p class="lead" id="lead"></p>
 
@@ -198,6 +230,11 @@ footer { padding-bottom: 32px; }
     </div>
     <p class="hint" id="trust" hidden></p>
     <p class="hint" id="hint" hidden></p>
+
+    <section class="how" id="how" aria-labelledby="how-title" hidden>
+      <h2 id="how-title"></h2>
+      <ol class="steps" id="steps"></ol>
+    </section>
 
   </div>
 
@@ -229,16 +266,22 @@ const KNOWN_HOSTS = [
 
 const TEXT = {
   en: {
-    sent: 'Someone sent you a slowed track',
     untitled: 'A track, slowed down',
-    semitones: '{n} semitones',
+    semitones: { one: '{n} semitone', other: '{n} semitones' },
+    slower: 'Slowed to {speed} – {semis} lower',
+    faster: 'Sped up to {speed} – {semis} higher',
+    normal: 'Normal speed',
+    effects: 'Effects',
     chew: 'tape chew {n}%',
     tone: 'dark tone {n}%',
     chop: 'chops',
     drift: 'drifting tone',
     noise: 'static {n}%',
     reverb: 'reverb {n}%',
-    leadShared: 'It plays like a record spun slower: the tempo drops and the pitch drops with it. You need the Screwify extension to hear it this way.',
+    sentSlow: 'Someone sent it to you slowed down, like a record spun slower.',
+    sentFast: 'Someone sent it to you sped up, like a record spun faster.',
+    sentEffects: 'Someone sent it to you with Screwify effects.',
+    needExt: 'To hear it this way, you need the Screwify extension.',
     leadHas: 'Screwify is installed – the track will open with these settings.',
     leadHome: 'Slow music down, drop the pitch and add warm cassette character – right in your browser.',
     line: 'Any track.\nA different sound.',
@@ -248,23 +291,37 @@ const TEXT = {
     trust: 'Free extension · Runs in your browser',
     open: 'Open the track',
     openAsIs: 'Open the track as is',
-    hintAfter: 'Installed it? Press “Open the track” – it will start already slowed down.',
+    howTitle: 'How to turn it on',
+    step1: 'Install Screwify from the Chrome Web Store.',
+    step1Done: 'Screwify is installed.',
+    step2: 'Pin it to the toolbar: click {puzzle}, then {pin} next to Screwify.',
+    step3: 'On any site with music, click {disc} – the music slows down right away. Click it on each visit.',
+    step3Shared: 'Come back here and press “Open the track” – it will start slowed down. The settings are under {disc}.',
+    panelHint: 'The settings panel opens from {disc} on the browser toolbar.',
+    iconPuzzle: 'Extensions',
+    iconPin: 'Pin',
     hintOther: 'The extension works in Chrome and Chrome-based browsers: Edge, Yandex Browser, Opera, Brave.',
-    leadMobile: 'It plays like a record spun slower: the tempo drops and the pitch drops with it. The Screwify extension works in Chrome on a computer – save the link and open it there.',
+    mobileTail: 'The Screwify extension works in Chrome on a computer – save the link and open it there.',
     copy: 'Copy the link',
     copied: 'Link copied',
   },
   ru: {
-    sent: 'Вам прислали замедленный трек',
     untitled: 'Трек в замедлении',
-    semitones: '{n} полутона',
+    semitones: { one: '{n} полутон', few: '{n} полутона', many: '{n} полутонов', other: '{n} полутона' },
+    slower: 'Замедлен до {speed} – тон ниже на {semis}',
+    faster: 'Ускорен до {speed} – тон выше на {semis}',
+    normal: 'Обычная скорость',
+    effects: 'Эффекты',
     chew: 'жевание плёнки {n}%',
     tone: 'тёмный тон {n}%',
     chop: 'чопы',
     drift: 'плавающий тон',
     noise: 'шум {n}%',
     reverb: 'реверб {n}%',
-    leadShared: 'Он звучит как пластинка на пониженных оборотах: вместе с темпом падает тон. Чтобы услышать его так, нужно расширение Screwify.',
+    sentSlow: 'Вам прислали его замедленным, как пластинку на пониженных оборотах.',
+    sentFast: 'Вам прислали его ускоренным, как пластинку на повышенных оборотах.',
+    sentEffects: 'Вам прислали его с эффектами Screwify.',
+    needExt: 'Чтобы услышать так, нужно расширение Screwify.',
     leadHas: 'Screwify установлено – трек откроется с этими настройками.',
     leadHome: 'Замедляй музыку, опускай тон и добавляй тёплый кассетный характер – прямо в браузере.',
     line: 'Любой трек.\nДругой звук.',
@@ -274,23 +331,37 @@ const TEXT = {
     trust: 'Бесплатное расширение · Работает в браузере',
     open: 'Открыть трек',
     openAsIs: 'Открыть трек как есть',
-    hintAfter: 'Уже установили? Нажмите «Открыть трек» – он запустится сразу замедленным.',
+    howTitle: 'Как включить',
+    step1: 'Установите Screwify из Chrome Web Store.',
+    step1Done: 'Screwify установлено.',
+    step2: 'Закрепите значок на панели: нажмите {puzzle}, затем {pin} рядом со Screwify.',
+    step3: 'На любом сайте с музыкой нажмите {disc} – музыка сразу замедлится. Нажимайте при каждом заходе на сайт.',
+    step3Shared: 'Вернитесь сюда и нажмите «Открыть трек» – он заиграет замедленным. Настройки – под значком {disc}.',
+    panelHint: 'Панель с настройками открывается по значку {disc} на панели браузера.',
+    iconPuzzle: 'Расширения',
+    iconPin: 'Закрепить',
     hintOther: 'Расширение работает в Chrome и браузерах на его основе: Edge, Яндекс Браузер, Opera, Brave.',
-    leadMobile: 'Он звучит как пластинка на пониженных оборотах: вместе с темпом падает тон. Расширение Screwify работает в Chrome на компьютере – сохраните ссылку и откройте её там.',
+    mobileTail: 'Расширение Screwify работает в Chrome на компьютере – сохраните ссылку и откройте её там.',
     copy: 'Скопировать ссылку',
     copied: 'Ссылка скопирована',
   },
   zh: {
-    sent: '有人给你发来一首慢放的歌',
     untitled: '一首慢放的歌',
     semitones: '{n} 个半音',
+    slower: '放慢到 {speed}，音调降低 {semis}',
+    faster: '加快到 {speed}，音调升高 {semis}',
+    normal: '正常速度',
+    effects: '效果',
     chew: '绞带 {n}%',
     tone: '暗音色 {n}%',
     chop: '切片',
     drift: '浮动音色',
     noise: '杂音 {n}%',
     reverb: '混响 {n}%',
-    leadShared: '它听起来像一张转速调慢的唱片：速度降下来，音调也随之降低。要这样听，需要安装 Screwify 扩展。',
+    sentSlow: '有人把它慢放后发给了你，就像调慢转速的唱片。',
+    sentFast: '有人把它加快后发给了你，就像调快转速的唱片。',
+    sentEffects: '有人给你发来了带 Screwify 效果的它。',
+    needExt: '要这样听，需要安装 Screwify 扩展。',
     leadHas: '已安装 Screwify，歌曲将按这些设置打开。',
     leadHome: '把音乐放慢，把音调压低，再加一点温暖的磁带质感，就在浏览器里。',
     line: '任何歌曲。\n不一样的声音。',
@@ -300,23 +371,37 @@ const TEXT = {
     trust: '免费扩展 · 在浏览器中运行',
     open: '打开歌曲',
     openAsIs: '按原样打开歌曲',
-    hintAfter: '已经安装了？点击“打开歌曲”，它会直接以慢放方式播放。',
+    howTitle: '如何开启',
+    step1: '从 Chrome 应用商店安装 Screwify。',
+    step1Done: '已安装 Screwify。',
+    step2: '把它固定到工具栏：点击 {puzzle}，再点击 Screwify 旁边的 {pin}。',
+    step3: '在任何有音乐的网站上点击 {disc}，音乐会立刻慢下来。每次打开网站都点一下。',
+    step3Shared: '回到这里点击“打开歌曲”，它会以慢放方式播放。设置在 {disc} 里。',
+    panelHint: '点击浏览器工具栏上的 {disc} 即可打开设置面板。',
+    iconPuzzle: '扩展程序',
+    iconPin: '固定',
     hintOther: '该扩展可在 Chrome 及基于 Chrome 的浏览器中使用：Edge、Yandex 浏览器、Opera、Brave。',
-    leadMobile: '它听起来像一张转速调慢的唱片：速度降下来，音调也随之降低。Screwify 扩展在电脑版 Chrome 中使用，请保存链接，到电脑上打开。',
+    mobileTail: 'Screwify 扩展在电脑版 Chrome 中使用，请保存链接，到电脑上打开。',
     copy: '复制链接',
     copied: '链接已复制',
   },
   es: {
-    sent: 'Te han enviado una canción ralentizada',
     untitled: 'Una canción ralentizada',
-    semitones: '{n} semitonos',
+    semitones: { one: '{n} semitono', other: '{n} semitonos' },
+    slower: 'Ralentizada al {speed} – {semis} más grave',
+    faster: 'Acelerada al {speed} – {semis} más aguda',
+    normal: 'Velocidad normal',
+    effects: 'Efectos',
     chew: 'cinta mascada {n}%',
     tone: 'tono oscuro {n}%',
     chop: 'cortes',
     drift: 'tono flotante',
     noise: 'ruido {n}%',
     reverb: 'reverb {n}%',
-    leadShared: 'Suena como un disco que gira más lento: baja el tempo y con él baja el tono. Para oírla así necesitas la extensión Screwify.',
+    sentSlow: 'Te la enviaron ralentizada, como un disco que gira más lento.',
+    sentFast: 'Te la enviaron acelerada, como un disco que gira más rápido.',
+    sentEffects: 'Te la enviaron con efectos de Screwify.',
+    needExt: 'Para oírla así necesitas la extensión Screwify.',
     leadHas: 'Screwify está instalada: la canción se abrirá con estos ajustes.',
     leadHome: 'Ralentiza la música, baja el tono y dale un carácter cálido de casete, directamente en tu navegador.',
     line: 'Cualquier canción.\nOtro sonido.',
@@ -326,23 +411,37 @@ const TEXT = {
     trust: 'Extensión gratuita · Funciona en el navegador',
     open: 'Abrir la canción',
     openAsIs: 'Abrir la canción tal cual',
-    hintAfter: '¿Ya la instalaste? Pulsa «Abrir la canción»: empezará ya ralentizada.',
+    howTitle: 'Cómo activarla',
+    step1: 'Instala Screwify desde Chrome Web Store.',
+    step1Done: 'Screwify está instalada.',
+    step2: 'Fíjala en la barra: pulsa {puzzle} y luego {pin} junto a Screwify.',
+    step3: 'En cualquier sitio con música, pulsa {disc} – la música se ralentiza al instante. Púlsalo en cada visita.',
+    step3Shared: 'Vuelve aquí y pulsa «Abrir la canción» – empezará ralentizada. Los ajustes están en {disc}.',
+    panelHint: 'El panel de ajustes se abre con {disc} en la barra del navegador.',
+    iconPuzzle: 'Extensiones',
+    iconPin: 'Fijar',
     hintOther: 'La extensión funciona en Chrome y en navegadores basados en él: Edge, Yandex Browser, Opera, Brave.',
-    leadMobile: 'Suena como un disco que gira más lento: baja el tempo y con él baja el tono. La extensión Screwify funciona en Chrome en una computadora: guarda el enlace y ábrelo allí.',
+    mobileTail: 'La extensión Screwify funciona en Chrome en una computadora: guarda el enlace y ábrelo allí.',
     copy: 'Copiar el enlace',
     copied: 'Enlace copiado',
   },
   ar: {
-    sent: 'أرسل لك أحدهم مقطعًا مُبطّأً',
     untitled: 'مقطع مُبطّأ',
     semitones: '{n} نصف نغمة',
+    slower: 'مُبطّأ إلى {speed} – أخفض بمقدار {semis}',
+    faster: 'مُسرَّع إلى {speed} – أعلى بمقدار {semis}',
+    normal: 'السرعة العادية',
+    effects: 'المؤثرات',
     chew: 'مضغ الشريط {n}%',
     tone: 'نغمة داكنة {n}%',
     chop: 'تقطيع',
     drift: 'نغمة متموّجة',
     noise: 'تشويش {n}%',
     reverb: 'صدى {n}%',
-    leadShared: 'يبدو كأسطوانة تدور بسرعة أقل: ينخفض الإيقاع وتنخفض معه طبقة الصوت. لسماعه هكذا تحتاج إلى إضافة Screwify.',
+    sentSlow: 'أرسله لك أحدهم مُبطّأً، كأسطوانة تدور بسرعة أقل.',
+    sentFast: 'أرسله لك أحدهم مُسرَّعًا، كأسطوانة تدور بسرعة أكبر.',
+    sentEffects: 'أرسله لك أحدهم مع مؤثرات Screwify.',
+    needExt: 'لسماعه هكذا تحتاج إلى إضافة Screwify.',
     leadHas: 'إضافة Screwify مثبّتة – سيُفتح المقطع بهذه الإعدادات.',
     leadHome: 'أبطِئ الموسيقى، اخفض طبقة الصوت وأضف دفء شريط الكاسيت – مباشرة في متصفحك.',
     line: 'أي مقطع.\nصوت مختلف.',
@@ -352,23 +451,37 @@ const TEXT = {
     trust: 'إضافة مجانية · تعمل في المتصفح',
     open: 'فتح المقطع',
     openAsIs: 'فتح المقطع كما هو',
-    hintAfter: 'ثبّتّها بالفعل؟ اضغط «فتح المقطع» – سيبدأ مُبطّأً مباشرة.',
+    howTitle: 'كيف تشغّلها',
+    step1: 'ثبّت Screwify من سوق Chrome الإلكتروني.',
+    step1Done: 'إضافة Screwify مثبّتة.',
+    step2: 'ثبّتها على شريط الأدوات: اضغط {puzzle} ثم {pin} بجانب Screwify.',
+    step3: 'في أي موقع فيه موسيقى اضغط {disc} – ستتباطأ الموسيقى فورًا. اضغطه في كل زيارة.',
+    step3Shared: 'عد إلى هنا واضغط «فتح المقطع» – سيبدأ مُبطّأً. الإعدادات تحت {disc}.',
+    panelHint: 'تُفتح لوحة الإعدادات من {disc} في شريط أدوات المتصفح.',
+    iconPuzzle: 'الإضافات',
+    iconPin: 'تثبيت',
     hintOther: 'تعمل الإضافة في Chrome والمتصفحات المبنية عليه: Edge و Yandex Browser و Opera و Brave.',
-    leadMobile: 'يبدو كأسطوانة تدور بسرعة أقل: ينخفض الإيقاع وتنخفض معه طبقة الصوت. تعمل إضافة Screwify في Chrome على الحاسوب – احفظ الرابط وافتحه هناك.',
+    mobileTail: 'تعمل إضافة Screwify في Chrome على الحاسوب – احفظ الرابط وافتحه هناك.',
     copy: 'نسخ الرابط',
     copied: 'تم نسخ الرابط',
   },
   fr: {
-    sent: 'On vous a envoyé un morceau ralenti',
     untitled: 'Un morceau au ralenti',
-    semitones: '{n} demi-tons',
+    semitones: { one: '{n} demi-ton', other: '{n} demi-tons' },
+    slower: 'Ralenti à {speed} – {semis} plus bas',
+    faster: 'Accéléré à {speed} – {semis} plus haut',
+    normal: 'Vitesse normale',
+    effects: 'Effets',
     chew: 'bande mâchée {n} %',
     tone: 'son sombre {n} %',
     chop: 'chops',
     drift: 'son flottant',
     noise: 'souffle {n} %',
     reverb: 'réverb {n} %',
-    leadShared: 'Il sonne comme un disque qui tourne moins vite : le tempo baisse et la hauteur baisse avec lui. Pour l’entendre ainsi, il vous faut l’extension Screwify.',
+    sentSlow: 'On vous l’a envoyé ralenti, comme un disque qui tourne moins vite.',
+    sentFast: 'On vous l’a envoyé accéléré, comme un disque qui tourne plus vite.',
+    sentEffects: 'On vous l’a envoyé avec les effets Screwify.',
+    needExt: 'Pour l’entendre ainsi, il vous faut l’extension Screwify.',
     leadHas: 'Screwify est installée – le morceau s’ouvrira avec ces réglages.',
     leadHome: 'Ralentissez la musique, baissez la hauteur et ajoutez la chaleur d’une cassette – directement dans votre navigateur.',
     line: 'N’importe quel morceau.\nUn autre son.',
@@ -378,9 +491,17 @@ const TEXT = {
     trust: 'Extension gratuite · Fonctionne dans le navigateur',
     open: 'Ouvrir le morceau',
     openAsIs: 'Ouvrir le morceau tel quel',
-    hintAfter: 'Déjà installée ? Cliquez sur « Ouvrir le morceau » – il démarrera déjà ralenti.',
+    howTitle: 'Comment l’activer',
+    step1: 'Installez Screwify depuis le Chrome Web Store.',
+    step1Done: 'Screwify est installée.',
+    step2: 'Épinglez-la à la barre d’outils : cliquez sur {puzzle}, puis sur {pin} à côté de Screwify.',
+    step3: 'Sur n’importe quel site avec de la musique, cliquez sur {disc} – la musique ralentit aussitôt. Cliquez-y à chaque visite.',
+    step3Shared: 'Revenez ici et cliquez sur « Ouvrir le morceau » – il démarrera ralenti. Les réglages sont sous {disc}.',
+    panelHint: 'Le panneau de réglages s’ouvre via {disc} dans la barre du navigateur.',
+    iconPuzzle: 'Extensions',
+    iconPin: 'Épingler',
     hintOther: 'L’extension fonctionne dans Chrome et les navigateurs basés sur Chrome : Edge, Yandex Browser, Opera, Brave.',
-    leadMobile: 'Il sonne comme un disque qui tourne moins vite : le tempo baisse et la hauteur baisse avec lui. L’extension Screwify fonctionne dans Chrome sur ordinateur – enregistrez le lien et ouvrez-le là-bas.',
+    mobileTail: 'L’extension Screwify fonctionne dans Chrome sur ordinateur – enregistrez le lien et ouvrez-le là-bas.',
     copy: 'Copier le lien',
     copied: 'Lien copié',
   },
@@ -390,7 +511,7 @@ const TEXT = {
 // на который страница переведена; иначе английский.
 const preferred = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || ''];
 const lang = preferred.map(l => l.toLowerCase().split('-')[0]).find(l => l in TEXT) || 'en';
-const t = (key, vars = {}) => TEXT[lang][key].replace(/\{(\w+)\}/g, (m, k) => vars[k]);
+const t = (key, vars = {}) => TEXT[lang][key].replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m));
 const $ = id => document.getElementById(id);
 document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang;
 document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
@@ -423,6 +544,14 @@ function readLink() {
   };
 }
 
+// значки панели Chrome: «расширения» (пазл) и «закрепить» (булавка), рисунок как в Chrome
+const ICONS = {
+  puzzle: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5a2.5 2.5 0 0 0-5 0V5H4c-1.1 0-2 .9-2 2v3.8h1.5a2.7 2.7 0 0 1 0 5.4H2V20c0 1.1.9 2 2 2h3.8v-1.5a2.7 2.7 0 0 1 5.4 0V22H17c1.1 0 2-.9 2-2v-4h1.5a2.5 2.5 0 0 0 0-5z"/></svg>',
+  pin: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 9V4h1a1 1 0 0 0 0-2H7a1 1 0 0 0 0 2h1v5a3 3 0 0 1-3 3v2h5.97v7l1 1 1-1v-7H19v-2a3 3 0 0 1-3-3z"/></svg>',
+  disc: '<img src="icon.svg" alt="">',
+};
+const ICON_LABELS = { puzzle: 'iconPuzzle', pin: 'iconPin' };
+
 const knownHost = host => KNOWN_HOSTS.some(h => host === h || host.endsWith('.' + h));
 
 function show(el, text) {
@@ -434,12 +563,22 @@ function showInstall(text) {
   show($('install'), text);
 }
 
-// высота тона падает вместе со скоростью, как у пластинки
-function semitonesText(speed) {
-  const semis = 12 * Math.log2(speed / 100);
-  // число со знаком — островком слева направо, чтобы в арабском минус не уезжал за цифры
-  const n = '⁦' + (semis > 0 ? '+' : semis < 0 ? '−' : '') + Math.abs(semis).toLocaleString(lang, { maximumFractionDigits: 1 }) + '⁩';
-  return t('semitones', { n });
+// высота тона падает вместе со скоростью, как у пластинки: «замедлен до 78% – тон ниже на 4,3 полутона»
+function readoutNodes(speed) {
+  if (speed === 100) return [t('normal')];
+  const semis = Math.round(Math.abs(12 * Math.log2(speed / 100)) * 10) / 10;
+  // число – островком слева направо, чтобы в арабском не перемешалось с текстом
+  const n = '⁦' + semis.toLocaleString(lang, { maximumFractionDigits: 1 }) + '⁩';
+  const forms = TEXT[lang].semitones;
+  const word = typeof forms === 'string' ? forms : forms[new Intl.PluralRules(lang).select(semis)] || forms.other;
+  const values = { speed: `${speed}%`, semis: word.replace('{n}', n) };
+  return t(speed < 100 ? 'slower' : 'faster').split(/\{(speed|semis)\}/).map((part, i) => {
+    if (i % 2 === 0) return part;
+    const b = document.createElement('b');
+    if (part === 'speed') b.dir = 'ltr';
+    b.textContent = values[part];
+    return b;
+  });
 }
 
 const link = readLink();
@@ -468,30 +607,39 @@ function renderShared({ to, track, speed, chew, tone, chop, drift, noise, reverb
   document.body.classList.add('shared');
 
   document.title = `${track || t('untitled')} · ${speed}% – Screwify`;
-  show($('eyebrow'), t('sent'));
   $('title').textContent = track || t('untitled');
   show($('host'), to.hostname.replace(/^www\./, ''));
 
+  $('readout').replaceChildren(...readoutNodes(speed));
   $('readout').hidden = false;
-  $('digits').textContent = `${speed}%`;
-  $('semitones').textContent = semitonesText(speed);
-  $('extras').textContent = [chew && t('chew', { n: chew }), tone && t('tone', { n: tone }), drift && t('drift'), noise && t('noise', { n: noise }), reverb && t('reverb', { n: reverb }), chop && t('chop')].filter(Boolean).join(' · ');
+  const extras = [chew && t('chew', { n: chew }), tone && t('tone', { n: tone }), drift && t('drift'), noise && t('noise', { n: noise }), reverb && t('reverb', { n: reverb }), chop && t('chop')].filter(Boolean);
+  if (extras.length) {
+    $('fx-title').textContent = t('effects');
+    $('fx-list').textContent = extras.join(' · ');
+    $('fx').hidden = false;
+  }
 
+  // первая фраза – в какую сторону изменён трек
+  const sent = t(speed < 100 ? 'sentSlow' : speed > 100 ? 'sentFast' : 'sentEffects');
+  const gap = lang === 'zh' ? '' : ' ';
   $('open').href = to.href;
   if (hasExtension) {
     $('lead').textContent = t('leadHas');
     show($('open'), t('open'));
     $('open').classList.add('primary');
+    $('hint').replaceChildren(...richText(t('panelHint')));
+    $('hint').hidden = false;
   } else if (mobile) {
-    $('lead').textContent = t('leadMobile');
+    $('lead').textContent = sent + gap + t('mobileTail');
     show($('copy'), t('copy'));
     show($('open'), t('openAsIs'));
     $('copy').addEventListener('click', copyLink);
   } else {
-    $('lead').textContent = t('leadShared');
+    $('lead').textContent = sent + gap + t('needExt');
     showInstall(t('install'));
     show($('open'), t('open'));
-    show($('hint'), chromium ? t('hintAfter') : t('hintOther'));
+    if (chromium) showSteps('step3Shared');
+    else show($('hint'), t('hintOther'));
   }
 }
 
@@ -508,7 +656,43 @@ function renderHome() {
   showInstall(hasExtension ? t('store') : t('install'));
   show($('trust'), t('trust'));
   if (mobile || !chromium) show($('hint'), t('hintOther'));
+  else showSteps('step3');
 }
+
+// текст с {puzzle} {pin} {disc} – в узлы, где на месте меток значки
+function richText(text) {
+  return text.split(/\{(puzzle|pin|disc)\}/).map((part, i) => {
+    if (i % 2 === 0) return part;
+    const key = document.createElement('span');
+    key.className = 'key';
+    key.setAttribute('role', 'img');
+    key.setAttribute('aria-label', part === 'disc' ? 'Screwify' : t(ICON_LABELS[part]));
+    key.innerHTML = ICONS[part];
+    return key;
+  });
+}
+
+// как включить: поставить, закрепить значок, нажать его на сайте с музыкой
+function showSteps(last) {
+  $('how-title').textContent = t('howTitle');
+  $('steps').replaceChildren(...[hasExtension ? 'step1Done' : 'step1', 'step2', last].map((key, i) => {
+    const li = document.createElement('li');
+    if (i === 0 && hasExtension) li.className = 'done';
+    const text = document.createElement('span');
+    text.append(...richText(t(key)));
+    li.append(text);
+    return li;
+  }));
+  $('how').hidden = false;
+}
+
+// Расширение помечает только заново загруженные страницы. Ушли в магазин по кнопке и вернулись –
+// перезагружаем: если его поставили, присланный трек откроется сам, а на стартовой первый шаг станет сделанным.
+let awaitingInstall = false;
+$('install').addEventListener('click', () => { if (!hasExtension) awaitingInstall = true; });
+document.addEventListener('visibilitychange', () => {
+  if (awaitingInstall && document.visibilityState === 'visible') location.reload();
+});
 
 // живая панель: подгоняем высоту iframe под содержимое, чтобы не было прокрутки
 function fitPanel() {
