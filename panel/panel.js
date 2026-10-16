@@ -83,11 +83,16 @@ for (const id of RANGES) {
 }
 
 // пресеты: кнопки строим по списку из defaults.js; подсветка гаснет, когда ручки разошлись с пресетом
+const PRESET_ICONS = {
+  heart: '<svg class="ico solid" viewBox="0 0 16 14" aria-hidden="true"><path d="M8 13 2.200 7.300a3.500 3.500 0 0 1 5-5L8 3l.800-.700a3.500 3.500 0 0 1 5 5z"/></svg>',
+  radio: '<svg class="ico" viewBox="0 0 16 14" aria-hidden="true"><rect x="1.500" y="4.500" width="13" height="8" rx="1.500"/><path d="M4 4.500 12 1"/><circle cx="10.500" cy="8.500" r="1.800"/><path d="M4 7.500h3M4 9.500h3"/></svg>',
+  tape: '<svg class="ico" viewBox="0 0 16 14" aria-hidden="true"><rect x="1.500" y="2" width="13" height="10" rx="1.500"/><circle cx="5.500" cy="6.500" r="1.500"/><circle cx="10.500" cy="6.500" r="1.500"/><path d="M5 10.500h6"/></svg>',
+};
 const presetBtns = SCREWED_PRESETS.map(preset => {
   const el = document.createElement('button');
   el.type = 'button';
   el.className = 'preset';
-  el.dataset.i18n = preset.i18n;
+  if (preset.icon) el.innerHTML = PRESET_ICONS[preset.icon];
   el.addEventListener('click', () => update({ ...preset.values }));
   $('presets').append(el);
   return { el, preset };
@@ -123,6 +128,17 @@ function renderUserPresets() {
     wrap.dataset.id = preset.id;
     row.append(wrap);
   }
+  const add = document.createElement('button');
+  add.type = 'button';
+  add.className = 'preset add';
+  add.textContent = '+';
+  add.title = add.ariaLabel = t('presetSave');
+  add.addEventListener('click', () => {
+    if (userPresets.length >= SCREWED_USER_PRESETS_MAX) { toast(t('presetLimit', { n: SCREWED_USER_PRESETS_MAX })); return; }
+    $('preset-form').hidden = false;
+    $('preset-name').focus();
+  });
+  row.append(add);
 }
 $('preset-form').addEventListener('submit', e => {
   e.preventDefault();
@@ -177,6 +193,11 @@ function applyLang() {
   }
   for (const el of app.querySelectorAll('[data-i18n]')) el.textContent = t(el.dataset.i18n);
   for (const el of app.querySelectorAll('[data-i18n-placeholder]')) el.placeholder = t(el.dataset.i18nPlaceholder);
+  for (const { el, preset } of presetBtns) {
+    const name = t(preset.i18n);
+    if (preset.icon) el.setAttribute('aria-label', name); else el.textContent = name;
+    el.title = `${name} – ${t(preset.desc)}`;
+  }
   renderUserPresets();
   for (const el of app.querySelectorAll('[data-i18n-title]')) el.title = t(el.dataset.i18nTitle);
   for (const el of app.querySelectorAll('[data-i18n-aria]')) el.setAttribute('aria-label', t(el.dataset.i18nAria));
@@ -496,6 +517,8 @@ function endScratch() {
   control('scratch-end');
 }
 
+$('prevtrack').addEventListener('click', () => control('prev'));
+$('nexttrack').addEventListener('click', () => control('next'));
 $('playpause').addEventListener('click', () => {
   if (!mon) return;
   mon.paused = !mon.paused; // сразу меняем иконку, не дожидаясь страницы

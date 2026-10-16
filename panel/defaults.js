@@ -15,10 +15,12 @@ const SCREWED_DEFAULTS = {
 // Пресет – набор значений всех ручек эффекта (не трогает сайты и язык), применяется одним действием.
 // i18n – ключ названия в i18n.js. Активным считается пресет, у которого все значения совпали с текущими.
 const SCREWED_PRESETS = [
-  { id: 'slowed', i18n: 'presetSlowed', values: { speed: 0.8, chewAmt: 0, tone: 0.4, noise: 0, reverb: 0.4, chop: false, drift: false } },
-  { id: 'tape', i18n: 'presetTape', values: { speed: 0.9, chewAmt: 0.5, tone: 0.5, noise: 0.3, reverb: 0.15, chop: false, drift: true } },
-  { id: 'radio', i18n: 'presetRadio', values: { speed: 1, chewAmt: 0.1, tone: 0.7, noise: 0.8, reverb: 0, chop: false, drift: false } },
-  { id: 'nightcore', i18n: 'presetNightcore', values: { speed: 1.3, chewAmt: 0, tone: 0, noise: 0, reverb: 0, chop: false, drift: false } },
+  { id: 'default', i18n: 'presetHeart', desc: 'presetDescHeart', icon: 'heart', values: { speed: 0.8, chewAmt: 0.15, tone: 0.4, noise: 0.6, reverb: 0, chop: false, drift: true } },
+  { id: 'radio', i18n: 'presetRadio', desc: 'presetDescRadio', icon: 'radio', values: { speed: 1, chewAmt: 0.1, tone: 0.7, noise: 0.8, reverb: 0, chop: false, drift: false } },
+  { id: 'tape', i18n: 'presetTape', desc: 'presetDescTape', icon: 'tape', values: { speed: 0.9, chewAmt: 0.5, tone: 0.5, noise: 0.3, reverb: 0.15, chop: false, drift: true } },
+  { id: 'chopped', i18n: 'presetChop', desc: 'presetDescChop', values: { speed: 0.7, chewAmt: 0, tone: 0, noise: 0, reverb: 0, chop: true, drift: false } },
+  { id: 'slowed', i18n: 'presetSlowed', desc: 'presetDescSlowed', values: { speed: 0.8, chewAmt: 0, tone: 0.4, noise: 0, reverb: 0.4, chop: false, drift: false } },
+  { id: 'background', i18n: 'presetBackground', desc: 'presetDescBg', values: { speed: 0.8, chewAmt: 0.2, tone: 1, noise: 0.5, reverb: 0.1, chop: false, drift: true } },
 ];
 
 function screwedPresetActive(preset, s) {
@@ -95,7 +97,7 @@ function screwedParseCode(code) {
     const m = part.match(/^([a-z])(\d{1,3})$/);
     if (!m) return null;
     const n = Number(m[2]);
-    if (m[1] === 's') out.speed = Math.min(2, Math.max(0.3, n / 100));
+    if (m[1] === 's') out.speed = Math.min(1.2, Math.max(0.3, n / 100));
     // 'p' (тон вниз) был в старых ссылках; теперь тон падает всегда — просто пропускаем
     if (m[1] === 'c') out.chewAmt = Math.min(1, n / 100);
     if (m[1] === 't') out.tone = Math.min(1, n / 100);

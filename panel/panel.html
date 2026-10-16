@@ -45,6 +45,12 @@
         <svg class="icon-pause" viewBox="0 0 12 12" aria-hidden="true"><rect x="2" y="1.500" width="3" height="9" rx=".800"/><rect x="7" y="1.500" width="3" height="9" rx=".800"/></svg>
         <svg class="icon-play" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.600v8.800c0 .400.400.600.700.400l6.600-4.400a.500.500 0 0 0 0-.800L3.700 1.200c-.300-.200-.700 0-.700.400z"/></svg>
       </button>
+      <button id="prevtrack" class="skip" type="button" data-i18n-aria="prevTrack" data-i18n-title="prevTrack">
+        <svg viewBox="0 0 12 12" aria-hidden="true"><rect x="1.500" y="2" width="1.800" height="8" rx=".500"/><path d="M10.500 2.400v7.200c0 .400-.400.600-.700.400L4.500 6.400a.500.500 0 0 1 0-.800L9.800 2c.300-.200.700 0 .700.400z"/></svg>
+      </button>
+      <button id="nexttrack" class="skip" type="button" data-i18n-aria="nextTrack" data-i18n-title="nextTrack">
+        <svg viewBox="0 0 12 12" aria-hidden="true"><rect x="8.700" y="2" width="1.800" height="8" rx=".500"/><path d="M1.500 2.400v7.200c0 .400.400.600.700.400l5.300-3.600a.500.500 0 0 0 0-.800L2.200 2c-.300-.200-.700 0-.700.400z"/></svg>
+      </button>
       <div class="track-text">
         <div class="title" id="now-title"></div>
         <div class="now-row">
@@ -79,15 +85,13 @@
           <span class="sub"><span id="pitch-out"></span><span id="bpm-out" hidden> · <span id="bpm-num" dir="ltr"></span><span class="dots" id="bpm-dots" aria-hidden="true"><i></i><i></i><i></i></span></span></span>
         </div>
       </div>
-      <input type="range" id="speed" min="0.3" max="2" step="0.01">
+      <input type="range" id="speed" min="0.3" max="1.2" step="0.01">
       <div class="scale">
         <span style="--p:0" aria-hidden="true">30</span>
         <!-- 80% — скорость по умолчанию: на ней музыка звучит удачнее всего. Нажатие ставит её -->
-        <button class="fav" type="button" style="--p:.294" data-fav="speed" data-value="0.8" data-i18n-aria="favSet"><svg viewBox="0 0 12 11" aria-hidden="true"><path d="M6 10.300 1.300 5.700a2.900 2.900 0 0 1 4.100-4.100l.600.600.600-.600a2.900 2.900 0 0 1 4.100 4.100z"/></svg></button>
-        <span class="ref" style="--p:.412" aria-hidden="true">100</span>
-        <!-- быстрее 100% – зона «Nightcore»: тон и темп вверх. Положение на шкале – (v − 0,3) / 1,7 -->
-        <span class="zone" style="--p:.706" aria-hidden="true">nightcore</span>
-        <span style="--p:1" aria-hidden="true">200</span>
+        <button class="fav" type="button" style="--p:.556" data-fav="speed" data-value="0.8" data-i18n-aria="favSet"><svg viewBox="0 0 12 11" aria-hidden="true"><path d="M6 10.300 1.300 5.700a2.900 2.900 0 0 1 4.100-4.100l.600.600.600-.600a2.900 2.900 0 0 1 4.100 4.100z"/></svg></button>
+        <span class="ref" style="--p:.778" aria-hidden="true">100</span>
+        <span style="--p:1" aria-hidden="true">120</span>
       </div>
     </div>
   </section>
