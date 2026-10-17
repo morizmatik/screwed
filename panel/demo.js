@@ -4,8 +4,8 @@
 // проценты, подсчёт тона и темп — как в настоящем расширении.
 (() => {
   const site = {
-    host: 'slowwave.fm', url: 'https://slowwave.fm/track/night-drive',
-    artist: 'Midnight Syrup', title: 'Night Drive',
+    host: 'backroom.audio', url: 'https://backroom.audio/juneokafor/second-shift',
+    artist: 'June Okafor', title: 'Second Shift',
   };
   const nativeBpm = 105; // темп оригинала при 100% скорости
   const duration = 218;  // секунд в треке

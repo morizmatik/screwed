@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#171615">
+<meta name="theme-color" content="#0f0f0f">
 <title>Screwify</title>
 <meta name="description" content="A Chrome extension: slow music down, drop the pitch and add warm cassette character – right in your browser.">
 <meta property="og:type" content="website">
@@ -19,7 +19,7 @@
 <link rel="stylesheet" href="panel/palette.css">
 <style>
 /* Стартовая страница и страница-прослойка для ссылок «Поделиться».
-   Тёмный тёплый фон с зерном и мягкими градиентами, один гротеск, акцент только на главной кнопке.
+   Ровный нейтральный тёмный фон, как у картинок магазина (без зерна и тёплых пятен), один гротеск, акцент только на главной кнопке.
    Справа на стартовой – живая панель расширения (site/panel/, собирается store/src/build-site-panel.js). Отступы кратны 8px. */
 :root {
   --bg: var(--c-bg);
@@ -28,7 +28,6 @@
   --soft: var(--c-fg);
   --line: var(--c-surface);
   --accent: var(--c-accent);
-  --grain: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27200%27%20height%3D%27200%27%3E%3Cfilter%20id%3D%27n%27%3E%3CfeTurbulence%20type%3D%27fractalNoise%27%20baseFrequency%3D%270.8%27%20numOctaves%3D%273%27%20stitchTiles%3D%27stitch%27%2F%3E%3CfeColorMatrix%20type%3D%27matrix%27%20values%3D%270%200%200%200%200.91%20%200%200%200%200%200.90%20%200%200%200%200%200.88%20%200%200.11%200%200%200%27%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%27200%27%20height%3D%27200%27%20filter%3D%27url%28%23n%29%27%2F%3E%3C%2Fsvg%3E");
   --check: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2016%2016%27%3E%3Cpath%20d%3D%27M3%208.5l3%203%207-7%27%20fill%3D%27none%27%20stroke%3D%27%23151515%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%2F%3E%3C%2Fsvg%3E");
   --font: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
@@ -46,13 +45,8 @@ body {
   color: var(--ink);
   font: 16px/1.5 var(--font);
   -webkit-font-smoothing: antialiased;
-  /* тёплый тёмный фон: зерно + мягкие градиенты по палитре #151515 · #292929 · #777570 · #BDBBB5 · #E8E6E0 */
-  background-color: var(--bg);
-  background-image:
-    var(--grain),
-    radial-gradient(120% 90% at 72% 12%, #2c2b26 0%, rgba(44, 43, 38, 0) 58%),
-    radial-gradient(100% 80% at 8% 100%, #1e1d1a 0%, rgba(30, 29, 26, 0) 52%);
-  background-size: 200px 200px, auto, auto;
+  /* нейтральный тёмный, чуть темнее панели – как фон картинок магазина */
+  background-color: #0f0f0f;
 }
 
 header, main, footer { width: 100%; max-width: 1120px; margin: 0 auto; padding-inline: 24px; }
@@ -162,16 +156,13 @@ h1 {
 
 /* живая панель расширения – настоящий экземпляр в iframe (site/panel/) */
 .shot { position: relative; flex: none; margin: 0; }
-/* зернистая градиентная тень вокруг панели */
+/* мягкая тень вокруг панели */
 .shot::before {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: 13px;
-  background:
-    var(--grain),
-    radial-gradient(90% 90% at 50% 38%, rgba(0, 0, 0, .55) 0%, rgba(0, 0, 0, 0) 72%);
-  background-size: 160px 160px, auto;
+  background: radial-gradient(90% 90% at 50% 38%, rgba(0, 0, 0, .55) 0%, rgba(0, 0, 0, 0) 72%);
   filter: blur(34px);
   transform: translateY(16px) scale(1.05);
   opacity: .8;

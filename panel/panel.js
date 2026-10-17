@@ -9,6 +9,10 @@ const app = document.getElementById('app');
 const params = new URLSearchParams(location.search);
 const isLauncher = params.has('pip');
 if (isLauncher) document.body.classList.add('launcher');
+// ?lite – панель внутри студии (studio/): там нужны только кнопки и ручки, а волна, пластинка и зерно
+// отнимали кадры у записи – страница студии и панель живут в одном процессе
+const isLite = params.has('lite');
+if (isLite) document.body.classList.add('lite');
 let selfTabId = null;
 const els = {};
 for (const el of app.querySelectorAll('[id]')) els[el.id] = el;
@@ -22,8 +26,6 @@ const RPM = 100 / 3; // 33⅓
 
 const CHECKS = ['chop', 'drift'];
 const RANGES = ['speed', 'chewAmt', 'tone', 'noise', 'reverb'];
-const BPM_WAIT_MS = 25000;
-let bpmWaitFrom = null; // с какого момента ждём темп
 
 const s = { ...SCREWED_DEFAULTS };
 let t = translator(s.lang);
@@ -307,18 +309,6 @@ function renderLive() {
   const fmtSemis = new Intl.NumberFormat(resolveLang(s.lang), { maximumFractionDigits: 1, signDisplay: 'exceptZero' });
   // число со знаком — островком слева направо, чтобы в арабском минус не уезжал за цифры
   $('pitch-out').textContent = t('semitones', { n: `\u2066${fmtSemis.format(semis)}\u2069` });
-  // темп появляется, когда движок его расслышал (несколько секунд ровного ритма)
-  const bpm = showLive && monFresh() && !mon.paused ? mon.bpm : null;
-  // Пока темпа нет, а звук идёт, — бегущие точки: расширение вслушивается. Если ритма
-  // так и не нашлось (музыка без ударных), через BPM_WAIT_MS точки убираем.
-  const listening = showLive && monFresh() && !mon.paused && mon.wave === 'ok';
-  if (bpm || !listening) bpmWaitFrom = null;
-  else bpmWaitFrom ??= performance.now();
-  const waiting = bpmWaitFrom !== null && performance.now() - bpmWaitFrom < BPM_WAIT_MS;
-  $('bpm-out').hidden = !bpm && !waiting;
-  $('bpm-num').textContent = bpm ? `${bpm} BPM` : '';
-  $('bpm-dots').hidden = !!bpm;
-
   // пластинка крутится, только когда что-то играет и расширение включено
   spinTarget = playing && active() ? n.rate * RPM * 6 : 0;
 }
@@ -403,7 +393,7 @@ function onMonitor(msg, frameId) {
   }
   renderProgress();
   renderLive();
-  if (still) drawWave(now); // без анимации перерисовываем только по приходу данных
+  if (still && !isLite) drawWave(now); // без анимации перерисовываем только по приходу данных
 }
 
 function renderProgress() {
@@ -588,7 +578,7 @@ function drawWave(now) {
 // ---------- цвета сайта ----------
 // Фон и текст берём со страницы, акцент — из иконки сайта
 // (красный у YouTube, жёлтый у Яндекс Музыки, оранжевый у SoundCloud...).
-const THEME_VARS = ['--bg', '--panel', '--well', '--line', '--fg', '--muted', '--violet', '--pink', '--amber', '--acid', '--vinyl', '--on-accent'];
+const THEME_VARS = ['--bg', '--panel', '--line', '--fg', '--muted', '--pink', '--on-accent'];
 const DEFAULT_ACCENT = [236, 144, 167]; // #EC90A7 — брэнд-акцент (см. palette.css)
 const probe = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
 
@@ -673,6 +663,13 @@ function faviconAccent(pageUrl) {
   });
 }
 
+// вторичный текст: приглушённее основного, но не ниже 4.5:1 к фону
+function mutedColor(fg, bg) {
+  let t = 0.42;
+  while (t > 0 && contrast(mix(fg, bg, t), bg) < 4.5) t -= 0.03;
+  return mix(fg, bg, Math.max(t, 0));
+}
+
 function buildPalette(theme, accent) {
   const meta = parseColor(theme.themeColor);
   let bg = parseColor(theme.bg);
@@ -690,8 +687,6 @@ function buildPalette(theme, accent) {
   // на светлом фоне акцент темнее, на тёмном — светлее, чтобы читался
   const al = light ? 0.45 : 0.6;
 
-  // табло, волна и дорожки остаются тёмными, как дисплей у железа
-  const well = light ? fromHsl(h, 0.2, 0.1) : mix(bg, [0, 0, 0], 0.55);
   const pink = fromHsl(h, sat, al);
   // на закрашенной кнопке — белый или почти чёрный, что читается лучше
   const onAccent = contrast(pink, [255, 255, 255]) >= contrast(pink, [18, 18, 20]) ? [255, 255, 255] : [18, 18, 20];
@@ -699,15 +694,10 @@ function buildPalette(theme, accent) {
     '--on-accent': css(onAccent),
     '--bg': css(bg),
     '--fg': css(fg),
-    '--muted': css(mix(fg, bg, 0.42)),
+    '--muted': css(mutedColor(fg, bg)),
     '--line': css(mix(bg, fg, 0.16)),
     '--panel': css(mix(bg, fg, 0.05)),
-    '--well': css(well),
-    '--vinyl': css(mix(well, [0, 0, 0], 0.5)),
     '--pink': css(pink),
-    '--violet': css(fromHsl(h - 40, sat, al)),
-    '--amber': css(fromHsl(h + 35, sat, al + 0.05)),
-    '--acid': css(fromHsl(h, Math.max(0.8, sat), 0.66)),
   };
 }
 
@@ -942,7 +932,7 @@ const logoFlash = $('logo-flash');
 // Реакция логотипа на бочку: удар поднимает цель, яркость плавно (за ~30 мс) догоняет её
 // и вместе с ней плавно гаснет — без резких скачков, но на пике до максимума.
 let kickTarget = 0, kickLevel = 0;
-const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const still = matchMedia('(prefers-reduced-motion: reduce)').matches || isLite;
 let angle = 0, omega = 0, last = performance.now();
 
 function spin(now) {

@@ -21,6 +21,7 @@ const SCREWED_PRESETS = [
   { id: 'chopped', i18n: 'presetChop', desc: 'presetDescChop', values: { speed: 0.7, chewAmt: 0, tone: 0, noise: 0, reverb: 0, chop: true, drift: false } },
   { id: 'slowed', i18n: 'presetSlowed', desc: 'presetDescSlowed', values: { speed: 0.8, chewAmt: 0, tone: 0.4, noise: 0, reverb: 0.4, chop: false, drift: false } },
   { id: 'background', i18n: 'presetBackground', desc: 'presetDescBg', values: { speed: 0.8, chewAmt: 0.2, tone: 1, noise: 0.5, reverb: 0.1, chop: false, drift: true } },
+  { id: 'dream', i18n: 'presetDream', desc: 'presetDescDream', values: { speed: 0.8, chewAmt: 0.05, tone: 0.9, noise: 0.3, reverb: 0.9, chop: false, drift: true } },
 ];
 
 function screwedPresetActive(preset, s) {
