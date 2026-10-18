@@ -188,6 +188,10 @@ footer { padding-bottom: 20px; }
 .shared .social { justify-content: center; }
 .social a { display: inline-block; padding-block: 12px; color: var(--soft); text-decoration: none; }
 .social a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: .25em; }
+/* что такое Screwify и зачем ему YouTube API – видно и без скриптов (так страницу читает проверка Google) */
+.about { max-width: 46em; margin: 8px 0 0; font-size: 14px; color: var(--soft); text-wrap: pretty; }
+.shared .about { display: none; }
+.legal a { padding-block: 8px; }
 
 @media (max-width: 820px) {
   header { padding-top: 24px; }
@@ -219,13 +223,14 @@ footer { padding-bottom: 20px; }
 
 <main>
   <div class="copy">
-    <h1 id="title"></h1>
+    <h1 id="title">Any track.
+A different sound.</h1>
     <p class="host" id="host" dir="ltr" hidden></p>
 
     <p class="readout" id="readout" hidden></p>
     <details class="fx" id="fx" hidden><summary id="fx-title"></summary><p id="fx-list"></p></details>
 
-    <p class="lead" id="lead"></p>
+    <p class="lead" id="lead">Slow music down, drop the pitch and add warm cassette character – right in your browser.</p>
 
     <div class="actions">
       <a class="btn primary" id="install" target="_blank" rel="noopener" hidden></a>
@@ -251,6 +256,11 @@ footer { padding-bottom: 20px; }
     <a href="https://www.youtube.com/@screwify" target="_blank" rel="noopener">YouTube</a>
     <a href="https://www.instagram.com/screwified" target="_blank" rel="noopener">Instagram</a>
     <a href="https://vk.ru/screwify" target="_blank" rel="noopener">VK</a>
+  </nav>
+  <p class="about" id="about">Screwify is a free Chrome extension that slows down music and video in your browser, like a record. Screwify also posts its own slowed-down clips to the Screwify YouTube channel and uses the YouTube Data API only to upload those videos – see the Privacy Policy.</p>
+  <nav class="social legal" aria-label="Legal">
+    <a href="privacy/" id="privacy-link">Privacy Policy</a>
+    <a href="terms/" id="terms-link">Terms of Service</a>
   </nav>
 </footer>
 
@@ -308,6 +318,9 @@ const TEXT = {
     mobileTail: 'The Screwify extension works in Chrome on a computer – save the link and open it there.',
     copy: 'Copy the link',
     copied: 'Link copied',
+    about: 'Screwify is a free Chrome extension that slows down music and video in your browser, like a record. Screwify also posts its own slowed-down clips to the Screwify YouTube channel and uses the YouTube Data API only to upload those videos – see the Privacy Policy.',
+    privacy: 'Privacy Policy',
+    terms: 'Terms of Service',
   },
   ru: {
     untitled: 'Трек в замедлении',
@@ -348,6 +361,9 @@ const TEXT = {
     mobileTail: 'Расширение Screwify работает в Chrome на компьютере – сохраните ссылку и откройте её там.',
     copy: 'Скопировать ссылку',
     copied: 'Ссылка скопирована',
+    about: 'Screwify – бесплатное расширение для Chrome: замедляет музыку и видео в браузере, как пластинку. Ещё Screwify выкладывает свои замедленные ролики на канал Screwify в YouTube и пользуется YouTube Data API только для их загрузки – подробности в политике конфиденциальности.',
+    privacy: 'Политика конфиденциальности',
+    terms: 'Условия использования',
   },
   zh: {
     untitled: '一首慢放的歌',
@@ -388,6 +404,9 @@ const TEXT = {
     mobileTail: 'Screwify 扩展在电脑版 Chrome 中使用，请保存链接，到电脑上打开。',
     copy: '复制链接',
     copied: '链接已复制',
+    about: 'Screwify 是一款免费的 Chrome 扩展，让浏览器里的音乐和视频像唱片一样放慢。Screwify 也会把自己制作的慢速短片发布到 Screwify 的 YouTube 频道，YouTube Data API 仅用于上传这些视频，详见隐私政策。',
+    privacy: '隐私政策',
+    terms: '服务条款',
   },
   es: {
     untitled: 'Una canción ralentizada',
@@ -428,6 +447,9 @@ const TEXT = {
     mobileTail: 'La extensión Screwify funciona en Chrome en una computadora: guarda el enlace y ábrelo allí.',
     copy: 'Copiar el enlace',
     copied: 'Enlace copiado',
+    about: 'Screwify es una extensión gratuita para Chrome que ralentiza la música y el vídeo en tu navegador, como un disco. Screwify también publica sus propios clips ralentizados en su canal de YouTube y usa la YouTube Data API solo para subir esos vídeos – más detalles en la política de privacidad.',
+    privacy: 'Política de privacidad',
+    terms: 'Términos del servicio',
   },
   ar: {
     untitled: 'مقطع مُبطّأ',
@@ -468,6 +490,9 @@ const TEXT = {
     mobileTail: 'تعمل إضافة Screwify في Chrome على الحاسوب – احفظ الرابط وافتحه هناك.',
     copy: 'نسخ الرابط',
     copied: 'تم نسخ الرابط',
+    about: 'Screwify إضافة مجانية لمتصفح Chrome تُبطئ الموسيقى والفيديو في متصفحك مثل أسطوانة. تنشر Screwify أيضًا مقاطعها المبطّأة على قناتها في YouTube، وتستخدم YouTube Data API لرفع هذه الفيديوهات فقط – التفاصيل في سياسة الخصوصية.',
+    privacy: 'سياسة الخصوصية',
+    terms: 'شروط الخدمة',
   },
   fr: {
     untitled: 'Un morceau au ralenti',
@@ -508,6 +533,9 @@ const TEXT = {
     mobileTail: 'L’extension Screwify fonctionne dans Chrome sur ordinateur – enregistrez le lien et ouvrez-le là-bas.',
     copy: 'Copier le lien',
     copied: 'Lien copié',
+    about: 'Screwify est une extension gratuite pour Chrome qui ralentit la musique et la vidéo dans votre navigateur, comme un disque. Screwify publie aussi ses propres clips ralentis sur sa chaîne YouTube et n’utilise la YouTube Data API que pour mettre ces vidéos en ligne – détails dans la politique de confidentialité.',
+    privacy: 'Politique de confidentialité',
+    terms: 'Conditions d’utilisation',
   },
 };
 
@@ -523,6 +551,9 @@ const $ = id => document.getElementById(id);
 document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang;
 document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
 $('lang').value = lang;
+$('about').textContent = t('about');
+$('privacy-link').textContent = t('privacy');
+$('terms-link').textContent = t('terms');
 $('lang').addEventListener('change', e => {
   try { localStorage.setItem('screwify-lang', e.target.value); } catch (err) {}
   const url = new URL(location.href);
