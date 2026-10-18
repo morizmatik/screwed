@@ -50,7 +50,10 @@ body {
 }
 
 header, main, footer { width: 100%; max-width: 1120px; margin: 0 auto; padding-inline: 24px; }
-header { padding-top: 32px; }
+header { padding-top: 32px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.lang { font: inherit; font-size: 14px; color: var(--soft); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; min-height: 40px; cursor: pointer; }
+.lang:hover { color: var(--ink); }
+.lang:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 /* слева текст, справа панель расширения */
 main { flex: 1; display: flex; align-items: center; gap: clamp(40px, 7vw, 112px); padding-block: 48px; }
 .copy { flex: 1; min-width: 0; }
@@ -202,7 +205,17 @@ footer { padding-bottom: 20px; }
 </style>
 </head>
 <body>
-<header><a class="wordmark" href="./" dir="ltr" aria-label="Screwify">Screwify</a></header>
+<header>
+  <a class="wordmark" href="./" dir="ltr" aria-label="Screwify">Screwify</a>
+  <select class="lang" id="lang" dir="ltr" aria-label="Language">
+    <option value="en">English</option>
+    <option value="ru">Русский</option>
+    <option value="zh">中文</option>
+    <option value="es">Español</option>
+    <option value="ar">العربية</option>
+    <option value="fr">Français</option>
+  </select>
+</header>
 
 <main>
   <div class="copy">
@@ -498,14 +511,25 @@ const TEXT = {
   },
 };
 
-// Язык — первый из предпочитаемых в браузере (а у него по умолчанию — язык системы),
-// на который страница переведена; иначе английский.
+// Язык: ?lang=xx в адресе, затем выбор в переключателе (хранится в браузере),
+// затем первый из предпочитаемых в браузере, на который страница переведена; иначе английский.
 const preferred = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || ''];
-const lang = preferred.map(l => l.toLowerCase().split('-')[0]).find(l => l in TEXT) || 'en';
+let saved = '';
+try { saved = localStorage.getItem('screwify-lang') || ''; } catch (e) {}
+const asked = new URLSearchParams(location.search).get('lang') || '';
+const lang = [asked, saved, ...preferred.map(l => l.toLowerCase().split('-')[0])].find(l => l in TEXT) || 'en';
 const t = (key, vars = {}) => TEXT[lang][key].replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m));
 const $ = id => document.getElementById(id);
 document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang;
 document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+$('lang').value = lang;
+$('lang').addEventListener('change', e => {
+  try { localStorage.setItem('screwify-lang', e.target.value); } catch (err) {}
+  const url = new URL(location.href);
+  url.searchParams.delete('lang');
+  history.replaceState(null, '', url);
+  location.reload();
+});
 
 // ---------- что в ссылке ----------
 // #to=<адрес трека с кодом настроек>&track=<исполнитель — название>
