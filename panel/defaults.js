@@ -5,8 +5,24 @@ const SCREWED_DEFAULTS = {
   tone: 0.4,     // «тёмный» lowpass, 0..1; 40% отмечены сердечком
   noise: 0.6,    // шум эфира: редкие «потери волны» с шипением и треском, 0..1 (0 — выключено); 60% — сердечко
   reverb: 0,     // реверб, 0..1 (0 — выключен); по умолчанию выключен, пока автор не послушал
+  wall: 0,       // «из-за стены», 0..1 (0 — выключен); по умолчанию выключен, пока автор не послушал
+  vinyl: 0,      // винил-треск, 0..1 (0 — выключен); по умолчанию выключен, пока автор не послушал
+  vinylMode: 'steady', // винил-треск: 'steady' – постоянно, 'random' – волнами раз в 20–60 с
   chop: false,   // чопы и эхо в ритм: включены или нет
   drift: true,   // плавающий тон: тембр медленно и случайно гуляет, как скорость у жевания
+  level: true,   // ровная громкость: мягкий компрессор выравнивает тихое и громкое; включена по умолчанию (решение автора)
+  videoFx: false,// видео-эффекты поверх играющего видео, по умолчанию выключены
+  videoBlend: true,    // сглаживание кросс-фейдом между кадрами (заметно на замедлении)
+  videoGrade: 0.6,     // тёплая плёночная градация
+  videoGrain: 0.5,     // зерно
+  videoVignette: 0.45, // виньетка
+  videoWobble: 0.5,    // лёгкое дрожание
+  videoPulse: 0.5,     // пульс под бит
+  videoBass: 0.5,      // реакция на бас (яркость + лёгкий зум)
+  videoMid: 0.3,       // реакция на середину (дрожание)
+  videoHigh: 0.3,      // реакция на верхи (зерно)
+  videoAmbient: false, // амбиент: реактивный слой поверх всей страницы, по умолчанию выключен
+  videoAmbientAmt: 0.7,// сила амбиента
   sites: {},     // сайты, на которых эффект включён: { 'https://music.yandex.ru': true }
   lang: 'auto',  // язык интерфейса: auto — как у браузера
 };
@@ -15,13 +31,13 @@ const SCREWED_DEFAULTS = {
 // Пресет – набор значений всех ручек эффекта (не трогает сайты и язык), применяется одним действием.
 // i18n – ключ названия в i18n.js. Активным считается пресет, у которого все значения совпали с текущими.
 const SCREWED_PRESETS = [
-  { id: 'default', i18n: 'presetHeart', desc: 'presetDescHeart', icon: 'heart', values: { speed: 0.8, chewAmt: 0.15, tone: 0.4, noise: 0.6, reverb: 0, chop: false, drift: true } },
-  { id: 'radio', i18n: 'presetRadio', desc: 'presetDescRadio', icon: 'radio', values: { speed: 1, chewAmt: 0.1, tone: 0.7, noise: 0.8, reverb: 0, chop: false, drift: false } },
-  { id: 'tape', i18n: 'presetTape', desc: 'presetDescTape', icon: 'tape', values: { speed: 0.9, chewAmt: 0.5, tone: 0.5, noise: 0.3, reverb: 0.15, chop: false, drift: true } },
-  { id: 'chopped', i18n: 'presetChop', desc: 'presetDescChop', values: { speed: 0.7, chewAmt: 0, tone: 0, noise: 0, reverb: 0, chop: true, drift: false } },
-  { id: 'slowed', i18n: 'presetSlowed', desc: 'presetDescSlowed', values: { speed: 0.8, chewAmt: 0, tone: 0.4, noise: 0, reverb: 0.4, chop: false, drift: false } },
-  { id: 'background', i18n: 'presetBackground', desc: 'presetDescBg', values: { speed: 0.8, chewAmt: 0.2, tone: 1, noise: 0.5, reverb: 0.1, chop: false, drift: true } },
-  { id: 'dream', i18n: 'presetDream', desc: 'presetDescDream', values: { speed: 0.8, chewAmt: 0.05, tone: 0.9, noise: 0.3, reverb: 0.9, chop: false, drift: true } },
+  { id: 'default', i18n: 'presetHeart', desc: 'presetDescHeart', icon: 'heart', values: { speed: 0.8, chewAmt: 0.15, tone: 0.4, noise: 0.6, reverb: 0, wall: 0, vinyl: 0, chop: false, drift: true } },
+  { id: 'radio', i18n: 'presetRadio', desc: 'presetDescRadio', icon: 'radio', values: { speed: 1, chewAmt: 0.1, tone: 0.7, noise: 0.8, reverb: 0, wall: 0, vinyl: 0, chop: false, drift: false } },
+  { id: 'tape', i18n: 'presetTape', desc: 'presetDescTape', icon: 'tape', values: { speed: 0.9, chewAmt: 0.5, tone: 0.5, noise: 0.3, reverb: 0.15, wall: 0, vinyl: 0, chop: false, drift: true } },
+  { id: 'chopped', i18n: 'presetChop', desc: 'presetDescChop', values: { speed: 0.7, chewAmt: 0, tone: 0, noise: 0, reverb: 0, wall: 0, vinyl: 0, chop: true, drift: false } },
+  { id: 'slowed', i18n: 'presetSlowed', desc: 'presetDescSlowed', values: { speed: 0.8, chewAmt: 0, tone: 0.4, noise: 0, reverb: 0.4, wall: 0, vinyl: 0, chop: false, drift: false } },
+  { id: 'background', i18n: 'presetBackground', desc: 'presetDescBg', values: { speed: 0.8, chewAmt: 0.2, tone: 1, noise: 0.5, reverb: 0.1, wall: 0, vinyl: 0, chop: false, drift: true } },
+  { id: 'dream', i18n: 'presetDream', desc: 'presetDescDream', values: { speed: 0.8, chewAmt: 0.05, tone: 0.9, noise: 0.3, reverb: 0.9, wall: 0, vinyl: 0, chop: false, drift: true } },
 ];
 
 function screwedPresetActive(preset, s) {

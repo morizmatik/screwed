@@ -24,8 +24,8 @@ const offTargets = [
 const pct = v => `${Math.round(v * 100)}%`;
 const RPM = 100 / 3; // 33⅓
 
-const CHECKS = ['chop', 'drift'];
-const RANGES = ['speed', 'chewAmt', 'tone', 'noise', 'reverb'];
+const CHECKS = ['chop', 'drift', 'level'];
+const RANGES = ['speed', 'chewAmt', 'tone', 'noise', 'wall', 'vinyl', 'reverb'];
 
 const s = { ...SCREWED_DEFAULTS };
 let t = translator(s.lang);
@@ -43,6 +43,13 @@ function renderControls() {
     $(`${id}-out`).textContent = pct(s[id]);
     // акцентная заливка дорожки до ручки
     el.style.setProperty('--fill', `${((s[id] - el.min) / (el.max - el.min)) * 100}%`);
+  }
+  // режим треска переключается, только пока уровень больше нуля
+  for (const b of $('vinyl-mode').children) {
+    const cur = b.dataset.mode === s.vinylMode;
+    b.classList.toggle('on', cur);
+    b.setAttribute('aria-pressed', cur);
+    b.disabled = !(s.vinyl > 0);
   }
   for (const b of presetBtns) {
     const on = screwedPresetActive(b.preset, s);
@@ -82,6 +89,10 @@ $('on').addEventListener('change', e => {
 });
 for (const id of RANGES) {
   $(id).addEventListener('input', e => update({ [id]: Number(e.target.value) }));
+}
+
+for (const b of $('vinyl-mode').children) {
+  b.addEventListener('click', () => update({ vinylMode: b.dataset.mode }));
 }
 
 // пресеты: кнопки строим по списку из defaults.js; подсветка гаснет, когда ручки разошлись с пресетом
@@ -316,7 +327,7 @@ function renderLive() {
 function ping() {
   if (activeTabId === null) return;
   chrome.tabs.sendMessage(activeTabId, { type: 'screwed:ping', tabId: activeTabId })
-    .then(() => { reachable = true; refresh(); })
+    .then(() => { reachable = true; pinged = true; refresh(); welcome(); })
     .catch(() => {
       reachable = false;
       refresh();
@@ -331,6 +342,7 @@ function bindTab(tab) {
   tabUrl = tab ? tab.url : null;
   resetTab();
   reachable = true;
+  pinged = false;
   refresh();
   ping();
   connectToBackground();
@@ -358,7 +370,7 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
 
 chrome.tabs.onUpdated.addListener((tabId, info) => {
   if (tabId !== activeTabId) return;
-  if (info.url) { tabSite = screwedSite(info.url); tabUrl = info.url; refresh(); } // во вкладке открыли другой сайт
+  if (info.url) { tabSite = screwedSite(info.url); tabUrl = info.url; pinged = false; refresh(); } // во вкладке открыли другой сайт
   if (info.status === 'loading') { resetTab(); renderLive(); }
   if (info.status === 'complete') ping();
 });
@@ -1033,10 +1045,27 @@ function setCover(url) {
   img.src = url;
 }
 
+// При самом первом открытии панели после установки эффект сразу включается на сайте вкладки:
+// ключ welcomed запоминает, что это уже было, и дальше выбор остаётся за пользователем.
+// Ключ false ставит только background при свежей установке (reason 'install'): у старых
+// пользователей его нет – значит, true, и ничего само не включается.
+// Только когда страница вкладки ответила на ping: на вкладках, где расширение не работает
+// (Chrome Web Store, chrome://), приветствие не тратится.
+let welcomed = true;
+let pinged = false;
+function welcome() {
+  if (welcomed || !pinged || !canToggle()) return;
+  welcomed = true;
+  chrome.storage.local.set({ welcomed: true });
+  if (!s.sites[tabSite]) update({ sites: screwedSitesWith(s.sites, tabSite, true) });
+}
+
 screwedMigrate();
-chrome.storage.local.get(SCREWED_DEFAULTS, saved => {
+chrome.storage.local.get({ ...SCREWED_DEFAULTS, welcomed: true }, ({ welcomed: seen, ...saved }) => {
   Object.assign(s, saved);
+  welcomed = seen;
   loaded = true;
+  welcome();
   applyLang();
   renderControls();
   if (!still) raf(spin);
