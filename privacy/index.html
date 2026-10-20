@@ -15,7 +15,7 @@
 <header><a class="wordmark" href="../" aria-label="Screwify">Screwify</a></header>
 <main>
 <h1>Privacy Policy</h1>
-<p class="updated">Last updated October 18, 2026</p>
+<p class="updated">Last updated October 21, 2026</p>
 <p>Screwify (<a href="https://screwify.space/">screwify.space</a>) is two things, both covered by this policy:</p>
 <ul>
   <li><strong>The Screwify extension</strong> – a free Chrome extension that slows down music and video playing in your browser, like a record, and adds effects such as reverb and tape character.</li>
@@ -25,10 +25,27 @@
 
 <h2>The Screwify extension</h2>
 <ul>
-  <li><strong>What stays on your device:</strong> your settings and presets, the list of sites where you turned the effect on, and those sites’ colors and fonts are saved in your browser’s local extension storage. They are not synced or sent anywhere.</li>
-  <li><strong>Audio:</strong> the sound of the page you are listening to is processed inside your browser to apply the effects. A few seconds are kept in memory for the scratch effect and discarded when the page is closed. Audio is never recorded or transmitted.</li>
-  <li><strong>Network requests:</strong> the extension never contacts a server run by Screwify. To match the look of the site you are on, it may load that site’s own fonts and the cover of the playing track from the same servers the site uses.</li>
-  <li><strong>Share links:</strong> the Share button copies a link to screwify.space. The track address, its title and a short code of your settings travel after the <code>#</code> sign, which browsers do not send to the server. The site is hosted on GitHub Pages, which receives ordinary request data such as the IP address.</li>
+  <li><strong>Your settings</strong> – speed, tape chew, tone, reverb, panel language, your own named presets, and whether the effect is on – are saved in your browser’s local extension storage. They are not synced and not sent anywhere.</li>
+  <li><strong>The list of sites where you turned the effect on</strong> (site addresses only, such as <code>https://music.youtube.com</code>) is kept in the same storage, so the effect comes back on those sites by itself. It is not synced or sent anywhere either.</li>
+  <li><strong>Colors and fonts of those sites</strong> (background and text color, font names and the addresses of their font files) are kept in the same storage, so the panel can match the site even before the page has responded. They are not synced or sent anywhere either.</li>
+  <li><strong>Audio of the page you are listening to</strong> is processed inside your browser to apply the effects, draw the waveform and make scratching possible. A few seconds of recent audio are kept in memory for the scratch effect and discarded when the page is closed. Audio is never recorded to disk or transmitted.</li>
+  <li><strong>Information about the open page</strong> – its address, title, colors, fonts, the name and cover of the playing track – is read only to show it in the panel and to style the panel like the site. It stays in your browser.</li>
+</ul>
+
+<h3>Network requests the extension makes</h3>
+<p>The extension never contacts a server run by Screwify. To match the look of the site you are on, the side panel may download that site’s own font files and the cover image of the playing track from the same servers the site itself loads them from. These are ordinary requests, like the ones your browser already makes when you open the site.</p>
+
+<h3>Share links</h3>
+<p>The Share button puts a link to <a href="https://screwify.space/">screwify.space</a> on your clipboard. After the <code>#</code> sign the link carries the address of the page you have open, a short code of your effect settings (for example <code>screwed=s70-c50-t20</code>) and the title of the playing track. The link contains nothing else from the extension. Browsers do not send the part of an address after <code>#</code> to the server, so neither the track address nor its title is transmitted to that page.</p>
+<p>The page is hosted on GitHub Pages; as with any website, GitHub receives ordinary technical request data (such as the IP address). If the link points to YouTube, the page shows the video’s cover image and loads it from YouTube’s servers. When someone with Screwify installed opens such a link, the page opens the track right away: the settings from the link are applied in their browser and the code is removed from the address before the site sees it. For someone without the extension the page shows the track title, the settings and an install button.</p>
+
+<h3>Extension permissions</h3>
+<ul>
+  <li><strong>Access to all sites</strong> – needed so the effect can work with the player of any site you open. Page content is not collected.</li>
+  <li><strong>Storage</strong> – saves your settings locally.</li>
+  <li><strong>Side panel</strong> – shows the extension’s interface.</li>
+  <li><strong>Favicon</strong> – reads the site icon to pick an accent color for the panel.</li>
+  <li><strong>Clipboard (write only)</strong> – copies the share link. The extension never reads your clipboard.</li>
 </ul>
 
 <h2>YouTube (Google APIs)</h2>
