@@ -190,6 +190,9 @@ footer { padding-bottom: 20px; }
 .social a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: .25em; }
 /* что такое Screwify и зачем ему YouTube API – видно и без скриптов (так страницу читает проверка Google) */
 .about { max-width: 46em; margin: 8px 0 0; font-size: 14px; color: var(--soft); text-wrap: pretty; }
+.why summary { cursor: pointer; color: var(--ink); text-decoration: underline dotted; text-underline-offset: 3px; }
+.why p { margin: 6px 0 0; }
+.why b { font-weight: inherit; color: var(--ink); text-decoration: underline; text-decoration-color: var(--accent); text-decoration-thickness: 2px; text-underline-offset: 3px; }
 .shared .about { display: none; }
 .legal a { padding-block: 8px; }
 
@@ -258,6 +261,7 @@ A different sound.</h1>
     <a href="https://vk.ru/screwify" target="_blank" rel="noopener">VK</a>
   </nav>
   <p class="about" id="about">Screwify is a free Chrome extension that slows down music and video in your browser, like a record. Screwify also posts its own slowed-down clips to the Screwify YouTube channel and uses the YouTube Data API only to upload those videos – see the Privacy Policy.</p>
+  <details class="about why" id="why"><summary id="why-q"></summary><p id="why-a"></p></details>
   <nav class="social legal" aria-label="Legal">
     <a href="privacy/" id="privacy-link">Privacy Policy</a>
     <a href="terms/" id="terms-link">Terms of Service</a>
@@ -319,6 +323,7 @@ const TEXT = {
     copy: 'Copy the link',
     copied: 'Link copied',
     about: 'Screwify is a free Chrome extension that slows down music and video in your browser, like a record. Screwify also posts its own slowed-down clips to the Screwify YouTube channel and uses the YouTube Data API only to upload those videos – see the Privacy Policy.',
+    why: 'Why only a Chrome extension, only on a computer? Screwify never touches the music file – it only changes the playback speed of the player that is already playing for you. You listen through your own account on the service you chose, so the play is counted and the artist gets it as usual; the music is just heard differently. **A separate site or app would have to get the audio itself, and that is where copying begins.** Screwify knows nothing about you or what you listen to, and sends nothing anywhere.',
     privacy: 'Privacy Policy',
     terms: 'Terms of Service',
   },
@@ -362,6 +367,7 @@ const TEXT = {
     copy: 'Скопировать ссылку',
     copied: 'Ссылка скопирована',
     about: 'Screwify – бесплатное расширение для Chrome: замедляет музыку и видео в браузере, как пластинку. Ещё Screwify выкладывает свои замедленные ролики на канал Screwify в YouTube и пользуется YouTube Data API только для их загрузки – подробности в политике конфиденциальности.',
+    why: 'Почему только расширение для Chrome и только на компьютере? Screwify не трогает файл с музыкой – он лишь меняет скорость плеера, который и так играет для вас. Вы слушаете через свою учётную запись на выбранном вами сервисе, поэтому прослушивание засчитывается и автору идёт как обычно – его музыку просто слышат иначе. **Отдельному сайту или приложению пришлось бы самим получать звук, а с этого начинается копирование.** Screwify ничего не знает о вас и о том, что вы слушаете, и ничего никуда не отправляет.',
     privacy: 'Политика конфиденциальности',
     terms: 'Условия использования',
   },
@@ -405,6 +411,7 @@ const TEXT = {
     copy: '复制链接',
     copied: '链接已复制',
     about: 'Screwify 是一款免费的 Chrome 扩展，让浏览器里的音乐和视频像唱片一样放慢。Screwify 也会把自己制作的慢速短片发布到 Screwify 的 YouTube 频道，YouTube Data API 仅用于上传这些视频，详见隐私政策。',
+    why: '为什么只有 Chrome 扩展、只能在电脑上用？Screwify 不接触音乐文件，只是改变那个本来就在为你播放的播放器的速度。你通过自己在所选服务上的账号收听，所以播放照常计数，艺术家照常获得收益，只是听起来不一样。**独立的网站或应用必须自己获取音频，而复制正是从这里开始的。**Screwify 不了解你，也不知道你在听什么，不会向任何地方发送任何内容。',
     privacy: '隐私政策',
     terms: '服务条款',
   },
@@ -448,6 +455,7 @@ const TEXT = {
     copy: 'Copiar el enlace',
     copied: 'Enlace copiado',
     about: 'Screwify es una extensión gratuita para Chrome que ralentiza la música y el vídeo en tu navegador, como un disco. Screwify también publica sus propios clips ralentizados en su canal de YouTube y usa la YouTube Data API solo para subir esos vídeos – más detalles en la política de privacidad.',
+    why: '¿Por qué solo una extensión de Chrome y solo en el ordenador? Screwify no toca el archivo de música: solo cambia la velocidad del reproductor que ya suena para ti. Escuchas con tu propia cuenta en el servicio que elegiste, así que la reproducción se cuenta y el artista la recibe como siempre; su música simplemente se oye de otra forma. **Un sitio o una app aparte tendría que obtener el audio por su cuenta, y ahí empieza la copia.** Screwify no sabe nada de ti ni de lo que escuchas, y no envía nada a ningún sitio.',
     privacy: 'Política de privacidad',
     terms: 'Términos del servicio',
   },
@@ -491,6 +499,7 @@ const TEXT = {
     copy: 'نسخ الرابط',
     copied: 'تم نسخ الرابط',
     about: 'Screwify إضافة مجانية لمتصفح Chrome تُبطئ الموسيقى والفيديو في متصفحك مثل أسطوانة. تنشر Screwify أيضًا مقاطعها المبطّأة على قناتها في YouTube، وتستخدم YouTube Data API لرفع هذه الفيديوهات فقط – التفاصيل في سياسة الخصوصية.',
+    why: 'لماذا إضافة Chrome فقط وعلى الحاسوب فقط؟ لا تلمس Screwify ملف الموسيقى، بل تغيّر فقط سرعة المشغّل الذي يعمل أصلًا من أجلك. أنت تستمع عبر حسابك الخاص في الخدمة التي اخترتها، فيُحتسب الاستماع ويصل إلى الفنان كالمعتاد، وكل ما في الأمر أن موسيقاه تُسمع بشكل مختلف. **أما موقع أو تطبيق منفصل فسيحتاج إلى الحصول على الصوت بنفسه، ومن هنا يبدأ النسخ.** لا تعرف Screwify شيئًا عنك أو عمّا تستمع إليه، ولا ترسل شيئًا إلى أي مكان.',
     privacy: 'سياسة الخصوصية',
     terms: 'شروط الخدمة',
   },
@@ -534,6 +543,7 @@ const TEXT = {
     copy: 'Copier le lien',
     copied: 'Lien copié',
     about: 'Screwify est une extension gratuite pour Chrome qui ralentit la musique et la vidéo dans votre navigateur, comme un disque. Screwify publie aussi ses propres clips ralentis sur sa chaîne YouTube et n’utilise la YouTube Data API que pour mettre ces vidéos en ligne – détails dans la politique de confidentialité.',
+    why: 'Pourquoi seulement une extension Chrome, et seulement sur ordinateur ? Screwify ne touche pas au fichier musical : elle change uniquement la vitesse du lecteur qui joue déjà pour vous. Vous écoutez avec votre propre compte sur le service que vous avez choisi, donc l’écoute est comptée et l’artiste la reçoit comme d’habitude ; sa musique s’entend simplement autrement. **Un site ou une appli à part devrait obtenir le son elle-même, et c’est là que commence la copie.** Screwify ne sait rien de vous ni de ce que vous écoutez, et n’envoie rien nulle part.',
     privacy: 'Politique de confidentialité',
     terms: 'Conditions d’utilisation',
   },
@@ -552,6 +562,16 @@ document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang;
 document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
 $('lang').value = lang;
 $('about').textContent = t('about');
+{
+  const w = t('why'), k = w.search(/[?？؟]/);
+  $('why-q').textContent = w.slice(0, k + 1);
+  $('why-a').replaceChildren(...w.slice(k + 1).trim().split('**').map((part, i) => {
+    if (i % 2 === 0) return part;
+    const b = document.createElement('b');
+    b.textContent = part;
+    return b;
+  }));
+}
 $('privacy-link').textContent = t('privacy');
 $('terms-link').textContent = t('terms');
 $('lang').addEventListener('change', e => {
