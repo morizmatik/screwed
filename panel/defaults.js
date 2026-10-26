@@ -6,11 +6,11 @@ const SCREWED_DEFAULTS = {
   noise: 0.6,    // шум эфира: редкие «потери волны» с шипением и треском, 0..1 (0 — выключено); 60% — сердечко
   reverb: 0,     // реверб, 0..1 (0 — выключен); по умолчанию выключен, пока автор не послушал
   wall: 0,       // «из-за стены», 0..1 (0 — выключен); по умолчанию выключен, пока автор не послушал
-  vinyl: 0,      // винил-треск, 0..1 (0 — выключен); по умолчанию выключен, пока автор не послушал
-  vinylMode: 'steady', // винил-треск: 'steady' – постоянно, 'random' – волнами раз в 20–60 с
+  vinyl: false,  // винил-треск: редкие щелчки и шелест поверхности пластинки, фиксированный тихий уровень; по умолчанию выключен, пока автор не послушал
+  glitch: 0,     // сбой: редкие микро-повторы, как у старой плёнки, 0..1 (0 — выключен); по умолчанию выключен, пока автор не послушал
   chop: false,   // чопы и эхо в ритм: включены или нет
   drift: true,   // плавающий тон: тембр медленно и случайно гуляет, как скорость у жевания
-  level: true,   // ровная громкость: мягкий компрессор выравнивает тихое и громкое; включена по умолчанию (решение автора)
+  level: false,  // ровная громкость: мягкий компрессор выравнивает тихое и громкое; по умолчанию выключена (решение автора)
   videoFx: false,// видео-эффекты поверх играющего видео, по умолчанию выключены
   videoBlend: true,    // сглаживание кросс-фейдом между кадрами (заметно на замедлении)
   videoGrade: 0.6,     // тёплая плёночная градация
@@ -21,6 +21,19 @@ const SCREWED_DEFAULTS = {
   videoBass: 0.5,      // реакция на бас (яркость + лёгкий зум)
   videoMid: 0.3,       // реакция на середину (дрожание)
   videoHigh: 0.3,      // реакция на верхи (зерно)
+  // ASCII-режим: видео превращается в светящиеся символы поверх затемнённого кадра.
+  // По умолчанию выключен, пока автор не посмотрел, как это выглядит на клипах.
+  videoAscii: false,
+  videoAsciiRows: 36,      // символов по высоте кадра: больше — мельче и плотнее
+  videoAsciiSet: 'dense',  // набор: dense (мелкая крупа), cinema (крупные знаки), data (цифры и знаки)
+  videoAsciiGlow: 0.5,     // свечение вокруг символов
+  videoAsciiBg: 0.4,      // сколько видно видео под символами (0 — чёрный фон)
+  videoAsciiBgReact: 0.4, // насколько фон под символами выглядывает на бас/середину/верхи
+  videoAsciiCool: 0.35,    // холодный оттенок символов: 0 — цвет только из кадра, 1 — циан
+  videoAsciiScatter: 0.5, // разброс: символы гуляют внутри клеток, поле не выглядит решёткой
+  videoAsciiContrast: 1.25, // контраст яркости: выше — больше пустого места в тенях, ниже — ровнее
+  videoAsciiGamma: 1.4,   // гамма: выше — тени пустеют, светлое остаётся (для светлых клипов)
+  videoAsciiFloor: 0.12,    // порог: ниже него клетка пустая, а не забита мелкими знаками
   videoAmbient: false, // амбиент: реактивный слой поверх всей страницы, по умолчанию выключен
   videoAmbientAmt: 0.7,// сила амбиента
   sites: {},     // сайты, на которых эффект включён: { 'https://music.yandex.ru': true }
@@ -31,13 +44,13 @@ const SCREWED_DEFAULTS = {
 // Пресет – набор значений всех ручек эффекта (не трогает сайты и язык), применяется одним действием.
 // i18n – ключ названия в i18n.js. Активным считается пресет, у которого все значения совпали с текущими.
 const SCREWED_PRESETS = [
-  { id: 'default', i18n: 'presetHeart', desc: 'presetDescHeart', icon: 'heart', values: { speed: 0.8, chewAmt: 0.15, tone: 0.4, noise: 0.6, reverb: 0, wall: 0, vinyl: 0, chop: false, drift: true } },
-  { id: 'radio', i18n: 'presetRadio', desc: 'presetDescRadio', icon: 'radio', values: { speed: 1, chewAmt: 0.1, tone: 0.7, noise: 0.8, reverb: 0, wall: 0, vinyl: 0, chop: false, drift: false } },
-  { id: 'tape', i18n: 'presetTape', desc: 'presetDescTape', icon: 'tape', values: { speed: 0.9, chewAmt: 0.5, tone: 0.5, noise: 0.3, reverb: 0.15, wall: 0, vinyl: 0, chop: false, drift: true } },
-  { id: 'chopped', i18n: 'presetChop', desc: 'presetDescChop', values: { speed: 0.7, chewAmt: 0, tone: 0, noise: 0, reverb: 0, wall: 0, vinyl: 0, chop: true, drift: false } },
-  { id: 'slowed', i18n: 'presetSlowed', desc: 'presetDescSlowed', values: { speed: 0.8, chewAmt: 0, tone: 0.4, noise: 0, reverb: 0.4, wall: 0, vinyl: 0, chop: false, drift: false } },
-  { id: 'background', i18n: 'presetBackground', desc: 'presetDescBg', values: { speed: 0.8, chewAmt: 0.2, tone: 1, noise: 0.5, reverb: 0.1, wall: 0, vinyl: 0, chop: false, drift: true } },
-  { id: 'dream', i18n: 'presetDream', desc: 'presetDescDream', values: { speed: 0.8, chewAmt: 0.05, tone: 0.9, noise: 0.3, reverb: 0.9, wall: 0, vinyl: 0, chop: false, drift: true } },
+  { id: 'default', i18n: 'presetHeart', desc: 'presetDescHeart', icon: 'heart', values: { speed: 0.8, chewAmt: 0.15, tone: 0.4, noise: 0.6, reverb: 0.1, wall: 0, vinyl: false, glitch: 0, chop: false, drift: true } },
+  { id: 'radio', i18n: 'presetRadio', desc: 'presetDescRadio', icon: 'radio', values: { speed: 1, chewAmt: 0.1, tone: 0.7, noise: 0.8, reverb: 0, wall: 0, vinyl: false, glitch: 0, chop: false, drift: false } },
+  { id: 'tape', i18n: 'presetTape', desc: 'presetDescTape', icon: 'tape', values: { speed: 0.9, chewAmt: 0.5, tone: 0.5, noise: 0.3, reverb: 0.15, wall: 0, vinyl: false, glitch: 0, chop: false, drift: true } },
+  { id: 'chopped', i18n: 'presetChop', desc: 'presetDescChop', values: { speed: 0.7, chewAmt: 0, tone: 0, noise: 0, reverb: 0, wall: 0, vinyl: false, glitch: 0, chop: true, drift: false } },
+  { id: 'slowed', i18n: 'presetSlowed', desc: 'presetDescSlowed', values: { speed: 0.8, chewAmt: 0, tone: 0.4, noise: 0, reverb: 0.4, wall: 0, vinyl: false, glitch: 0, chop: false, drift: false } },
+  { id: 'background', i18n: 'presetBackground', desc: 'presetDescBg', values: { speed: 0.8, chewAmt: 0.2, tone: 1, noise: 0.5, reverb: 0.1, wall: 0, vinyl: false, glitch: 0, chop: false, drift: true } },
+  { id: 'dream', i18n: 'presetDream', desc: 'presetDescDream', values: { speed: 0.8, chewAmt: 0.05, tone: 0.9, noise: 0.3, reverb: 0.9, wall: 0, vinyl: false, glitch: 0, chop: false, drift: true } },
 ];
 
 function screwedPresetActive(preset, s) {
@@ -93,7 +106,7 @@ function screwedSitesWith(sites, site, on) {
 
 // ---------- настройки в ссылке «Поделиться» ----------
 // Короткий код: s70-c50-t20-w1-n60 — скорость 70%, жевание 50%, тёмный тон 20%,
-// плавающий тон включён (w0 — выключен), шум 60%. Реверб (r40) дописывается, только если он включён.
+// плавающий тон включён (w0 — выключен), шум 60%. Реверб (r40) и сбой (g30) дописываются, только если включены.
 // Чопы (d1) дописываются, только если включены: версии до 0.12 незнакомую часть кода не понимают.
 // Версии до 0.14 не понимают и w с n — у них ссылка откроет трек без настроек, пока Chrome их не обновит.
 // Кладём его после # (браузер сохраняет эту часть даже при перенаправлениях сервера),
@@ -102,19 +115,19 @@ const SCREWED_PARAM = 'screwed';
 
 function screwedShareCode(s) {
   const p = v => Math.round(v * 100);
-  return `s${p(s.speed)}-c${p(s.chewAmt)}-t${p(s.tone)}-w${s.drift ? 1 : 0}-n${p(s.noise)}${s.reverb > 0 ? `-r${p(s.reverb)}` : ''}${s.chop ? '-d1' : ''}`;
+  return `s${p(s.speed)}-c${p(s.chewAmt)}-t${p(s.tone)}-w${s.drift ? 1 : 0}-n${p(s.noise)}${s.reverb > 0 ? `-r${p(s.reverb)}` : ''}${s.glitch > 0 ? `-g${p(s.glitch)}` : ''}${s.chop ? '-d1' : ''}`;
 }
 
 function screwedParseCode(code) {
-  // ссылка без чопов и реверба выключает их и у получателя; плавающий тон и шум из старых ссылок,
+  // ссылка без чопов, реверба и сбоя выключает их и у получателя; плавающий тон и шум из старых ссылок,
   // где их нет, остаются такими, как у получателя
-  const out = { chop: false, reverb: 0 };
+  const out = { chop: false, reverb: 0, glitch: 0 };
   for (const part of String(code).split('-')) {
     // незнакомые буквы пропускаем: так ссылки из будущих версий с новыми настройками не ломаются
     const m = part.match(/^([a-z])(\d{1,3})$/);
     if (!m) return null;
     const n = Number(m[2]);
-    if (m[1] === 's') out.speed = Math.min(1.2, Math.max(0.3, n / 100));
+    if (m[1] === 's') out.speed = Math.min(1.5, Math.max(0.3, n / 100));
     // 'p' (тон вниз) был в старых ссылках; теперь тон падает всегда — просто пропускаем
     if (m[1] === 'c') out.chewAmt = Math.min(1, n / 100);
     if (m[1] === 't') out.tone = Math.min(1, n / 100);
@@ -122,6 +135,7 @@ function screwedParseCode(code) {
     if (m[1] === 'w') out.drift = n > 0;
     if (m[1] === 'n') out.noise = Math.min(1, n / 100);
     if (m[1] === 'r') out.reverb = Math.min(1, n / 100);
+    if (m[1] === 'g') out.glitch = Math.min(1, n / 100);
   }
   return 'speed' in out ? out : null;
 }
@@ -181,8 +195,9 @@ function screwedReadUrl(href) {
 // настройки: выключенное жевание — это сила 0; сами ключи больше не нужны.
 function screwedMigrate() {
   // 'on' был общим выключателем для всех вкладок; с 0.13 расширение включается по вкладкам.
+  // 'vinylMode' – режим винил-треска (убран): теперь треск просто включён или выключен, а vinyl из числа стал флагом.
   // 'sweep' — плавающий тон по тактам из 0.14.0–0.14.1; теперь он не привязан к ритму (drift).
-  chrome.storage.local.get(['chew', 'pitch', 'siteTheme', 'on', 'sweep'], old => {
+  chrome.storage.local.get(['chew', 'pitch', 'siteTheme', 'on', 'sweep', 'vinylMode'], old => {
     if (old.chew === false) chrome.storage.local.set({ chewAmt: 0 });
     const stale = Object.keys(old);
     if (stale.length) chrome.storage.local.remove(stale);

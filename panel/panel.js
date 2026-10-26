@@ -24,8 +24,8 @@ const offTargets = [
 const pct = v => `${Math.round(v * 100)}%`;
 const RPM = 100 / 3; // 33⅓
 
-const CHECKS = ['chop', 'drift', 'level'];
-const RANGES = ['speed', 'chewAmt', 'tone', 'noise', 'wall', 'vinyl', 'reverb'];
+const CHECKS = ['chop', 'drift', 'level', 'vinyl'];
+const RANGES = ['speed', 'chewAmt', 'tone', 'noise', 'wall', 'reverb', 'glitch'];
 
 const s = { ...SCREWED_DEFAULTS };
 let t = translator(s.lang);
@@ -43,13 +43,6 @@ function renderControls() {
     $(`${id}-out`).textContent = pct(s[id]);
     // акцентная заливка дорожки до ручки
     el.style.setProperty('--fill', `${((s[id] - el.min) / (el.max - el.min)) * 100}%`);
-  }
-  // режим треска переключается, только пока уровень больше нуля
-  for (const b of $('vinyl-mode').children) {
-    const cur = b.dataset.mode === s.vinylMode;
-    b.classList.toggle('on', cur);
-    b.setAttribute('aria-pressed', cur);
-    b.disabled = !(s.vinyl > 0);
   }
   for (const b of presetBtns) {
     const on = screwedPresetActive(b.preset, s);
@@ -89,10 +82,6 @@ $('on').addEventListener('change', e => {
 });
 for (const id of RANGES) {
   $(id).addEventListener('input', e => update({ [id]: Number(e.target.value) }));
-}
-
-for (const b of $('vinyl-mode').children) {
-  b.addEventListener('click', () => update({ vinylMode: b.dataset.mode }));
 }
 
 // пресеты: кнопки строим по списку из defaults.js; подсветка гаснет, когда ручки разошлись с пресетом

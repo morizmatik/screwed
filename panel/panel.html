@@ -85,13 +85,13 @@
           <span class="sub"><span id="pitch-out"></span></span>
         </div>
       </div>
-      <input type="range" id="speed" min="0.3" max="1.2" step="0.01">
+      <input type="range" id="speed" min="0.3" max="1.5" step="0.01">
       <div class="scale">
         <span style="--p:0" aria-hidden="true">30</span>
         <!-- 80% — скорость по умолчанию: на ней музыка звучит удачнее всего. Нажатие ставит её -->
-        <button class="fav" type="button" style="--p:.556" data-fav="speed" data-value="0.8" data-i18n-aria="favSet"><svg viewBox="0 0 12 11" aria-hidden="true"><path d="M6 10.300 1.300 5.700a2.900 2.900 0 0 1 4.100-4.100l.600.600.600-.600a2.900 2.900 0 0 1 4.100 4.100z"/></svg></button>
-        <span class="ref" style="--p:.778" aria-hidden="true">100</span>
-        <span style="--p:1" aria-hidden="true">120</span>
+        <button class="fav" type="button" style="--p:.417" data-fav="speed" data-value="0.8" data-i18n-aria="favSet"><svg viewBox="0 0 12 11" aria-hidden="true"><path d="M6 10.300 1.300 5.700a2.900 2.900 0 0 1 4.100-4.100l.600.600.600-.600a2.900 2.900 0 0 1 4.100 4.100z"/></svg></button>
+        <span class="ref" style="--p:.583" aria-hidden="true">100</span>
+        <span style="--p:1" aria-hidden="true">150</span>
       </div>
     </div>
   </section>
@@ -136,19 +136,17 @@
       </label>
       <output id="tone-out" for="tone" dir="ltr"></output>
     </div>
-    <div class="row toggle" data-i18n-title="levelHint">
-      <label class="name" for="level" data-i18n="level"></label>
-      <label class="switch">
-        <input type="checkbox" id="level">
-        <span class="track-sw"></span>
-      </label>
-    </div>
-    <div class="row" data-i18n-title="noiseTip">
+    <div class="row vinyl" data-i18n-title="noiseTip">
       <label class="name" for="noise" data-i18n="noise"></label>
       <span class="slider">
         <input type="range" id="noise" min="0" max="1" step="0.01">
         <button class="fav" type="button" style="--p:.6" data-fav="noise" data-value="0.6" data-i18n-aria="favSet"><svg viewBox="0 0 12 11" aria-hidden="true"><path d="M6 10.300 1.300 5.700a2.900 2.900 0 0 1 4.100-4.100l.600.600.600-.600a2.900 2.900 0 0 1 4.100 4.100z"/></svg></button>
       </span>
+      <!-- винил-треск – кнопка-пластинка рядом с шумом: фиксированный тихий уровень, щелчки случайны -->
+      <label class="icon-sw" data-i18n-title="vinylTip">
+        <input type="checkbox" id="vinyl" data-i18n-aria="vinyl">
+        <svg viewBox="0 0 16 14" aria-hidden="true"><circle cx="8" cy="7" r="5.500"/><circle cx="8" cy="7" r="1.200"/><path d="M11.800 3.200a5.400 5.400 0 0 1 1.300 2"/></svg>
+      </label>
       <output id="noise-out" for="noise" dir="ltr"></output>
     </div>
     <div class="row" data-i18n-title="wallTip">
@@ -158,23 +156,20 @@
       </span>
       <output id="wall-out" for="wall" dir="ltr"></output>
     </div>
-    <div class="row vinyl" data-i18n-title="vinylTip">
-      <label class="name" for="vinyl" data-i18n="vinyl"></label>
-      <span class="slider">
-        <input type="range" id="vinyl" min="0" max="1" step="0.01">
-      </span>
-      <span class="mode" id="vinyl-mode" role="group" data-i18n-aria="vinylMode">
-        <button type="button" data-mode="steady" data-i18n="vinylSteady"></button>
-        <button type="button" data-mode="random" data-i18n="vinylRandom"></button>
-      </span>
-      <output id="vinyl-out" for="vinyl" dir="ltr"></output>
-    </div>
     <div class="row" data-i18n-title="reverbTip">
       <label class="name" for="reverb" data-i18n="reverb"></label>
       <span class="slider">
         <input type="range" id="reverb" min="0" max="1" step="0.01">
+        <button class="fav" type="button" style="--p:.1" data-fav="reverb" data-value="0.1" data-i18n-aria="favSet"><svg viewBox="0 0 12 11" aria-hidden="true"><path d="M6 10.300 1.300 5.700a2.900 2.900 0 0 1 4.100-4.100l.600.600.600-.600a2.900 2.900 0 0 1 4.100 4.100z"/></svg></button>
       </span>
       <output id="reverb-out" for="reverb" dir="ltr"></output>
+    </div>
+    <div class="row" data-i18n-title="glitchTip">
+      <label class="name" for="glitch" data-i18n="glitch"></label>
+      <span class="slider">
+        <input type="range" id="glitch" min="0" max="1" step="0.01">
+      </span>
+      <output id="glitch-out" for="glitch" dir="ltr"></output>
     </div>
     <div class="row toggle">
       <!-- подсказка всплывает при наведении на метку «эксперимент» (и при фокусе с клавиатуры) -->
@@ -184,6 +179,13 @@
         <span class="track-sw"></span>
       </label>
       <p class="tip" id="chop-hint" role="tooltip" data-i18n="chopHint"></p>
+    </div>
+    <div class="row toggle" data-i18n-title="levelHint">
+      <label class="name" for="level" data-i18n="level"></label>
+      <label class="switch">
+        <input type="checkbox" id="level">
+        <span class="track-sw"></span>
+      </label>
     </div>
   </main>
 
