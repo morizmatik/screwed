@@ -16,7 +16,7 @@
 <meta property="og:image:height" content="560">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="panel/palette.css">
+<link rel="stylesheet" href="panel/palette.css?v=f6b8ad6394">
 <style>
 /* Стартовая страница и страница-прослойка для ссылок «Поделиться».
    Ровный нейтральный тёмный фон, как у картинок магазина (без зерна и тёплых пятен), один гротеск, акцент только на главной кнопке.
@@ -714,7 +714,7 @@ function renderHome() {
   $('title').textContent = t('line');
   $('lead').textContent = t('leadHome');
   // настоящая панель расширения: живой экземпляр в iframe, язык из адреса
-  $('panel').src = `panel/panel.html?lang=${lang}`;
+  $('panel').src = `panel/panel.html?v=f6b8ad6394&lang=${lang}`;
   $('panel').title = t('panelAlt');
   $('panel').addEventListener('load', fitPanel);
   $('shot').hidden = false;
