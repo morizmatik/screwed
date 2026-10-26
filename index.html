@@ -209,11 +209,38 @@ footer { padding-bottom: 20px; }
   .readout { margin-top: 16px; }
   footer { padding-bottom: 12px; }
 }
+
+/* компактный футер: соцсети и политика в одну строку, на телефоне соцсети – в шапке; панель на невысоких экранах меньше */
+.hright { display:flex; align-items:center; gap:8px; }
+.hsocial { display:none; }
+.frow { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0 24px; border-top:1px solid rgba(255,255,255,.08); }
+.frow .social a { padding-block:10px; }
+.about { font-size:12px; margin-top:0; }
+@media (min-width:821px) { footer { order: 3; } main { padding-block: clamp(12px,3vh,40px); } header{padding-top:20px} }
+@media (max-width:820px) {
+  .hsocial { display:flex; gap:0 14px; } .hsocial a{padding-block:8px;font-size:13px}
+  .fsocial { display:none; }
+  .frow { justify-content:center; }
+  header { flex-wrap: wrap; }
+  main { padding-block: 24px; gap: 32px; }
+}
+
+@media (min-width:821px) and (max-height:860px) { .shot { zoom:.86; } }
+@media (min-width:821px) and (max-height:760px) { .shot { zoom:.76; } }
+@media (min-width:821px) and (max-height:660px) { .shot { zoom:.66; } }
+
+@media (max-width:820px) { .hright { display:contents; } .hsocial { order:3; flex-basis:100%; margin-top:-4px; } .hsocial a{padding-block:6px} .lang{margin-inline-end:-12px} }
 </style>
 </head>
 <body>
 <header>
   <a class="wordmark" href="./" dir="ltr" aria-label="Screwify">Screwify</a>
+  <div class="hright"><nav class="social hsocial" dir="ltr" aria-label="Screwify">
+    <a href="https://t.me/screwify" target="_blank" rel="noopener">Telegram</a>
+    <a href="https://www.youtube.com/@screwify" target="_blank" rel="noopener">YouTube</a>
+    <a href="https://www.instagram.com/screwified" target="_blank" rel="noopener">Instagram</a>
+    <a href="https://vk.ru/screwify" target="_blank" rel="noopener">VK</a>
+  </nav>
   <select class="lang" id="lang" dir="ltr" aria-label="Language">
     <option value="en">English</option>
     <option value="ru">Русский</option>
@@ -221,7 +248,7 @@ footer { padding-bottom: 20px; }
     <option value="es">Español</option>
     <option value="ar">العربية</option>
     <option value="fr">Français</option>
-  </select>
+  </select></div>
 </header>
 
 <main>
@@ -254,18 +281,19 @@ A different sound.</h1>
 </main>
 
 <footer>
-  <nav class="social" dir="ltr" aria-label="Screwify">
+  <div class="frow"><nav class="social fsocial" dir="ltr" aria-label="Screwify">
     <a href="https://t.me/screwify" target="_blank" rel="noopener">Telegram</a>
     <a href="https://www.youtube.com/@screwify" target="_blank" rel="noopener">YouTube</a>
     <a href="https://www.instagram.com/screwified" target="_blank" rel="noopener">Instagram</a>
     <a href="https://vk.ru/screwify" target="_blank" rel="noopener">VK</a>
-  </nav>
-  <p class="about" id="about">Screwify is a free Chrome extension that slows down music and video in your browser, like a record. Screwify also posts its own slowed-down clips to the Screwify YouTube channel and uses the YouTube Data API only to upload those videos – see the Privacy Policy.</p>
-  <details class="about why" id="why"><summary id="why-q"></summary><p id="why-a"></p></details>
-  <nav class="social legal" aria-label="Legal">
+  </nav><nav class="social legal" aria-label="Legal">
     <a href="privacy/" id="privacy-link">Privacy Policy</a>
     <a href="terms/" id="terms-link">Terms of Service</a>
-  </nav>
+  </nav></div>
+  
+  <p class="about" id="about">Screwify is a free Chrome extension that slows down music and video in your browser, like a record. Screwify also posts its own slowed-down clips to the Screwify YouTube channel and uses the YouTube Data API only to upload those videos – see the Privacy Policy.</p>
+  <details class="about why" id="why"><summary id="why-q"></summary><p id="why-a"></p></details>
+  
 </footer>
 
 
