@@ -769,14 +769,21 @@ function fitPanel() {
   } catch (e) { /* оставляем высоту из CSS */ }
 }
 addEventListener('resize', fitPanel);
-// панель дорастает уже после load (особенно при перезагрузке, когда всё из кэша и load
-// приходит раньше): следим за размером её содержимого, иначе низ обрезался на «Сбое»
+// панель дорисовывается скриптами уже после load (особенно при перезагрузке, когда всё
+// из кэша и load приходит раньше), и низ обрезался на «Сбое». Следим за её разметкой:
+// MutationObserver не зависит от отрисовки, а ResizeObserver страницы изменений внутри
+// iframe не видит. Пересчитываем, только когда высота правда изменилась.
 let panelWatch;
 $('panel').addEventListener('load', () => {
   if (panelWatch) panelWatch.disconnect();
   try {
-    panelWatch = new ResizeObserver(fitPanel);
-    panelWatch.observe($('panel').contentDocument.body);
+    const doc = $('panel').contentDocument;
+    let last = 0;
+    panelWatch = new MutationObserver(() => {
+      const h = doc.body.scrollHeight;
+      if (h !== last) { last = h; fitPanel(); }
+    });
+    panelWatch.observe(doc.body, { subtree: true, childList: true, attributes: true, characterData: true });
   } catch (e) { /* без наблюдателя – как раньше, по load и resize */ }
 });
 
