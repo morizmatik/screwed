@@ -7,7 +7,8 @@ const SCREWED_DEFAULTS = {
   reverb: 0.1,   // реверб, 0..1 (0 — выключен); 10% — сердечко, как в пресете «по умолчанию» (решение автора)
   wall: 0,       // «из-за стены», 0..1 (0 — выключен); по умолчанию выключен, пока автор не послушал
   vinyl: false,  // винил-треск: редкие щелчки и шелест поверхности пластинки, фиксированный тихий уровень; по умолчанию выключен, пока автор не послушал
-  glitch: 0,     // сбой: редкие микро-повторы, как у старой плёнки, 0..1 (0 — выключен); по умолчанию выключен, пока автор не послушал
+  glitch: 0,     // сбой: редкие микро-повторы, как у старой плёнки, 0 или 1 (кнопка: включённый сбой – максимум); по умолчанию выключен, пока автор не послушал
+  adSkip: false, // перемотка рекламы: пока в плеере идёт реклама, она крутится на максимальной скорости без звука; выключена, пока автор не проверил на живом YouTube
   chop: false,   // чопы и эхо в ритм: включены или нет
   drift: true,   // плавающий тон: тембр медленно и случайно гуляет, как скорость у жевания
   level: false,  // ровная громкость: мягкий компрессор выравнивает тихое и громкое; по умолчанию выключена (решение автора)
@@ -34,8 +35,6 @@ const SCREWED_DEFAULTS = {
   videoAsciiContrast: 1.25, // контраст яркости: выше — больше пустого места в тенях, ниже — ровнее
   videoAsciiGamma: 1.4,   // гамма: выше — тени пустеют, светлое остаётся (для светлых клипов)
   videoAsciiFloor: 0.12,    // порог: ниже него клетка пустая, а не забита мелкими знаками
-  videoAmbient: false, // амбиент: реактивный слой поверх всей страницы, по умолчанию выключен
-  videoAmbientAmt: 0.7,// сила амбиента
   sites: {},     // сайты, на которых эффект включён: { 'https://music.yandex.ru': true }
   lang: 'auto',  // язык интерфейса: auto — как у браузера
 };
@@ -48,6 +47,7 @@ const SCREWED_PRESETS = [
   { id: 'radio', i18n: 'presetRadio', desc: 'presetDescRadio', icon: 'radio', values: { speed: 1, chewAmt: 0.1, tone: 0.7, noise: 0.8, reverb: 0, wall: 0, vinyl: false, glitch: 0, chop: false, drift: false } },
   { id: 'tape', i18n: 'presetTape', desc: 'presetDescTape', icon: 'tape', values: { speed: 0.9, chewAmt: 0.5, tone: 0.5, noise: 0.3, reverb: 0.15, wall: 0, vinyl: false, glitch: 0, chop: false, drift: true } },
   { id: 'chopped', i18n: 'presetChop', desc: 'presetDescChop', values: { speed: 0.7, chewAmt: 0, tone: 0, noise: 0, reverb: 0, wall: 0, vinyl: false, glitch: 0, chop: true, drift: false } },
+  { id: 'glitch', i18n: 'presetGlitch', desc: 'presetDescGlitch', icon: 'glitch', values: { speed: 0.75, chewAmt: 0.1, tone: 0.8, noise: 0.6, reverb: 0, wall: 0, vinyl: false, glitch: 1, chop: true, drift: false } },
   { id: 'slowed', i18n: 'presetSlowed', desc: 'presetDescSlowed', values: { speed: 0.8, chewAmt: 0, tone: 0.4, noise: 0, reverb: 0.4, wall: 0, vinyl: false, glitch: 0, chop: false, drift: false } },
   { id: 'background', i18n: 'presetBackground', desc: 'presetDescBg', values: { speed: 0.8, chewAmt: 0.2, tone: 1, noise: 0.5, reverb: 0.1, wall: 0, vinyl: false, glitch: 0, chop: false, drift: true } },
   { id: 'dream', i18n: 'presetDream', desc: 'presetDescDream', values: { speed: 0.8, chewAmt: 0.05, tone: 0.9, noise: 0.3, reverb: 0.9, wall: 0, vinyl: false, glitch: 0, chop: false, drift: true } },

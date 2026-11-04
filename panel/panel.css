@@ -417,6 +417,19 @@ input[type=range]:focus-visible { outline-offset: 0; border-radius: 4px; }
 .icon-sw:hover { color: var(--fg); }
 .icon-sw:has(input:checked) { color: var(--accent); border-color: var(--accent); }
 .icon-sw:has(input:focus-visible) { outline: 2px solid var(--fg); outline-offset: 1px; }
+/* линия кнопок-выключателей (чопы, сбой, ровная громкость, реклама, сон) */
+.icon-row { display: flex; justify-content: space-between; gap: 8px; padding-top: 4px; }
+.icon-row .icon-sw { flex: 1; max-width: 52px; height: 28px; background: none; font: inherit; padding: 0; }
+.icon-row .icon-sw svg { width: 18px; height: 16px; }
+.sleep-n {
+  position: absolute; top: -6px; inset-inline-end: -6px;
+  min-width: 15px; height: 15px; padding: 0 3px; box-sizing: border-box;
+  display: grid; place-items: center; border-radius: 8px;
+  background: var(--accent); color: var(--bg); font-size: 9px; font-weight: 700; line-height: 1;
+  pointer-events: none;
+}
+.sleep-n[hidden] { display: none; }
+button.icon-sw.on { color: var(--accent); border-color: var(--accent); }
 .mode { display: inline-flex; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
 .mode button {
   padding: 1px 6px;

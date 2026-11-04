@@ -1,12 +1,12 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <script src="shim.js?v=425caa68c9"></script>
+  <script src="shim.js?v=f77f59b223"></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Screwify</title>
-  <link rel="stylesheet" href="panel.css?v=425caa68c9">
-  <link rel="stylesheet" href="demo.css?v=425caa68c9">
+  <link rel="stylesheet" href="panel.css?v=f77f59b223">
+  <link rel="stylesheet" href="demo.css?v=f77f59b223">
 </head>
 <body>
   <!-- Весь интерфейс внутри #app: его целиком переносим в окно поверх всех окон и обратно.
@@ -149,13 +149,6 @@
       </label>
       <output id="noise-out" for="noise" dir="ltr"></output>
     </div>
-    <div class="row" data-i18n-title="wallTip">
-      <label class="name" for="wall" data-i18n="wall"></label>
-      <span class="slider">
-        <input type="range" id="wall" min="0" max="1" step="0.01">
-      </span>
-      <output id="wall-out" for="wall" dir="ltr"></output>
-    </div>
     <div class="row" data-i18n-title="reverbTip">
       <label class="name" for="reverb" data-i18n="reverb"></label>
       <span class="slider">
@@ -164,28 +157,35 @@
       </span>
       <output id="reverb-out" for="reverb" dir="ltr"></output>
     </div>
-    <div class="row" data-i18n-title="glitchTip">
-      <label class="name" for="glitch" data-i18n="glitch"></label>
+    <div class="row" data-i18n-title="wallTip">
+      <label class="name" for="wall" data-i18n="wall"></label>
       <span class="slider">
-        <input type="range" id="glitch" min="0" max="1" step="0.01">
+        <input type="range" id="wall" min="0" max="1" step="0.01">
       </span>
-      <output id="glitch-out" for="glitch" dir="ltr"></output>
+      <output id="wall-out" for="wall" dir="ltr"></output>
     </div>
-    <div class="row toggle">
-      <!-- подсказка всплывает при наведении на метку «эксперимент» (и при фокусе с клавиатуры) -->
-      <span class="name"><label for="chop" data-i18n="chop"></label> <button class="badge" type="button" aria-describedby="chop-hint"><span data-i18n="experimental"></span><span class="info" aria-hidden="true">i</span></button></span>
-      <label class="switch">
-        <input type="checkbox" id="chop" aria-describedby="chop-hint">
-        <span class="track-sw"></span>
+    <!-- кнопки-включатели в одну линию: подсвечены, когда включены; подсказка – название и описание -->
+    <div class="icon-row">
+      <label class="icon-sw" data-i18n-name="chop" data-i18n-title="chopHint">
+        <input type="checkbox" id="chop" data-i18n-aria="chop">
+        <svg viewBox="0 0 16 14" aria-hidden="true"><path fill="currentColor" stroke-width=".6" fill-rule="evenodd" d="M10 1.400 13.900 3.700 9.100 9.800 7.200 8.600 5.900 7.100Z M10.400 2.500a.7.7 0 1 0 0 1.400.7.7 0 0 0 0-1.400Z"/><path fill="currentColor" stroke-width=".6" d="M5.500 7.800 6.700 9.200 4.600 11.300 4 12.700 2.800 12.900 2 11.500Z"/></svg>
       </label>
-      <p class="tip" id="chop-hint" role="tooltip" data-i18n="chopHint"></p>
-    </div>
-    <div class="row toggle" data-i18n-title="levelHint">
-      <label class="name" for="level" data-i18n="level"></label>
-      <label class="switch">
-        <input type="checkbox" id="level">
-        <span class="track-sw"></span>
+      <label class="icon-sw" data-i18n-name="glitch" data-i18n-title="glitchTip">
+        <input type="checkbox" id="glitch" data-i18n-aria="glitch">
+        <svg viewBox="0 0 16 14" aria-hidden="true"><circle cx="8" cy="7" r="5"/><path d="M5.400 5.300l1.400 1.400M6.800 5.300 5.400 6.700M9.200 5.300l1.400 1.400M10.600 5.300 9.200 6.700M5.600 9c1.400 1.200 3.400 1.200 4.800 0M.5 4.500h2.300M13.200 9.500h2.300"/></svg>
       </label>
+      <label class="icon-sw" data-i18n-name="level" data-i18n-title="levelHint">
+        <input type="checkbox" id="level" data-i18n-aria="level">
+        <svg viewBox="0 0 16 14" aria-hidden="true"><path d="M2 4.500v5M4.500 6v2M7 4.500v5M9.500 2.500v9M12 4.500v5M14.500 6v2"/></svg>
+      </label>
+      <label class="icon-sw" data-i18n-name="adSkip" data-i18n-title="adSkipHint">
+        <input type="checkbox" id="adSkip" data-i18n-aria="adSkip">
+        <svg viewBox="0 0 16 14" aria-hidden="true"><path d="M2 3l5 4-5 4zM8 3l5 4-5 4z"/></svg>
+      </label>
+      <button id="sleep" class="icon-sw" type="button" data-i18n-name="sleep" data-i18n-title="sleepTip" data-i18n-aria="sleep">
+        <svg viewBox="0 0 16 14" aria-hidden="true"><circle cx="8" cy="8" r="4.800"/><path d="M8 8V5.500M6.500 1.800h3"/></svg>
+        <span class="sleep-n" id="sleep-n" hidden></span>
+      </button>
     </div>
   </main>
 
@@ -216,9 +216,9 @@
     <button id="popin" class="text-btn" type="button"></button>
   </div>
 
-  <script src="defaults.js?v=425caa68c9"></script>
-  <script src="i18n.js?v=425caa68c9"></script>
-  <script src="panel.js?v=425caa68c9"></script>
-  <script src="demo.js?v=425caa68c9"></script>
+  <script src="defaults.js?v=f77f59b223"></script>
+  <script src="i18n.js?v=f77f59b223"></script>
+  <script src="panel.js?v=f77f59b223"></script>
+  <script src="demo.js?v=f77f59b223"></script>
 </body>
 </html>

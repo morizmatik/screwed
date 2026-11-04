@@ -24,8 +24,8 @@ const offTargets = [
 const pct = v => `${Math.round(v * 100)}%`;
 const RPM = 100 / 3; // 33⅓
 
-const CHECKS = ['chop', 'drift', 'level', 'vinyl'];
-const RANGES = ['speed', 'chewAmt', 'tone', 'noise', 'wall', 'reverb', 'glitch'];
+const CHECKS = ['chop', 'drift', 'level', 'vinyl', 'adSkip'];
+const RANGES = ['speed', 'chewAmt', 'tone', 'noise', 'wall', 'reverb'];
 
 const s = { ...SCREWED_DEFAULTS };
 let t = translator(s.lang);
@@ -33,6 +33,7 @@ let t = translator(s.lang);
 // ---------- настройки ----------
 function renderControls() {
   for (const id of CHECKS) $(id).checked = s[id];
+  $('glitch').checked = s.glitch > 0; // сбой – выключатель: включённый всегда на максимуме
   const on = active();
   lastActive = on;
   $('on').checked = on;
@@ -80,6 +81,7 @@ $('on').addEventListener('change', e => {
   if (!tabSite) return;
   update({ sites: screwedSitesWith(s.sites, tabSite, e.target.checked) });
 });
+$('glitch').addEventListener('change', e => update({ glitch: e.target.checked ? 1 : 0 }));
 for (const id of RANGES) {
   $(id).addEventListener('input', e => update({ [id]: Number(e.target.value) }));
 }
@@ -89,6 +91,7 @@ const PRESET_ICONS = {
   heart: '<svg class="ico solid" viewBox="0 0 16 14" aria-hidden="true"><path d="M8 13 2.200 7.300a3.500 3.500 0 0 1 5-5L8 3l.800-.700a3.500 3.500 0 0 1 5 5z"/></svg>',
   radio: '<svg class="ico" viewBox="0 0 16 14" aria-hidden="true"><rect x="1.500" y="4.500" width="13" height="8" rx="1.500"/><path d="M4 4.500 12 1"/><circle cx="10.500" cy="8.500" r="1.800"/><path d="M4 7.500h3M4 9.500h3"/></svg>',
   tape: '<svg class="ico" viewBox="0 0 16 14" aria-hidden="true"><rect x="1.500" y="2" width="13" height="10" rx="1.500"/><circle cx="5.500" cy="6.500" r="1.500"/><circle cx="10.500" cy="6.500" r="1.500"/><path d="M5 10.500h6"/></svg>',
+  glitch: '<svg class="ico" viewBox="0 0 16 14" aria-hidden="true"><circle cx="8" cy="7" r="5"/><path d="M5.400 5.300l1.400 1.400M6.800 5.300 5.400 6.700M9.200 5.300l1.400 1.400M10.600 5.300 9.200 6.700M5.600 9c1.400 1.200 3.400 1.200 4.800 0M.5 4.500h2.300M13.200 9.500h2.300"/></svg>',
 };
 const presetBtns = SCREWED_PRESETS.map(preset => {
   const el = document.createElement('button');
@@ -201,9 +204,10 @@ function applyLang() {
     el.title = `${name} – ${t(preset.desc)}`;
   }
   renderUserPresets();
-  for (const el of app.querySelectorAll('[data-i18n-title]')) el.title = t(el.dataset.i18nTitle);
+  for (const el of app.querySelectorAll('[data-i18n-title]')) el.title = el.dataset.i18nName ? `${t(el.dataset.i18nName)} – ${t(el.dataset.i18nTitle)}` : t(el.dataset.i18nTitle);
   for (const el of app.querySelectorAll('[data-i18n-aria]')) el.setAttribute('aria-label', t(el.dataset.i18nAria));
   renderPopout();
+  renderSleep();
 
   const select = $('lang');
   select.textContent = '';
@@ -452,6 +456,41 @@ function control(action, extra = {}) {
   chrome.tabs.sendMessage(activeTabId, { type: 'screwed:control', action, ...extra }, { frameId: mon.frameId })
     .catch(() => {});
 }
+
+// таймер сна: кнопка-иконка в линии выключателей (время в кружке); нажатия переключают 15 -> 30 -> 60 мин -> выкл.
+// В конце ставим на паузу тем же «диджейским стопом»; панель закрыли – таймер пропал вместе с эффектом.
+const SLEEP_STEPS = [15, 30, 60];
+let sleepEnd = 0, sleepTimer = null;
+function renderSleep() {
+  const left = Math.ceil((sleepEnd - Date.now()) / 60000);
+  const btn = $('sleep'), n = $('sleep-n');
+  btn.classList.toggle('on', !!sleepEnd);
+  btn.setAttribute('aria-pressed', !!sleepEnd);
+  n.hidden = !sleepEnd;
+  n.textContent = sleepEnd ? Math.max(1, left) : '';
+  btn.title = `${t('sleep')} – ${sleepEnd ? t('sleepLeft', { n: Math.max(1, left) }) + '. ' : ''}${t('sleepTip')}`;
+}
+function sleepTick() {
+  if (Date.now() < sleepEnd) return renderSleep();
+  sleepStop();
+  if (mon && !mon.paused) control('toggle');
+}
+function sleepStop() {
+  sleepIdx = -1;
+  clearInterval(sleepTimer);
+  sleepTimer = null;
+  sleepEnd = 0;
+  renderSleep();
+}
+let sleepIdx = -1;
+$('sleep').addEventListener('click', () => {
+  sleepIdx++;
+  if (sleepIdx >= SLEEP_STEPS.length) { sleepIdx = -1; return sleepStop(); }
+  sleepEnd = Date.now() + SLEEP_STEPS[sleepIdx] * 60000;
+  clearInterval(sleepTimer);
+  sleepTimer = setInterval(sleepTick, 5000);
+  renderSleep();
+});
 
 // перетаскивание ползунка мышью — тоже скретч: звук идёт за ползунком
 let seekScratch = false;
@@ -1052,6 +1091,7 @@ function welcome() {
 screwedMigrate();
 chrome.storage.local.get({ ...SCREWED_DEFAULTS, welcomed: true }, ({ welcomed: seen, ...saved }) => {
   Object.assign(s, saved);
+  if (s.glitch > 0) s.glitch = 1; // раньше сбой был ползунком, теперь кнопка: любое включённое значение – максимум
   welcomed = seen;
   loaded = true;
   welcome();
