@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Исходник og.png главной (1200×630): sh tools/og.sh -->
+<style>
+html, body { margin: 0; width: 1200px; height: 630px; background: #0f0f0f; overflow: hidden; }
+body {
+  box-sizing: border-box;
+  padding: 72px 88px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #E8E6E0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.mark { display: flex; align-items: center; gap: 16px; }
+.mark img { width: 44px; height: 44px; }
+.mark span { font-size: 40px; font-weight: 800; letter-spacing: -.035em; transform: skewX(10deg); }
+h1 { margin: 0; font-size: 84px; line-height: 1.02; font-weight: 800; letter-spacing: -.035em; }
+.apps { display: flex; gap: 36px; font-size: 28px; font-weight: 700; letter-spacing: -.01em; color: #8f8c86; }
+.apps b { color: #E8E6E0; font-weight: 700; }
+.apps b::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #EC90A7; margin-right: 14px; vertical-align: middle; }
+</style>
+</head>
+<body>
+  <div class="mark"><img src="../icon.svg" alt=""><span>Screwify</span></div>
+  <h1>Tools for sound<br>and video.</h1>
+  <div class="apps"><b>Screwify</b><span>Beatcut</span><span>Mixtake</span><span>Lab</span><span>VideoChop</span></div>
+</body>
+</html>

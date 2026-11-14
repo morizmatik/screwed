@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Обложки 1200×630 (логотип + лозунг) для приложений, у которых своей обложки нет:
+     cover.html?app=screwify&lang=ru, cover.html?app=videochop. Снимает tools/covers.sh.
+     Лозунги Screwify – как tagline на стенде магазина (apps/extension/store/render/common.js). -->
+<style>
+html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: #0f0f0f; }
+body {
+  box-sizing: border-box;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 44px;
+  color: #E8E6E0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.mark { display: flex; align-items: center; gap: 36px; }
+.mark img, .mark svg { width: 140px; height: 140px; }
+.mark span { font-size: 140px; font-weight: 800; line-height: 1; letter-spacing: -.045em; transform: skewX(10deg); }
+.slogan { margin: 0; font-size: 68px; font-weight: 600; line-height: 1.1; color: #BDBBB5; letter-spacing: -.02em; text-align: center; }
+:lang(ar) .slogan { font-size: 72px; letter-spacing: 0; }
+:lang(zh) .slogan { letter-spacing: 0; }
+/* VideoChop: ноты-клипы вместо пластинки */
+.vc .mark span { font-size: 124px; }
+</style>
+</head>
+<body>
+<div class="mark" dir="ltr" id="mark"></div>
+<p class="slogan" id="slogan"></p>
+<script>
+const q = new URLSearchParams(location.search);
+const app = q.get('app') || 'screwify';
+const lang = q.get('lang') || 'en';
+const SLOGANS = {
+  screwify: {
+    en: 'Slow it down like a record',
+    ru: 'Замедляйте, как пластинку',
+    zh: '像唱片一样慢下来',
+    es: 'Ralentízalo como un disco',
+    ar: 'أبطِئه كالأسطوانة',
+    fr: 'Ralentissez comme un vinyle',
+  },
+  videochop: { en: 'Video as samples in Logic Pro' },
+};
+document.documentElement.lang = lang;
+document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+document.getElementById('slogan').textContent = SLOGANS[app][lang] || SLOGANS[app].en;
+const mark = document.getElementById('mark');
+if (app === 'videochop') {
+  document.body.classList.add('vc');
+  mark.innerHTML = `<svg viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+    <rect width="150" height="150" rx="34" fill="#1d1d1d"/>
+    <rect x="22" y="34" width="46" height="18" rx="5" fill="#5c3442"/>
+    <rect x="54" y="66" width="74" height="18" rx="5" fill="#EC90A7"/>
+    <rect x="22" y="98" width="30" height="18" rx="5" fill="#3d3a36"/>
+    <rect x="86" y="98" width="42" height="18" rx="5" fill="#3d3a36"/>
+    <rect x="80" y="24" width="3" height="102" fill="#E8E6E0" fill-opacity=".8"/></svg><span>VideoChop</span>`;
+} else {
+  mark.innerHTML = '<img src="../icon.svg" alt=""><span>Screwify</span>';
+}
+</script>
+</body>
+</html>
