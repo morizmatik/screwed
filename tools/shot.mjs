@@ -1,6 +1,7 @@
 // Снимок страницы (по умолчанию 1280×800) в Chrome без окна – через протокол отладки, чтобы задать язык
 // и при надобности нажать кнопку перед снимком (например, «Загрузить демо-проект» у Mixtake).
-//   node tools/shot.mjs <адрес> <файл.png> [--lang=en] [--click=<css-селектор>] [--wait=<мс>] [--size=1200x630]
+//   node tools/shot.mjs <адрес> <файл.png> [--lang=en] [--click=<css-селектор>] [--eval=<код JS>] [--wait=<мс>] [--size=1200x630]
+// --eval выполняется в странице после загрузки (например, подменить подпись чужой обложки на другой язык).
 // Нужен Google Chrome (CHROME – другой путь) и Node 22+ (встроенный WebSocket).
 import { spawn } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
@@ -56,6 +57,10 @@ await sleep(800);
 if (opt.click) {
   const r = await send('Runtime.evaluate', { expression: `(() => { const b = document.querySelector(${JSON.stringify(opt.click)}); if (b) b.click(); return !!b; })()`, returnByValue: true });
   if (!r.result?.result?.value) console.error('нет кнопки', opt.click);
+}
+if (opt.eval) {
+  const r = await send('Runtime.evaluate', { expression: opt.eval, awaitPromise: true });
+  if (r.result?.exceptionDetails) console.error('ошибка в --eval', r.result.exceptionDetails.exception?.description || '');
 }
 await sleep(wait);
 const shot = await send('Page.captureScreenshot', { format: 'png', clip: { x: 0, y: 0, width: W, height: H, scale: 1 } });
