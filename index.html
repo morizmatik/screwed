@@ -71,7 +71,6 @@ a { color: inherit; }
 
 header { padding-top: 28px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .wordmark { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
-.wordmark img { width: 22px; height: 22px; }
 .wordmark span { font-size: 22px; font-weight: 800; line-height: 1; letter-spacing: -.035em; transform: skewX(10deg); }
 .lang { font: inherit; font-size: 14px; color: var(--soft); background: transparent; border: 0; border-radius: 8px; padding: 8px 12px; min-height: 40px; margin-inline-end: -12px; cursor: pointer; }
 .lang:hover { color: var(--ink); }
@@ -280,7 +279,8 @@ dialog p { margin: 10px 0 0; color: var(--soft); font-size: 15px; text-wrap: pre
 </head>
 <body>
 <header>
-  <a class="wordmark" href="./" dir="ltr" aria-label="Screwify"><img src="icon.svg" alt=""><span>Screwify</span></a>
+  <!-- без диска: диск – знак расширения Screwify (он на первой карточке), шапка – бренд всего семейства -->
+  <a class="wordmark" href="./" dir="ltr" aria-label="Screwify"><span>Screwify</span></a>
   <select class="lang" id="lang" dir="ltr" aria-label="Language">
     <option value="en">English</option>
     <option value="ru">Русский</option>
@@ -304,7 +304,7 @@ and video.</h1>
 <footer>
   <div class="links">
     <button class="support" id="support" type="button" hidden>Support</button>
-    <button class="write" id="write" type="button" hidden>Write to the author</button>
+    <button class="write" id="write" type="button" hidden>Contact the author</button>
     <nav class="end" dir="ltr" aria-label="Screwify">
       <a href="https://t.me/screwify" target="_blank" rel="noopener">Telegram</a>
       <a href="https://www.youtube.com/@screwify" target="_blank" rel="noopener">YouTube</a>

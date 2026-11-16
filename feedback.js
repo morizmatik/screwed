@@ -17,10 +17,10 @@
 
 	const TEXTS = {
 		en: {
-			title: 'Write to the author',
-			desc: 'Found a bug, have a question or an idea? Your message goes straight to the author.',
-			message: 'Message', messagePh: 'What happened or what is missing',
-			contact: 'How to reply (optional)', contactPh: 'Email or a messenger handle',
+			title: 'Contact the author',
+			desc: 'Found a mistake, have a question or an idea? Your message will go directly to the author.',
+			message: 'Message', messagePh: 'Tell us what happened or what\u2019s missing',
+			contact: 'How can we get back to you? (optional)', contactPh: 'Email address or messenger username',
 			send: 'Send', sending: 'Sending…', ok: 'Thank you, your message has been sent.',
 			error: 'Could not send. Please try again a little later.',
 			rate: 'Too many messages in a row. Please wait a minute.',
