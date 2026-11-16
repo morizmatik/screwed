@@ -344,12 +344,12 @@ and video.</h1>
 const FEEDBACK_URL = 'https://audio-feedback.screwify.workers.dev';
 
 // ---------- приложения ----------
-// soon: true – ссылки нет, приглушено, метка «скоро»
+// soon: true – ссылки нет, приглушено, метка «скоро»; beta: true – в бейдже «· beta» (приложение ещё дорабатывается)
 const APPS = [
   { id: 'screwify', name: 'Screwify', href: 'extension/', tag: 'Chrome' },
-  { id: 'beatcut', name: 'Beatcut', href: 'https://cut.screwify.space/', tag: 'web' },
-  { id: 'mixtake', name: 'Mixtake', href: 'https://mix.screwify.space/', tag: 'web' },
-  { id: 'lab', name: 'Lab', href: 'https://lab.screwify.space/', tag: 'web' },
+  { id: 'beatcut', name: 'Beatcut', href: 'https://cut.screwify.space/', tag: 'web', beta: true },
+  { id: 'mixtake', name: 'Mixtake', href: 'https://mix.screwify.space/', tag: 'web', beta: true },
+  { id: 'lab', name: 'Lab', href: 'https://lab.screwify.space/', tag: 'web', beta: true },
   { id: 'polar', name: 'Polar', tag: 'macOS', soon: true },
 ];
 
@@ -547,7 +547,8 @@ $('apps').replaceChildren(...APPS.map(app => {
   img.alt = '';
   img.decoding = 'async';
   cover.append(img);
-  const badge = el('span', 'badge', app.soon ? `${app.tag} · ${t('soon')}` : (app.tag === 'web' ? t('web') : app.tag));
+  const platform = app.tag === 'web' ? t('web') : app.tag;
+  const badge = el('span', 'badge', app.soon ? `${app.tag} · ${t('soon')}` : app.beta ? `${platform} · beta` : platform);
   const desc = el('span', 'desc', t(app.id));
   // бейдж – соседом обложки и подложки, поверх обеих (у поднятой обложки свой слой, внутри неё он ушёл бы под подложку)
   row.append(cover, desc, badge);

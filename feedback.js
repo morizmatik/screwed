@@ -9,7 +9,9 @@
  * Look: CSS variables on any ancestor or :root – --fb-bg, --fb-fg, --fb-muted, --fb-line,
  * --fb-field, --fb-accent, --fb-accent-fg, --fb-error, --fb-radius, --fb-button-radius, --fb-font.
  */
-(function (global) {
+// Arrow wrapper on purpose: vite-plugin-singlefile strips a leading `(function(){…})();` as Vite's module loader,
+// and a minified function wrapper here looked exactly like it (Mixtake lost half its bundle).
+((global) => {
 	'use strict';
 
 	/** field length limits; the same numbers are used by worker.js */
