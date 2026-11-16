@@ -3,13 +3,19 @@
 <head>
 <meta charset="utf-8">
 <script>
-// Ссылки «Поделиться» из расширения ведут сюда (screwify.space/#to=…, в том числе через ru/ zh/ …):
+// Ссылки «Поделиться» из расширения ведут сюда (screwify.space/#to=…, в том числе через en/ ru/ zh/ …):
 // страница для них теперь живёт в extension/. Перебрасываем до отрисовки, всё после # сохраняется.
 // content.js ставит метку установленного расширения только в корне – передаём её как ?ext=1.
 (() => {
   if (!/(^#|&)to=/.test(location.hash)) return;
   const q = new URLSearchParams(location.search);
   if ('screwed' in document.documentElement.dataset) q.set('ext', '1');
+  // язык отправителя от ru/ zh/ es/ ar/ fr/ (они кладут его сюда, чтобы адрес корня остался чистым)
+  try {
+    const l = sessionStorage.getItem('screwify-lang');
+    sessionStorage.removeItem('screwify-lang');
+    if (l && !q.has('lang')) q.set('lang', l);
+  } catch (e) {}
   const s = q.toString();
   location.replace('extension/' + (s ? '?' + s : '') + location.hash);
 })();
@@ -18,10 +24,10 @@
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#0f0f0f">
 <title>Screwify</title>
-<meta name="description" content="Free tools for sound and video: Screwify for Chrome, Beatcut, Mixtake, Lab and VideoChop. Everything runs on your device.">
+<meta name="description" content="Free tools for sound and video: Screwify for Chrome, Beatcut, Mixtake, Lab and Polar. Everything runs on your device.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Screwify – tools for sound and video">
-<meta property="og:description" content="Screwify for Chrome, Beatcut, Mixtake, Lab and VideoChop. Free, everything runs on your device.">
+<meta property="og:description" content="Screwify for Chrome, Beatcut, Mixtake, Lab and Polar. Free, everything runs on your device.">
 <meta property="og:url" content="https://screwify.space/">
 <meta property="og:image" content="https://screwify.space/og.png">
 <meta property="og:image:width" content="1200">
@@ -197,6 +203,7 @@ footer { padding-bottom: 20px; font-size: 13px; color: var(--muted); }
 .links a:hover, .links button:hover { color: var(--ink); }
 .links .support { color: var(--soft); }
 .links .support::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-inline-end: 8px; vertical-align: middle; }
+.links .write { color: var(--soft); }
 .links .end { margin-inline-start: auto; display: flex; gap: 0 20px; }
 .about { margin: 0; font-size: 12px; line-height: 1.5; max-width: 52em; text-wrap: pretty; }
 .about a { color: var(--soft); }
@@ -297,6 +304,7 @@ and video.</h1>
 <footer>
   <div class="links">
     <button class="support" id="support" type="button" hidden>Support</button>
+    <button class="write" id="write" type="button" hidden>Write to the author</button>
     <nav class="end" dir="ltr" aria-label="Screwify">
       <a href="https://t.me/screwify" target="_blank" rel="noopener">Telegram</a>
       <a href="https://www.youtube.com/@screwify" target="_blank" rel="noopener">YouTube</a>
@@ -328,8 +336,12 @@ and video.</h1>
 </dialog>
 
 <script src="scenes.js"></script>
+<script src="feedback.js"></script>
 <script>
 'use strict';
+
+// Worker формы «Написать автору» (libs/feedback): пересылает сообщения в Telegram
+const FEEDBACK_URL = 'https://audio-feedback.screwify.workers.dev';
 
 // ---------- приложения ----------
 // soon: true – ссылки нет, приглушено, метка «скоро»
@@ -338,7 +350,7 @@ const APPS = [
   { id: 'beatcut', name: 'Beatcut', href: 'https://cut.screwify.space/', tag: 'web' },
   { id: 'mixtake', name: 'Mixtake', href: 'https://mix.screwify.space/', tag: 'web' },
   { id: 'lab', name: 'Lab', href: 'https://lab.screwify.space/', tag: 'web' },
-  { id: 'videochop', name: 'VideoChop', tag: 'macOS', soon: true },
+  { id: 'polar', name: 'Polar', tag: 'macOS', soon: true },
 ];
 
 // Мини-обложки в списке: covers/<app>/<язык>.jpg (600×315, собирает tools/covers.sh) – те же картинки,
@@ -348,7 +360,7 @@ const COVERS = {
   beatcut: ['ru'],
   mixtake: ['ru'],
   lab: ['ru', 'en'],
-  videochop: ['en'],
+  polar: ['en'],
 };
 
 
@@ -376,7 +388,7 @@ const TEXT = {
     beatcut: 'Cut and slow video to the beat, export mp4.',
     mixtake: 'Check a mix before release: loudness, spectrum, groove.',
     lab: 'An interactive handbook on audio processing.',
-    videochop: 'Video clips played as MIDI notes in Logic Pro.',
+    polar: 'Video clips played as MIDI notes in Logic Pro.',
     web: 'Web',
     soon: 'Soon',
     support: 'Support',
@@ -396,7 +408,7 @@ const TEXT = {
     beatcut: 'Режет и замедляет видео под бит, экспорт в mp4.',
     mixtake: 'Проверка микса перед релизом: громкость, спектр, грув.',
     lab: 'Интерактивный справочник по обработке звука.',
-    videochop: 'Кусочки видео играются MIDI-нотами в Logic Pro.',
+    polar: 'Кусочки видео играются MIDI-нотами в Logic Pro.',
     web: 'Веб',
     soon: 'Скоро',
     support: 'Поддержать',
@@ -416,7 +428,7 @@ const TEXT = {
     beatcut: '按节拍剪切并放慢视频，导出 mp4。',
     mixtake: '发行前检查混音：响度、频谱、律动。',
     lab: '交互式音频处理手册。',
-    videochop: '在 Logic Pro 里用 MIDI 音符演奏视频片段。',
+    polar: '在 Logic Pro 里用 MIDI 音符演奏视频片段。',
     web: '网页',
     soon: '即将推出',
     support: '支持',
@@ -436,7 +448,7 @@ const TEXT = {
     beatcut: 'Corta y ralentiza vídeo al ritmo, exporta mp4.',
     mixtake: 'Revisa una mezcla antes de publicarla: volumen, espectro, groove.',
     lab: 'Un manual interactivo de procesamiento de audio.',
-    videochop: 'Fragmentos de vídeo tocados como notas MIDI en Logic Pro.',
+    polar: 'Fragmentos de vídeo tocados como notas MIDI en Logic Pro.',
     web: 'Web',
     soon: 'Pronto',
     support: 'Apoyar',
@@ -456,7 +468,7 @@ const TEXT = {
     beatcut: 'يقصّ الفيديو ويبطّئه على الإيقاع ويصدّره بصيغة mp4.',
     mixtake: 'يفحص المزج قبل الإصدار: الجهارة والطيف والإيقاع.',
     lab: 'دليل تفاعلي لمعالجة الصوت.',
-    videochop: 'مقاطع فيديو تُعزف كنغمات MIDI في Logic Pro.',
+    polar: 'مقاطع فيديو تُعزف كنغمات MIDI في Logic Pro.',
     web: 'ويب',
     soon: 'قريبًا',
     support: 'ادعم',
@@ -476,7 +488,7 @@ const TEXT = {
     beatcut: 'Découpe et ralentit la vidéo au rythme, export mp4.',
     mixtake: 'Vérifie un mix avant sa sortie : volume, spectre, groove.',
     lab: 'Un manuel interactif de traitement du son.',
-    videochop: 'Des extraits vidéo joués comme notes MIDI dans Logic Pro.',
+    polar: 'Des extraits vidéo joués comme notes MIDI dans Logic Pro.',
     web: 'Web',
     soon: 'Bientôt',
     support: 'Soutenir',
@@ -514,6 +526,7 @@ $('title').textContent = t('title');
 $('sub').textContent = t('sub');
 $('about').textContent = t('about');
 $('privacy-link').textContent = t('privacy');
+initFeedback();
 $('terms-link').textContent = t('terms');
 
 // картинка на языке страницы; нет такой – английская, нет и её – первая из списка
@@ -647,6 +660,18 @@ if (support.links.length) {
     const r = sheet.getBoundingClientRect();
     if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) sheet.close();
   });
+}
+
+// ---------- «Написать автору» ----------
+// Окно и отправка – feedback.js (копия /Users/Shared/Projects/libs/feedback/src/feedback.js). Сообщение уходит
+// в Worker, тот пересылает в Telegram и сам подписывает, откуда оно: «Главная» или «Screwify» по пути страницы.
+function initFeedback() {
+  if (!window.Feedback) return;
+  const fb = Feedback.create({ url: FEEDBACK_URL, lang });
+  const btn = $('write');
+  btn.textContent = Feedback.TEXTS[lang].title;
+  btn.hidden = false;
+  btn.addEventListener('click', () => fb.open());
 }
 </script>
 </body>

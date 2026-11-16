@@ -14,7 +14,7 @@
 (() => {
   'use strict';
 
-  const INDEX = { screwify: 0, beatcut: 1, mixtake: 2, lab: 3, videochop: 4 };
+  const INDEX = { screwify: 0, beatcut: 1, mixtake: 2, lab: 3, polar: 4 };
 
   const VERT = 'attribute vec2 p; void main() { gl_Position = vec4(p, 0., 1.); }';
 
@@ -109,8 +109,8 @@ vec3 lab(vec2 uv) {
   return col;
 }
 
-// VideoChop: сетка мягких нот; световая полоса идёт слева направо, задетые ноты вспыхивают своим цветом
-vec3 videochop(vec2 uv) {
+// Polar (бывший VideoChop): сетка мягких нот; световая полоса идёт слева направо, задетые ноты вспыхивают своим цветом
+vec3 polar(vec2 uv) {
   float cols = 16., rows = 7.;
   vec2 g = vec2(uv.x * cols, uv.y * rows), id = floor(g), f = fract(g) - .5;
   float pos = fract(t / 6.) * (cols + 2.) - 1.;
@@ -127,7 +127,7 @@ vec3 videochop(vec2 uv) {
 void main() {
   vec2 uv = mix(dom.xy, dom.zw, (gl_FragCoord.xy - vp.xy) / vp.zw);
   vec2 q = (uv - .5) * vec2(aspect, 1.);
-  vec3 c = scene < .5 ? screwify(q) : scene < 1.5 ? beatcut(uv) : scene < 2.5 ? mixtake(uv) : scene < 3.5 ? lab(uv) : videochop(uv);
+  vec3 c = scene < .5 ? screwify(q) : scene < 1.5 ? beatcut(uv) : scene < 2.5 ? mixtake(uv) : scene < 3.5 ? lab(uv) : polar(uv);
   c = max(c, 0.);
   gl_FragColor = vec4(c, clamp(max(c.r, max(c.g, c.b)), 0., 1.));
 }`;

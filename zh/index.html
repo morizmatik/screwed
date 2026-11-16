@@ -7,7 +7,9 @@
 <meta name="theme-color" content="#121113">
 <meta name="robots" content="noindex">
 <!-- Адрес только ради превью ссылки на этом языке: мессенджеры берут его из разметки и код
-     страницы не выполняют. Людей сразу отправляем на основную страницу, всё после # сохраняется. -->
+     страницы не выполняют. Людей сразу отправляем на основную страницу, всё после # сохраняется.
+     Ссылку «Поделиться» (#to=…) – в корень без ?lang: расширение узнаёт себя только на адресе ровно
+     https://screwify.space/ (content.js, screwedIsLanding), а язык идёт через sessionStorage. -->
 <title>Screwify</title>
 <meta name="description" content="在 Chrome 中用 Screwify 打开，听它像唱片一样慢放。">
 <meta property="og:type" content="website">
@@ -21,7 +23,15 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="../icon.svg" type="image/svg+xml">
 <style>html { background: #121113; }</style>
-<script>location.replace('../?lang=zh' + location.search.replace(/^\?/, '&') + location.hash);</script>
+<script>
+(() => {
+  const h = location.hash, s = location.search;
+  if (/(^#|&)to=/.test(h) && !s) {
+    try { sessionStorage.setItem('screwify-lang', 'zh'); location.replace('../' + h); return; } catch (e) {}
+  }
+  location.replace('../?lang=zh' + s.replace(/^\?/, '&') + h);
+})();
+</script>
 <noscript><meta http-equiv="refresh" content="0;url=../"></noscript>
 </head>
 <body></body>

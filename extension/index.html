@@ -195,6 +195,8 @@ footer { padding-bottom: 20px; }
 .why b { font-weight: inherit; color: var(--ink); text-decoration: underline; text-decoration-color: var(--accent); text-decoration-thickness: 2px; text-underline-offset: 3px; }
 .shared .about { display: none; }
 .legal a { padding-block: 8px; }
+.social button { padding-block: 8px; padding-inline: 0; border: 0; background: none; font: inherit; color: var(--soft); cursor: pointer; }
+.social button:hover { color: var(--ink); text-decoration: underline; text-underline-offset: .25em; }
 
 @media (max-width: 820px) {
   header { padding-top: 24px; }
@@ -289,6 +291,7 @@ A different sound.</h1>
   </nav><nav class="social legal" aria-label="Legal">
     <a href="../privacy/" id="privacy-link">Privacy Policy</a>
     <a href="../terms/" id="terms-link">Terms of Service</a>
+    <button type="button" id="write" hidden>Write to the author</button>
   </nav></div>
   
   <p class="about" id="about">Screwify is a free Chrome extension that slows down music and video in your browser, like a record. Screwify also posts its own slowed-down clips to the Screwify YouTube channel and uses the YouTube Data API only to upload those videos – see the Privacy Policy.</p>
@@ -297,10 +300,13 @@ A different sound.</h1>
 </footer>
 
 
+<script src="../feedback.js"></script>
 <script>
 'use strict';
 
 // Страница расширения в Chrome Web Store
+// Worker формы «Написать автору» (libs/feedback): пересылает сообщения в Telegram
+const FEEDBACK_URL = 'https://audio-feedback.screwify.workers.dev';
 const STORE_URL = 'https://chromewebstore.google.com/detail/screwed-music/okpmbpjngebiiedcdbneabkdpobbcnok';
 
 // Сайты, на которые владельца расширения перебрасываем сразу. На остальные —
@@ -601,6 +607,13 @@ $('about').textContent = t('about');
   }));
 }
 $('privacy-link').textContent = t('privacy');
+// «Написать автору»: окно из ../feedback.js (копия libs/feedback), Worker подпишет сообщение «Screwify»
+if (window.Feedback) {
+  const fb = Feedback.create({ url: FEEDBACK_URL, lang });
+  $('write').textContent = Feedback.TEXTS[lang].title;
+  $('write').hidden = false;
+  $('write').addEventListener('click', () => fb.open());
+}
 $('terms-link').textContent = t('terms');
 $('lang').addEventListener('change', e => {
   try { localStorage.setItem('screwify-lang', e.target.value); } catch (err) {}
@@ -816,13 +829,21 @@ $('panel').addEventListener('load', () => {
   } catch (e) { /* без наблюдателя – как раньше, по load и resize */ }
 });
 
+// Ссылка для пересылки – в том же виде, что даёт расширение: <сайт>/<язык>/#to=…, а не адрес этой страницы
+// (extension/?lang=…&ext=…). Так у получателя превью на языке страницы и метка расширения в корне.
+// Языковые страницы – en/ ru/ zh/ es/ ar/ fr/ (для всех языков TEXT).
+function shareLink() {
+  return new URL(`../${lang}/`, location.href).href + location.hash;
+}
+
 async function copyLink() {
   const btn = $('copy');
+  const link = shareLink();
   try {
-    await navigator.clipboard.writeText(location.href);
+    await navigator.clipboard.writeText(link);
   } catch (e) {
     const area = document.createElement('textarea');
-    area.value = location.href;
+    area.value = link;
     area.style.cssText = 'position:fixed;opacity:0';
     document.body.append(area);
     area.select();

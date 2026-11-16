@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Обложка Polar 1200×630 (плагин для Logic Pro, бывший VideoChop). Снимает tools/covers.sh.
+     Знак, цвета и шрифт – как в самом плагине: VCMark и VCPalette в
+     videochop/videochop-au/Sources/AU/ChopTheme.swift (рамка – signal #4A9EFF, медвежонок – ink #D4D4D4,
+     фон – caseBase #1E1E1E), шрифт Uncut Sans (tools/fonts/, лицензия OFL). -->
+<style>
+@font-face { font-family: 'Uncut Sans'; src: url('fonts/UncutSans-Regular.woff2') format('woff2'); font-weight: 400; }
+html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: #1e1e1e; }
+body {
+  box-sizing: border-box;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 46px;
+  color: #d4d4d4;
+  font-family: 'Uncut Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.mark { display: flex; align-items: center; gap: 40px; }
+.mark svg { width: 168px; height: 168px; }
+.mark span { font-size: 168px; line-height: 1; letter-spacing: -.035em; }
+.slogan { margin: 0; font-size: 60px; line-height: 1.1; color: #858585; letter-spacing: -.015em; }
+.label { position: absolute; left: 0; right: 0; bottom: 56px; text-align: center;
+  font-size: 22px; letter-spacing: .18em; text-transform: uppercase; color: #858585; }
+</style>
+</head>
+<body>
+<div class="mark">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs><clipPath id="f"><path d="M3.1 2.5 Q12.2 2.6 21.4 3.5 Q21.5 12.4 21.1 21.3 Q11.8 21.0 2.6 21.2 Q2.7 11.8 3.1 2.5 Z"/></clipPath></defs>
+    <g clip-path="url(#f)" fill="#d4d4d4">
+      <circle cx="8.2" cy="11.6" r="2.7"/><circle cx="18.4" cy="11.4" r="2.7"/>
+      <ellipse cx="13.6" cy="20.2" rx="8.6" ry="7.6"/>
+      <ellipse cx="12" cy="16.4" rx="1.5" ry="1.1" fill="#1e1e1e"/>
+    </g>
+    <path d="M3.1 2.5 Q12.2 2.6 21.4 3.5 Q21.5 12.4 21.1 21.3 Q11.8 21.0 2.6 21.2 Q2.7 11.8 3.1 2.5 Z" fill="none" stroke="#4a9eff" stroke-width="1.7" stroke-linejoin="round"/>
+    <path d="M3.1 2.5 L1.9 2.45" fill="none" stroke="#4a9eff" stroke-width="1.5" stroke-linecap="round"/>
+  </svg>
+  <span>Polar</span>
+</div>
+<p class="slogan">Video as samples in Logic Pro</p>
+<div class="label">Audio Unit plug-in</div>
+</body>
+</html>
