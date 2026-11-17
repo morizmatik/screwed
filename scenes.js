@@ -9,8 +9,9 @@
 // Как устроено: каждая сцена – ветка одного фрагментного шейдера (SCENE). Она рисуется в текстуры: мелкую на весь
 // экран (плитка общего атласа – из неё размытие, ореол и фон) и, пока сцена почти резкая, полную – только рамку.
 // Шейдер COMP смешивает сцены: ничего не выбрано – сцены плавно сменяют друг друга по очереди, размытие то
-// наплывает, то уходит; выбрано – эта сцена наводится на резкость, остальные расплываются и гаснут. Без WebGL фона нет.
-//   const fx = ScrewifyScenes.mount(frameElement, ['screwify', 'beatcut', …]);  fx.focus('beatcut'); fx.focus('');
+// наплывает, то уходит; выбрано – эта сцена наводится на резкость, остальные расплываются и гаснут. Без WebGL – CSS-фон страницы.
+//   const fx = ScrewifyScenes.mount(frameElement, ['screwify', 'beatcut', …], { lite: () => isPhone });
+//   fx.focus('beatcut'); fx.focus('');  mount вернёт null, если WebGL нет – тогда фон рисует CSS.
 (() => {
   'use strict';
 
@@ -145,6 +146,9 @@ uniform vec2 res;     // размер экрана, px
 uniform vec4 rect;    // рамка: x, y (снизу), ширина, высота, px
 uniform float time;
 uniform float calm;   // 0 – выбрано приложение, 1 – туман (всё медленнее и тише)
+uniform float farMin; // лёгкий фон (телефон): весь экран как бы далеко от рамки – размыто и тихо
+uniform float grain;  // сила зерна
+uniform float gain;   // яркость сцен: лёгкому фону без резкой рамки нужно ярче
 vec2 uv, ruv;
 float far;            // 0 – в рамке, 1 – далеко от неё
 vec4 soft(float i, float r) {
@@ -188,14 +192,14 @@ void main() {
   uv = frag / res;
   ruv = (frag - rect.xy) / rect.zw;
   vec2 d = max(abs(gl_FragCoord.xy - rect.xy - rect.zw * .5) - rect.zw * .5, 0.);
-  far = clamp(length(d) / res.y, 0., 1.);
+  far = max(clamp(length(d) / res.y, 0., 1.), farMin);
   vec3 col = vec3(.06, .048, .04);
   vec4 c;
-  if (w[0] > .004) { c = layer(f0, 0., b[0]); col = col * (1. - min(c.a, 1.) * w[0]) + c.rgb * w[0]; }
-  if (w[1] > .004) { c = layer(f1, 1., b[1]); col = col * (1. - min(c.a, 1.) * w[1]) + c.rgb * w[1]; }
-  if (w[2] > .004) { c = layer(f2, 2., b[2]); col = col * (1. - min(c.a, 1.) * w[2]) + c.rgb * w[2]; }
-  if (w[3] > .004) { c = layer(f3, 3., b[3]); col = col * (1. - min(c.a, 1.) * w[3]) + c.rgb * w[3]; }
-  if (w[4] > .004) { c = layer(f4, 4., b[4]); col = col * (1. - min(c.a, 1.) * w[4]) + c.rgb * w[4]; }
+  if (w[0] > .004) { c = layer(f0, 0., b[0]); col = col * (1. - min(c.a, 1.) * w[0]) + c.rgb * w[0] * gain; }
+  if (w[1] > .004) { c = layer(f1, 1., b[1]); col = col * (1. - min(c.a, 1.) * w[1]) + c.rgb * w[1] * gain; }
+  if (w[2] > .004) { c = layer(f2, 2., b[2]); col = col * (1. - min(c.a, 1.) * w[2]) + c.rgb * w[2] * gain; }
+  if (w[3] > .004) { c = layer(f3, 3., b[3]); col = col * (1. - min(c.a, 1.) * w[3]) + c.rgb * w[3] * gain; }
+  if (w[4] > .004) { c = layer(f4, 4., b[4]); col = col * (1. - min(c.a, 1.) * w[4]) + c.rgb * w[4] * gain; }
   // свет со дна – тёплые блики, сильнее внизу; в тумане тише
   float cs = caustic(uv * vec2(res.x / res.y, 1.) * 5.);
   col += vec3(1., .78, .55) * cs * (.022 + .01 * (1. - calm)) * smoothstep(.9, 0., uv.y);
@@ -207,16 +211,18 @@ void main() {
   // зерно – живое, крупнее пикселя, сильнее в тенях
   vec2 gp = floor(gl_FragCoord.xy / 1.6);
   float gr = rnd(gp + fract(time * 23.) * 91.) - .5;
-  col += gr * (.05 - .025 * dot(col, vec3(.33)));
+  col += gr * (.05 - .025 * dot(col, vec3(.33))) * grain;
   gl_FragColor = vec4(col, 1.);
 }`;
 
-  function mount(el, ids) {
+  // opts.lite() – true: лёгкий фон без рамки (телефон, узкое окно): весь экран сильно размыт, канвас в низком
+  // разрешении (растяжение – ещё и бесплатное размытие), 20 кадров в секунду, полных текстур нет.
+  function mount(el, ids, opts = {}) {
     const canvas = document.createElement('canvas');
     canvas.className = 'scenes-bg';
     canvas.setAttribute('aria-hidden', 'true');
     const gl = canvas.getContext('webgl', { antialias: false, alpha: false, premultipliedAlpha: false });
-    if (!gl) return { focus() {}, start() {}, stop() {} };
+    if (!gl) return null;
     document.body.prepend(canvas);
 
     const program = (vs, fs) => {
@@ -284,14 +290,16 @@ void main() {
 
     const frame = now => {
       raf = running ? requestAnimationFrame(frame) : 0;
-      // без фокуса хватает 30 кадров в секунду – туман медленный
-      if (!focused && now - last < 30) return;
+      const lite = !!(opts.lite && opts.lite());
+      // без фокуса хватает 30 кадров в секунду – туман медленный; лёгкому фону – 20, при «уменьшить движение» – 2
+      if ((lite || !focused) && now - last < (lite ? (still.matches ? 500 : 50) : 30)) return;
       const dt = Math.min(0.05, (now - (last || now)) / 1000);
       last = now;
       // фон – на весь экран; плотность пикселей до 1,5: дальше от рамки всё равно размыто
-      const dpr = Math.min(1.5, devicePixelRatio || 1);
+      const dpr = lite ? 0.5 : Math.min(1.5, devicePixelRatio || 1);
       const cw = Math.round(innerWidth * dpr), ch = Math.round(innerHeight * dpr);
-      const r = el.getBoundingClientRect();
+      // лёгкий фон: «рамка» – весь экран
+      const r = lite ? { left: 0, bottom: innerHeight, width: innerWidth, height: innerHeight } : el.getBoundingClientRect();
       if (!cw || !ch || !r.width) return;
       if (canvas.width !== cw || canvas.height !== ch) { canvas.width = cw; canvas.height = ch; }
       const rx = r.left * dpr, ry = (innerHeight - r.bottom) * dpr, rw = r.width * dpr, rh = r.height * dpr;
@@ -340,7 +348,7 @@ void main() {
         if (l.w < 0.004) return;
         draw(l.n, i * tw, 0, tw, th, t, screenDom, aspect);
         // полная сцена – только пока она почти резкая
-        if (l.b < 10.5) {
+        if (!lite && l.b < 10.5) {
           size(l.full, fw, fh);
           gl.bindFramebuffer(gl.FRAMEBUFFER, l.full.fb);
           draw(l.n, 0, 0, fw, fh, t, [0, 0, 1, 1], aspect);
@@ -361,7 +369,10 @@ void main() {
       gl.uniform1i(comp.u('atlas'), 5);
       gl.uniform1fv(comp.u('w'), layers.map(l => l.w));
       gl.uniform1fv(comp.u('b'), layers.map(l => l.b));
-      gl.uniform1f(comp.u('k'), rw / 900);
+      gl.uniform1f(comp.u('k'), (lite ? Math.max(rw, rh) : rw) / 900);
+      gl.uniform1f(comp.u('farMin'), lite ? 0.2 : 0);
+      gl.uniform1f(comp.u('grain'), lite ? 0.45 : 1);
+      gl.uniform1f(comp.u('gain'), lite ? 2.2 : 1);
       gl.uniform2f(comp.u('tile'), tw, th);
       gl.uniform4f(comp.u('rect'), rx, ry, rw, rh);
       gl.uniform2f(comp.u('res'), cw, ch);

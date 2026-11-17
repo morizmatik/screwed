@@ -1,4 +1,4 @@
-/* feedback.js – "write to the author" dialog for any page, no build step and no dependencies.
+/* feedback.js – feedback dialog for any page, no build step and no dependencies.
  * A classic script: <script src="feedback.js"></script> defines window.Feedback
  * (in a bundler: import './feedback.js' and use window.Feedback).
  *
@@ -19,60 +19,60 @@
 
 	const TEXTS = {
 		en: {
-			title: 'Contact the author',
-			desc: 'Found a mistake, have a question or an idea? Your message will go directly to the author.',
-			message: 'Message', messagePh: 'Tell us what happened or what\u2019s missing',
-			contact: 'How can we get back to you? (optional)', contactPh: 'Email address or messenger username',
+			title: 'Feedback',
+			desc: 'Have a comment, question or suggestion? Write to us – we\u2019ll be sure to read your message.',
+			message: 'Message', messagePh: 'What would you like to tell us?',
+			contact: 'How can we reach you? (optional)', contactPh: 'Email or messenger username',
 			send: 'Send', sending: 'Sending…', ok: 'Thank you, your message has been sent.',
 			error: 'Could not send. Please try again a little later.',
 			rate: 'Too many messages in a row. Please wait a minute.',
 			empty: 'Please write at least a few words.', close: 'Close'
 		},
 		ru: {
-			title: 'Написать автору',
-			desc: 'Нашли ошибку, есть вопрос или идея? Сообщение придёт напрямую автору.',
-			message: 'Сообщение', messagePh: 'Что случилось или чего не хватает',
-			contact: 'Как вам ответить (необязательно)', contactPh: 'Почта или имя в мессенджере',
+			title: 'Обратная связь',
+			desc: 'Есть замечание, вопрос или предложение? Напишите нам – мы обязательно прочитаем ваше сообщение.',
+			message: 'Сообщение', messagePh: 'Что вы хотели бы сообщить?',
+			contact: 'Как с вами связаться (необязательно)', contactPh: 'Почта или имя в мессенджере',
 			send: 'Отправить', sending: 'Отправляю…', ok: 'Спасибо, сообщение отправлено.',
 			error: 'Не получилось отправить. Попробуйте ещё раз чуть позже.',
 			rate: 'Слишком много сообщений подряд. Подождите минуту.',
 			empty: 'Напишите хотя бы пару слов.', close: 'Закрыть'
 		},
 		zh: {
-			title: '给作者留言',
-			desc: '发现错误，有问题或想法？消息会直接发给作者。',
-			message: '留言', messagePh: '发生了什么，或者缺少什么',
-			contact: '如何回复你（可选）', contactPh: '邮箱或聊天软件账号',
+			title: '意见反馈',
+			desc: '有意见、问题或建议？请给我们留言，我们一定会认真阅读。',
+			message: '留言', messagePh: '你想告诉我们什么？',
+			contact: '如何联系你（可选）', contactPh: '邮箱或聊天软件账号',
 			send: '发送', sending: '正在发送…', ok: '谢谢，消息已发送。',
 			error: '发送失败，请稍后再试。',
 			rate: '消息太多了，请等一分钟。',
 			empty: '请至少写几个字。', close: '关闭'
 		},
 		es: {
-			title: 'Escribir al autor',
-			desc: '¿Encontraste un error, tienes una pregunta o una idea? Tu mensaje llega directamente al autor.',
-			message: 'Mensaje', messagePh: 'Qué pasó o qué falta',
-			contact: 'Cómo responderte (opcional)', contactPh: 'Correo o usuario de mensajería',
+			title: 'Comentarios',
+			desc: '¿Tienes un comentario, una pregunta o una sugerencia? Escríbenos – leeremos tu mensaje sin falta.',
+			message: 'Mensaje', messagePh: '¿Qué te gustaría contarnos?',
+			contact: 'Cómo contactarte (opcional)', contactPh: 'Correo o usuario de mensajería',
 			send: 'Enviar', sending: 'Enviando…', ok: 'Gracias, tu mensaje se ha enviado.',
 			error: 'No se pudo enviar. Inténtalo de nuevo un poco más tarde.',
 			rate: 'Demasiados mensajes seguidos. Espera un minuto.',
 			empty: 'Escribe al menos unas palabras.', close: 'Cerrar'
 		},
 		ar: {
-			title: 'راسل المطوّر',
-			desc: 'وجدت خطأ أو لديك سؤال أو فكرة؟ تصل رسالتك مباشرة إلى المطوّر.',
-			message: 'الرسالة', messagePh: 'ما الذي حدث أو ما الذي ينقص',
-			contact: 'كيف نرد عليك (اختياري)', contactPh: 'البريد أو اسمك في تطبيق مراسلة',
+			title: 'ملاحظاتك',
+			desc: 'لديك ملاحظة أو سؤال أو اقتراح؟ اكتب إلينا – سنقرأ رسالتك بالتأكيد.',
+			message: 'الرسالة', messagePh: 'ما الذي تودّ إخبارنا به؟',
+			contact: 'كيف نتواصل معك (اختياري)', contactPh: 'البريد أو اسمك في تطبيق مراسلة',
 			send: 'إرسال', sending: 'جارٍ الإرسال…', ok: 'شكرًا، أُرسلت رسالتك.',
 			error: 'تعذّر الإرسال. حاول مرة أخرى بعد قليل.',
 			rate: 'رسائل كثيرة متتالية. انتظر دقيقة.',
 			empty: 'اكتب بضع كلمات على الأقل.', close: 'إغلاق'
 		},
 		fr: {
-			title: 'Écrire à l’auteur',
-			desc: 'Un bug, une question ou une idée ? Votre message arrive directement à l’auteur.',
-			message: 'Message', messagePh: 'Ce qui s’est passé ou ce qui manque',
-			contact: 'Comment vous répondre (facultatif)', contactPh: 'E-mail ou pseudo de messagerie',
+			title: 'Vos retours',
+			desc: 'Une remarque, une question ou une suggestion ? Écrivez-nous – nous lirons votre message, c\u2019est promis.',
+			message: 'Message', messagePh: 'Que souhaitez-vous nous dire ?',
+			contact: 'Comment vous joindre (facultatif)', contactPh: 'E-mail ou pseudo de messagerie',
 			send: 'Envoyer', sending: 'Envoi…', ok: 'Merci, votre message a été envoyé.',
 			error: 'Échec de l’envoi. Réessayez un peu plus tard.',
 			rate: 'Trop de messages d’affilée. Attendez une minute.',

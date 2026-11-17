@@ -291,7 +291,7 @@ A different sound.</h1>
   </nav><nav class="social legal" aria-label="Legal">
     <a href="../privacy/" id="privacy-link">Privacy Policy</a>
     <a href="../terms/" id="terms-link">Terms of Service</a>
-    <button type="button" id="write" hidden>Contact the author</button>
+    <button type="button" id="write" hidden>Feedback</button>
   </nav></div>
   
   <p class="about" id="about">Screwify is a free Chrome extension that slows down music and video in your browser, like a record. Screwify also posts its own slowed-down clips to the Screwify YouTube channel and uses the YouTube Data API only to upload those videos – see the Privacy Policy.</p>
@@ -305,7 +305,7 @@ A different sound.</h1>
 'use strict';
 
 // Страница расширения в Chrome Web Store
-// Worker формы «Написать автору» (libs/feedback): пересылает сообщения в Telegram
+// Worker формы «Обратная связь» (libs/feedback): пересылает сообщения в Telegram
 const FEEDBACK_URL = 'https://audio-feedback.screwify.workers.dev';
 const STORE_URL = 'https://chromewebstore.google.com/detail/screwed-music/okpmbpjngebiiedcdbneabkdpobbcnok';
 
@@ -607,7 +607,7 @@ $('about').textContent = t('about');
   }));
 }
 $('privacy-link').textContent = t('privacy');
-// «Написать автору»: окно из ../feedback.js (копия libs/feedback), Worker подпишет сообщение «Screwify»
+// «Обратная связь»: окно из ../feedback.js (копия libs/feedback), Worker подпишет сообщение «Screwify»
 if (window.Feedback) {
   const fb = Feedback.create({ url: FEEDBACK_URL, lang });
   $('write').textContent = Feedback.TEXTS[lang].title;

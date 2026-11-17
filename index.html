@@ -53,14 +53,23 @@
 [hidden] { display: none !important; }
 /* фон-анимация главной (scenes.js) – под страницей, на весь экран */
 .scenes-bg { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
-body:has(> .scenes-bg:not([hidden])) { background: transparent; }
-html { background: var(--bg); }
+@media (prefers-reduced-motion: no-preference) { .scenes-bg { animation: bg-in 1.2s ease; } }
+@keyframes bg-in { from { opacity: 0; } }
+/* под канвасом и вместо него (без WebGL) – тёплые размытые пятна в той же палитре; канвас непрозрачный и их закрывает */
+html {
+  background:
+    radial-gradient(70% 45% at 18% 8%, rgba(236, 144, 167, .13), transparent 70%),
+    radial-gradient(60% 40% at 92% 62%, rgba(250, 158, 77, .09), transparent 70%),
+    radial-gradient(80% 50% at 40% 105%, rgba(184, 76, 46, .10), transparent 70%),
+    var(--bg);
+  background-attachment: fixed;
+}
 body {
   margin: 0;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  background: var(--bg);
+  background: transparent;
   color: var(--ink);
   font: 16px/1.5 var(--font);
   -webkit-font-smoothing: antialiased;
@@ -98,6 +107,9 @@ h1 { margin: 0; font-size: clamp(34px, 6vw, 52px); line-height: 1.04; font-weigh
   transition: box-shadow .3s ease;
 }
 .cover img { display: block; width: 100%; height: 100%; object-fit: cover; }
+/* обложка другого языка проявляется поверх прежней (index.html: setCover) */
+.cover img.next { position: absolute; inset: 0; opacity: 0; transition: opacity .45s ease; }
+.cover img.next.in { opacity: 1; }
 .badge {
   position: absolute; z-index: 2;
   inset-block-start: 8px; inset-inline-end: 8px;
@@ -198,13 +210,15 @@ h1 { margin: 0; font-size: clamp(34px, 6vw, 52px); line-height: 1.04; font-weigh
 
 footer { padding-bottom: 20px; font-size: 13px; color: var(--muted); }
 .links { display: flex; flex-wrap: wrap; align-items: center; gap: 0 20px; }
-.links a, .links button { display: inline-block; padding-block: 10px; color: var(--muted); text-decoration: none; font: inherit; background: none; border: 0; cursor: pointer; }
+.links a, .links button { display: inline-block; padding-block: 10px; padding-inline: 0; /* у кнопки свой отступ – иначе подвал не по краю колонки */ color: var(--muted); text-decoration: none; font: inherit; background: none; border: 0; cursor: pointer; }
 .links a:hover, .links button:hover { color: var(--ink); }
 .links .support { color: var(--soft); }
 .links .support::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-inline-end: 8px; vertical-align: middle; }
 .links .write { color: var(--soft); }
 .links .end { margin-inline-start: auto; display: flex; gap: 0 20px; }
 .about { margin: 0; font-size: 12px; line-height: 1.5; max-width: 52em; text-wrap: pretty; }
+/* на десктопе места хватает – одной строкой */
+@media (min-width: 900px) { .about { max-width: none; } }
 .about a { color: var(--soft); }
 
 /* поддержка – листок поверх страницы */
@@ -304,7 +318,7 @@ and video.</h1>
 <footer>
   <div class="links">
     <button class="support" id="support" type="button" hidden>Support</button>
-    <button class="write" id="write" type="button" hidden>Contact the author</button>
+    <button class="write" id="write" type="button" hidden>Feedback</button>
     <nav class="end" dir="ltr" aria-label="Screwify">
       <a href="https://t.me/screwify" target="_blank" rel="noopener">Telegram</a>
       <a href="https://www.youtube.com/@screwify" target="_blank" rel="noopener">YouTube</a>
@@ -340,7 +354,7 @@ and video.</h1>
 <script>
 'use strict';
 
-// Worker формы «Написать автору» (libs/feedback): пересылает сообщения в Telegram
+// Worker формы «Обратная связь» (libs/feedback): пересылает сообщения в Telegram
 const FEEDBACK_URL = 'https://audio-feedback.screwify.workers.dev';
 
 // ---------- приложения ----------
@@ -504,35 +518,25 @@ const TEXT = {
 };
 
 // Язык – как на странице расширения: ?lang=xx, затем выбор в переключателе (общий ключ), затем браузер.
+// Переключатель меняет язык на месте, без перезагрузки: фон не начинается заново, обложки подменяются плавно.
 const preferred = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || ''];
 let saved = '';
 try { saved = localStorage.getItem('screwify-lang') || ''; } catch (e) {}
 const asked = new URLSearchParams(location.search).get('lang') || '';
-const lang = [asked, saved, ...preferred.map(l => l.toLowerCase().split('-')[0])].find(l => l in TEXT) || 'en';
+let lang = [asked, saved, ...preferred.map(l => l.toLowerCase().split('-')[0])].find(l => l in TEXT) || 'en';
 const t = (key, vars = {}) => TEXT[lang][key].replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m));
 const $ = id => document.getElementById(id);
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 
-document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang;
-document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-$('lang').value = lang;
-$('lang').addEventListener('change', e => {
-  try { localStorage.setItem('screwify-lang', e.target.value); } catch (err) {}
-  const u = new URL(location.href);
-  u.searchParams.delete('lang');
-  location.replace(u.href);
-});
-$('title').textContent = t('title');
-$('sub').textContent = t('sub');
-$('about').textContent = t('about');
-$('privacy-link').textContent = t('privacy');
-initFeedback();
-$('terms-link').textContent = t('terms');
+// сеть: экономия трафика или медленная связь – ничего не грузим заранее, только по явному намерению
+const conn = navigator.connection || {};
+const lean = !!conn.saveData || /2g/.test(conn.effectiveType || '');
+const idle = (fn, timeout = 2000) => (window.requestIdleCallback ? requestIdleCallback(fn, { timeout }) : setTimeout(fn, 300));
 
-// картинка на языке страницы; нет такой – английская, нет и её – первая из списка
-const pickLang = (dir, langs = []) => `${dir}/${langs.includes(lang) ? lang : langs.includes('en') ? 'en' : langs[0]}.jpg`;
+// картинка на нужном языке; нет такой – английская, нет и её – первая из списка
+const pickLang = (dir, langs = [], l = lang) => `${dir}/${langs.includes(l) ? l : langs.includes('en') ? 'en' : langs[0]}.jpg`;
 
-// список приложений
+// список приложений: карточки строятся один раз, тексты и обложки ставит applyLang()
 $('apps').replaceChildren(...APPS.map(app => {
   const li = el('li');
   const row = el(app.soon ? 'div' : 'a', 'app' + (app.soon ? ' soon' : ''));
@@ -540,23 +544,86 @@ $('apps').replaceChildren(...APPS.map(app => {
     row.href = app.href;
     if (/^https?:/.test(app.href)) row.rel = 'noopener';
   }
-  // мини-обложка; описание – во всплывающей подсказке и для экранного диктора
   const cover = el('span', 'cover');
   const img = el('img');
-  img.src = pickLang(`covers/${app.id}`, COVERS[app.id]);
   img.alt = '';
   img.decoding = 'async';
   cover.append(img);
-  const platform = app.tag === 'web' ? t('web') : app.tag;
-  const badge = el('span', 'badge', app.soon ? `${app.tag} · ${t('soon')}` : app.beta ? `${platform} · beta` : platform);
-  const desc = el('span', 'desc', t(app.id));
   // бейдж – соседом обложки и подложки, поверх обеих (у поднятой обложки свой слой, внутри неё он ушёл бы под подложку)
-  row.append(cover, desc, badge);
-  row.setAttribute('aria-label', `${app.name} – ${t(app.id)}`);
+  row.append(cover, el('span', 'desc'), el('span', 'badge'));
   row.dataset.app = app.id;
   li.append(row);
   return li;
 }));
+
+// обложка другого языка: старая остаётся на месте, новая грузится и декодируется в стороне и проявляется поверх
+// (никакого пустого прямоугольника); при быстрой смене языков побеждает последний
+function setCover(cover, src, fade) {
+  if (cover.dataset.src === src) return;
+  cover.dataset.src = src;
+  const old = cover.querySelector('img');
+  if (!fade || !old || !old.complete || !old.naturalWidth) { old.src = src; return; }
+  const next = el('img', 'next');
+  next.alt = '';
+  next.src = src;
+  const show = () => {
+    if (cover.dataset.src !== src) return;
+    cover.append(next);
+    next.getBoundingClientRect();
+    next.classList.add('in');
+    setTimeout(() => {
+      if (cover.dataset.src !== src) return;
+      for (const i of cover.querySelectorAll('img')) if (i !== next) i.remove();
+      next.className = '';
+    }, 500);
+  };
+  (next.decode ? next.decode() : Promise.resolve()).then(show, show);
+}
+
+// обложки остальных языков – в кэш браузера заранее (в простое или когда рука потянулась к переключателю)
+const warmed = new Set();
+function warmLangs() {
+  for (const l of Object.keys(TEXT)) for (const app of APPS) {
+    const src = pickLang(`covers/${app.id}`, COVERS[app.id], l);
+    if (warmed.has(src)) continue;
+    warmed.add(src);
+    const i = new Image();
+    i.decoding = 'async';
+    i.src = src;
+  }
+}
+
+let feedbackBtn = null;
+function applyLang(fade) {
+  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang;
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  $('lang').value = lang;
+  $('title').textContent = t('title');
+  $('sub').textContent = t('sub');
+  $('about').textContent = t('about');
+  $('privacy-link').textContent = t('privacy');
+  $('terms-link').textContent = t('terms');
+  if (window.Feedback) $('write').textContent = Feedback.TEXTS[lang].title;
+  for (const row of document.querySelectorAll('.app')) {
+    const app = APPS.find(a => a.id === row.dataset.app);
+    const platform = app.tag === 'web' ? t('web') : app.tag;
+    row.querySelector('.badge').textContent = app.soon ? `${app.tag} · ${t('soon')}` : app.beta ? `${platform} · beta` : platform;
+    row.querySelector('.desc').textContent = t(app.id);
+    row.setAttribute('aria-label', `${app.name} – ${t(app.id)}`);
+    setCover(row.querySelector('.cover'), pickLang(`covers/${app.id}`, COVERS[app.id]), fade);
+  }
+  applySupport();
+}
+
+$('lang').addEventListener('change', e => {
+  lang = e.target.value in TEXT ? e.target.value : 'en';
+  try { localStorage.setItem('screwify-lang', lang); } catch (err) {}
+  const u = new URL(location.href);
+  if (u.searchParams.has('lang')) { u.searchParams.delete('lang'); history.replaceState(history.state, '', u.href); }
+  applyLang(true);
+});
+for (const ev of ['pointerenter', 'pointerdown', 'focus']) $('lang').addEventListener(ev, warmLangs, { once: true });
+if (!lean) addEventListener('load', () => idle(warmLangs, 4000), { once: true });
 
 // линза на наведённой обложке: едва заметное медленное колыхание и мягкость, каждый раз чуть другие;
 // плавно нарастает и уходит. Только с мышью и без «уменьшить движение».
@@ -593,7 +660,9 @@ if (matchMedia('(hover: hover)').matches && !matchMedia('(prefers-reduced-motion
   }
 }
 
-// анимации справа (scenes.js) – только на широком экране; выбранная карточка подсвечена
+// анимации (scenes.js) – фоном на весь экран. Широкий экран: резкая сцена в рамке справа, выбранная карточка
+// подсвечена. Узкий (телефон): лёгкий вариант – весь экран сильно размыт, низкое разрешение, 20 кадров в секунду.
+// Без WebGL – запасной CSS-фон (тёплые пятна на html).
 {
   const wide = matchMedia('(min-width: 1180px) and (min-height: 600px)');
   const rows = [...document.querySelectorAll('.app')];
@@ -602,14 +671,18 @@ if (matchMedia('(hover: hover)').matches && !matchMedia('(prefers-reduced-motion
     if (id === current) return;
     current = id;
     for (const r of rows) r.classList.toggle('on', r.dataset.app === id);
-    if (fx) fx.focus(id);
+    if (fx && wide.matches) fx.focus(id);
   };
-  const sync = () => {
-    if (wide.matches && !fx && window.ScrewifyScenes) fx = ScrewifyScenes.mount($('preview'), APPS.map(a => a.id));
-    if (!fx) return;
-    if (wide.matches) { fx.focus(current); fx.start(); } else fx.stop();
+  const sync = () => { if (fx) fx.focus(wide.matches ? current : ''); };
+  const mount = () => {
+    if (fx || !window.ScrewifyScenes) return;
+    fx = ScrewifyScenes.mount($('preview'), APPS.map(a => a.id), { lite: () => !wide.matches });
+    if (!fx) { document.documentElement.classList.add('no-gl'); return; }
+    sync();
+    fx.start();
   };
-  sync();
+  // широкий – сразу; на телефоне – в простое, чтобы сборка шейдеров не мешала первой отрисовке
+  if (wide.matches) mount(); else idle(mount, 1500);
   wide.addEventListener('change', sync);
   // мышь, проходящая через карточки по пути, сцену не дёргает: меняем, только если задержалась;
   // ушла с сетки – снова общий туман
@@ -624,13 +697,73 @@ if (matchMedia('(hover: hover)').matches && !matchMedia('(prefers-reduced-motion
   $('apps').addEventListener('focusout', e => { if (!$('apps').contains(e.relatedTarget)) later('', 300); });
 }
 
+// ---------- быстрый переход в приложения ----------
+// Chrome и Edge: Speculation Rules. Своя страница расширения (extension/) – prerender: при наведении (~200 мс)
+// или нажатии она строится целиком в фоне и открывается мгновенно. Приложения на поддоменах – prefetch
+// (prerender чужого источника требует заголовка Supports-Loading-Mode, а GitHub Pages его не ставит).
+// Остальные браузеры: <link rel=prefetch> (Safari – обычный запрос в HTTP-кэш, у страниц max-age=600)
+// при наведении, фокусе, касании. Телефон: видимая карточка – в простое по одной, не все сразу;
+// при экономии трафика и на 2g – только по касанию.
+{
+  const links = [...document.querySelectorAll('a.app')];
+  const spec = !!(window.HTMLScriptElement && HTMLScriptElement.supports && HTMLScriptElement.supports('speculationrules'));
+  const touch = matchMedia('(hover: none)').matches;
+  const rules = obj => {
+    const s = document.createElement('script');
+    s.type = 'speculationrules';
+    s.textContent = JSON.stringify(obj);
+    document.head.append(s);
+  };
+  if (spec) rules({
+    prerender: [{ where: { and: [{ selector_matches: 'a.app' }, { href_matches: '/extension/*' }] }, eagerness: 'moderate' }],
+    prefetch: [{ where: { and: [{ selector_matches: 'a.app' }, { not: { href_matches: '/extension/*' } }] }, eagerness: 'moderate' }],
+  });
+  const done = new Set();
+  const canLink = document.createElement('link').relList.supports('prefetch');
+  const warm = a => {
+    if (done.has(a.href)) return;
+    done.add(a.href);
+    if (spec) { if (touch) rules({ prefetch: [{ urls: [a.href], eagerness: 'immediate' }] }); return; }
+    if (canLink) {
+      const l = document.createElement('link');
+      l.rel = 'prefetch';
+      l.href = a.href;
+      document.head.append(l);
+    } else fetch(a.href, { mode: 'no-cors', credentials: 'include', priority: 'low' }).catch(() => {});
+  };
+  for (const a of links) {
+    let hover = 0;
+    a.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') hover = setTimeout(() => warm(a), 80); });
+    a.addEventListener('pointerleave', () => clearTimeout(hover));
+    a.addEventListener('pointerdown', () => warm(a));
+    a.addEventListener('touchstart', () => warm(a), { passive: true });
+    a.addEventListener('focus', () => warm(a));
+  }
+  // телефон: карточка на экране – прогреваем её в простое, по одной за раз, с паузой
+  if (touch && !lean && 'IntersectionObserver' in window) {
+    const queue = [];
+    let busy = false;
+    const next = () => {
+      const a = queue.shift();
+      if (!a) { busy = false; return; }
+      busy = true;
+      idle(() => { warm(a); setTimeout(next, 1500); });
+    };
+    const io = new IntersectionObserver(entries => {
+      for (const e of entries) if (e.isIntersecting) { io.unobserve(e.target); queue.push(e.target); }
+      if (!busy) next();
+    }, { threshold: 0.6 });
+    addEventListener('load', () => setTimeout(() => links.forEach(a => io.observe(a)), 1000), { once: true });
+  }
+}
+
 // ---------- листок «Поддержать» ----------
 const support = new URLSearchParams(location.search).get('support') === 'preview' ? SUPPORT_PREVIEW : SUPPORT;
-if (support.links.length) {
+function applySupport() {
+  if (!support.links.length) return;
   const money = n => new Intl.NumberFormat(document.documentElement.lang, { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
   const total = support.tools.reduce((s, x) => s + x.usd, 0);
   $('support').textContent = t('support');
-  $('support').hidden = false;
   $('s-title').textContent = t('sTitle');
   $('s-lead').textContent = t('sLead');
   $('s-close').setAttribute('aria-label', t('close'));
@@ -646,6 +779,9 @@ if (support.links.length) {
     $('s-meter').style.width = `${Math.min(100, support.covered / total * 100)}%`;
     $('s-covered').textContent = t('covered', { covered: money(support.covered), total: money(total) });
   }
+}
+if (support.links.length) {
+  $('support').hidden = false;
   $('s-pay').replaceChildren(...support.links.map(l => {
     const a = el('a', '', l.label);
     a.href = l.href;
@@ -663,17 +799,17 @@ if (support.links.length) {
   });
 }
 
-// ---------- «Написать автору» ----------
-// Окно и отправка – feedback.js (копия /Users/Shared/Projects/libs/feedback/src/feedback.js). Сообщение уходит
-// в Worker, тот пересылает в Telegram и сам подписывает, откуда оно: «Главная» или «Screwify» по пути страницы.
-function initFeedback() {
-  if (!window.Feedback) return;
-  const fb = Feedback.create({ url: FEEDBACK_URL, lang });
-  const btn = $('write');
-  btn.textContent = Feedback.TEXTS[lang].title;
-  btn.hidden = false;
-  btn.addEventListener('click', () => fb.open());
+// ---------- «Обратная связь» ----------
+// Окно и отправка – feedback.js (копия /Users/Shared/Projects/libs/feedback/src/feedback.js). Окно создаётся
+// при первом открытии на текущем языке (своё на каждый язык). Сообщение уходит в Worker, тот пересылает
+// в Telegram и сам подписывает, откуда оно: «Главная» или «Screwify» по пути страницы.
+if (window.Feedback) {
+  const dialogs = {};
+  $('write').hidden = false;
+  $('write').addEventListener('click', () => (dialogs[lang] ||= Feedback.create({ url: FEEDBACK_URL, lang })).open());
 }
+
+applyLang(false);
 </script>
 </body>
 </html>
