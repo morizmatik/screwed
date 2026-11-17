@@ -216,7 +216,7 @@ void main() {
 }`;
 
   // opts.lite() – true: лёгкий фон без рамки (телефон, узкое окно): весь экран сильно размыт, канвас в низком
-  // разрешении (растяжение – ещё и бесплатное размытие), 20 кадров в секунду, полных текстур нет.
+  // разрешении (в CSS-пикселях, не в пикселях устройства), 20 кадров в секунду, полных текстур нет.
   function mount(el, ids, opts = {}) {
     const canvas = document.createElement('canvas');
     canvas.className = 'scenes-bg';
@@ -296,7 +296,8 @@ void main() {
       const dt = Math.min(0.05, (now - (last || now)) / 1000);
       last = now;
       // фон – на весь экран; плотность пикселей до 1,5: дальше от рамки всё равно размыто
-      const dpr = lite ? 0.5 : Math.min(1.5, devicePixelRatio || 1);
+      // лёгкий фон – в CSS-пикселях: половинный канвас на телефоне растягивался в 4–6 раз и выглядел «пиксельным»
+      const dpr = lite ? Math.min(1, devicePixelRatio || 1) : Math.min(1.5, devicePixelRatio || 1);
       const cw = Math.round(innerWidth * dpr), ch = Math.round(innerHeight * dpr);
       // лёгкий фон: «рамка» – весь экран
       const r = lite ? { left: 0, bottom: innerHeight, width: innerWidth, height: innerHeight } : el.getBoundingClientRect();
@@ -371,8 +372,9 @@ void main() {
       gl.uniform1fv(comp.u('b'), layers.map(l => l.b));
       gl.uniform1f(comp.u('k'), (lite ? Math.max(rw, rh) : rw) / 900);
       gl.uniform1f(comp.u('farMin'), lite ? 0.2 : 0);
-      gl.uniform1f(comp.u('grain'), lite ? 0.45 : 1);
-      gl.uniform1f(comp.u('gain'), lite ? 2.2 : 1);
+      gl.uniform1f(comp.u('grain'), lite ? 0.25 : 1);
+      // на телефоне фон лежит прямо под текстом – ярче 1,3 описания под обложками тонут
+      gl.uniform1f(comp.u('gain'), lite ? 1.3 : 1);
       gl.uniform2f(comp.u('tile'), tw, th);
       gl.uniform4f(comp.u('rect'), rx, ry, rw, rh);
       gl.uniform2f(comp.u('res'), cw, ch);
